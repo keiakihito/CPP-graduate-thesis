@@ -1,0 +1,42 @@
+@startuml
+title UC-04 Define Segment
+
+|Visitor|
+start
+:View waveform with selection handles on track page;
+
+|System|
+:Display current playhead and existing selection (if any);
+:Show min/max duration guidance;
+
+|Visitor|
+repeat
+  :Drag left/right handles or enter precise times;
+
+  |System|
+  :Update startMs/endMs with live timecode feedback;
+  :Snap playhead to left handle when selection changes;
+  if (Selection valid?) then (yes)
+    :Highlight active selection and enable Download;
+  else (no)
+    if (start >= end?) then (yes)
+      :Disable Download and show tooltip "Start must be before End";
+    else
+      :Show hint about min/max duration constraints;
+    endif
+  endif
+
+  |Visitor|
+  :Use fine adjustments (keyboard nudge or input fields);
+repeat while (Adjusting selection)
+
+|Visitor|
+:Press Play to audition from selection start;
+
+|System|
+:Play audio from startMs and keep playhead in selection;
+
+|Visitor|
+:Confirm desired segment set;
+stop
+@enduml

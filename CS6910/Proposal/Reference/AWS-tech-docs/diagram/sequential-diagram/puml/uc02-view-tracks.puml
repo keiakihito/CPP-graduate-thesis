@@ -1,0 +1,45 @@
+@startuml
+title UC-02 View Tracks in Album
+
+actor Visitor
+boundary WebUI
+control API
+database RDS
+
+Visitor -> WebUI: Open album page
+activate WebUI
+WebUI -> API: getAlbum(albumId)
+activate API
+API -> RDS: Fetch album metadata
+activate RDS
+RDS --> API: Album record or not found
+deactivate RDS
+
+alt Album exists
+  API --> WebUI: Album metadata
+  WebUI -> API: getTracks(albumId)
+  API -> RDS: Fetch tracks for album
+  activate RDS
+  RDS --> API: Track list (maybe empty)
+  deactivate RDS
+
+  alt Tracks available
+    API --> WebUI: Track list payload
+    deactivate API
+    WebUI -> Visitor: Render track list with durations
+    Visitor -> WebUI: Select track to preview
+    WebUI -> Visitor: Navigate to track page
+    deactivate WebUI
+  else No tracks
+    API --> WebUI: Empty list
+    deactivate API
+    WebUI -> Visitor: Show empty state, keep navigation
+    deactivate WebUI
+  end
+else Album missing
+  API --> WebUI: 404 Not Found
+  deactivate API
+  WebUI -> Visitor: Display 404 with link to Albums
+  deactivate WebUI
+end
+@enduml

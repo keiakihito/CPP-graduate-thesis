@@ -1,0 +1,37 @@
+@startuml
+title UC-01 Browse Albums
+
+actor Visitor
+boundary WebUI
+control API
+database RDS
+
+Visitor -> WebUI: Open site / Click "Albums"
+activate WebUI
+WebUI -> API: fetchAlbums(page)
+activate API
+API -> RDS: Query albums
+activate RDS
+RDS --> API: Album list or error
+deactivate RDS
+
+alt Albums returned
+  API --> WebUI: Album list payload
+  deactivate API
+  WebUI -> Visitor: Render paginated album grid
+  Visitor -> WebUI: Select album item
+  WebUI -> Visitor: Navigate to album page
+  deactivate WebUI
+else No albums
+  API --> WebUI: Empty list
+  deactivate API
+  WebUI -> Visitor: Show empty state + Retry control
+  deactivate WebUI
+else RDS unavailable
+  API <-- RDS: Connection error
+  API --> WebUI: Error status / message
+  deactivate API
+  WebUI -> Visitor: Display non-blocking error toast
+  deactivate WebUI
+end
+@enduml

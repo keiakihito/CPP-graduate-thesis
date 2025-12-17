@@ -1,0 +1,61 @@
+@startuml
+title UC-05 Download Segment
+
+|Visitor|
+start
+:Ensure valid segment selection on track page;
+
+repeat
+  :Click "Download";
+
+  |System|
+  :Package request payload {trackId, startMs, endMs, format?};
+  :Call API with segment request;
+
+  |Backend API|
+  :Validate track existence and segment bounds;
+  if (Inputs valid?) then (yes)
+    :Invoke Segmentation Lambda with trim job parameters;
+
+    |Lambda|
+    :Fetch source audio from S3;
+    :Trim/encode audio into temporary clip;
+    :Store clip in S3 with lifecycle expiry;
+    :Return presigned URL + filename to API;
+
+    |Backend API|
+    :Respond to UI with download URL;
+
+    |System|
+    :Trigger browser download using presigned URL;
+
+    |Visitor|
+    :Receive trimmed audio file locally;
+    stop
+  else (no)
+    if (Validation error?) then (4xx)
+      :Send 400/413 response with error message;
+
+      |System|
+      :Show inline error and keep selection intact;
+    elseif (Rate limited?) then (429)
+      :Return retry-after info;
+
+      |System|
+      :Inform visitor to retry after window;
+    else
+      :Return 5xx processing error;
+
+      |System|
+      :Show toast "Something went wrong" with Retry option;
+    endif
+
+    |Visitor|
+    :Decide whether to retry download;
+  endif
+repeat while (Retry download?) is (yes)
+
+|Visitor|
+:Adjust selection or abandon action;
+stop
+@enduml

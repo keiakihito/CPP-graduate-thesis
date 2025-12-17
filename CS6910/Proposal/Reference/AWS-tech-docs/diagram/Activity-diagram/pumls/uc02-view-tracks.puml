@@ -1,0 +1,39 @@
+@startuml
+title UC-02 View Tracks in Album
+
+|Visitor|
+start
+:Navigate to Album page (via Albums list or deep link);
+
+|System|
+:Resolve albumId and load album context;
+if (Album found?) then (yes)
+  :Render album header metadata;
+  :Fetch tracks for album from RDS;
+
+  |Storage|
+  :Return track list result;
+
+  |System|
+  if (Tracks available?) then (yes)
+    :Render track list with title, duration, track number;
+    :Expose shareable URL for the page;
+
+    |Visitor|
+    :Review tracks and pick one to preview;
+    stop
+  else (no)
+    :Render empty state message and keep navigation controls;
+
+    |Visitor|
+    :Return to Albums or stay on page;
+    stop
+  endif
+else (no)
+  :Render 404 Not Found with link back to Albums;
+
+  |Visitor|
+  :Navigate back to Albums list;
+  stop
+endif
+@enduml

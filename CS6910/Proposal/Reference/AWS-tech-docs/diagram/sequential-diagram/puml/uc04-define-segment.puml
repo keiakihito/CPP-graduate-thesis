@@ -1,0 +1,37 @@
+@startuml
+title UC-04 Define Segment
+
+actor Visitor
+boundary WebUI
+control SelectionLogic
+control AudioPlayer
+
+Visitor -> WebUI: View waveform & selection handles
+activate WebUI
+WebUI -> SelectionLogic: Initialize selection state
+SelectionLogic --> WebUI: Current start/end + constraints
+
+loop Adjust selection
+  Visitor -> WebUI: Drag handle / enter timecode
+  WebUI -> SelectionLogic: updateSelection(startMs, endMs)
+  SelectionLogic --> WebUI: Validation result
+
+  alt Selection valid
+    WebUI -> Visitor: Highlight selection, enable Download
+  else Start >= End
+    WebUI -> Visitor: Show tooltip "Start must be before End"
+  else Duration out of bounds
+    WebUI -> Visitor: Show min/max duration hint
+  end
+
+  Visitor -> WebUI: Fine-tune via keyboard/input (optional)
+end
+
+Visitor -> WebUI: Press Play
+WebUI -> AudioPlayer: seek(startMs) & play()
+AudioPlayer --> WebUI: Playback status updates
+WebUI -> Visitor: Keep playhead within selection
+
+Visitor -> WebUI: Confirm segment ready
+deactivate WebUI
+@enduml

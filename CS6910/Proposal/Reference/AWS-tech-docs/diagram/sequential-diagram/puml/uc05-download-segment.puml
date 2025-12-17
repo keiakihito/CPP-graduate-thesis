@@ -1,0 +1,56 @@
+@startuml
+title UC-05 Download Segment
+
+actor Visitor
+boundary WebUI
+control API
+database RDS
+control Lambda
+database S3
+
+Visitor -> WebUI: Click "Download" with selected range
+activate WebUI
+WebUI -> API: POST /segments {trackId,startMs,endMs,format?}
+activate API
+API -> RDS: Validate track + duration bounds
+activate RDS
+RDS --> API: Track info / validation result
+deactivate RDS
+
+alt Inputs valid
+  API -> Lambda: invokeTrimJob(trackId,startMs,endMs,format?)
+  activate Lambda
+  Lambda -> S3: Get source audio object
+  activate S3
+  S3 --> Lambda: Audio data stream
+  Lambda -> S3: Put trimmed clip (temporary)
+  S3 --> Lambda: Upload confirmation
+  deactivate S3
+  Lambda --> API: Presigned URL + filename
+  deactivate Lambda
+  API --> WebUI: 200 OK + download URL
+  deactivate API
+  WebUI -> Visitor: Trigger browser download
+  deactivate WebUI
+else Invalid range (400/413)
+  API --> WebUI: 400/413 with error message
+  deactivate API
+  WebUI -> Visitor: Show inline validation error
+  deactivate WebUI
+else Rate limited (429)
+  API --> WebUI: 429 + retry-after window
+  deactivate API
+  WebUI -> Visitor: Display retry guidance
+  deactivate WebUI
+else Processing error (5xx)
+  API -> Lambda: invokeTrimJob(...)
+  activate Lambda
+  Lambda --> API: Error response
+  deactivate Lambda
+  API --> WebUI: 5xx failure
+  deactivate API
+  WebUI -> Visitor: Show toast "Something went wrong" with Retry
+  Visitor -> WebUI: Retry later?
+  deactivate WebUI
+end
+@enduml

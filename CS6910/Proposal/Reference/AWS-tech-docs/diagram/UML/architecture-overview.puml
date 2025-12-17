@@ -1,0 +1,117 @@
+  @startuml
+  title Audio Segmentation Backend — Code-Aligned Architecture
+
+  top to bottom direction
+  skinparam packageStyle rectangle
+  skinparam stereotypeFontStyle bold
+
+  package "API Layer" {
+    class LambdaHttpHandler <<lambda>> {
+      +handler(event, context): Promise<Response>
+    }
+
+    class Router <<router>> {
+      +route(event, context): Promise<Response>
+    }
+
+    class AlbumsRoute <<route>> {
+      +handle(event): Promise<Response>
+    }
+
+    class TracksRoute <<route>> {
+      +handle(event): Promise<Response>
+    }
+
+    class SegmentRoute <<route>> {
+      +handle(event): Promise<Response>
+    }
+  }
+
+  package "Service & Domain Layer" {
+    package "Service" {
+      class AlbumService <<service>> {
+        +listAlbums(page: number): Promise<AlbumSummary[]>
+        +getAlbum(id: string): Promise<AlbumWithTracks>
+      }
+
+      class TrackService <<service>> {
+        +listTracks(albumId: string): Promise<Track[]>
+        +getTrack(id: string): Promise<Track>
+      }
+
+      class SegmentationService <<service>> {
+        +validateSelection(trackId: string, selection: SegmentSelection): Promise<boolean>
+        +generateClip(trackId: string, selection: SegmentSelection): Promise<SegmentFile>
+      }
+    }
+
+    package "Domain" {
+      interface Album {
+        +id: string
+        +title: string
+        +artist: string
+        +year?: number
+      }
+
+      interface Track {
+        +id: string
+        +albumId: string
+        +title: string
+        +durationMs: number
+        +s3Key: string
+      }
+
+      class SegmentSelection {
+        +startMs: number
+        +endMs: number
+        +isValid(durationMs: number): boolean
+        MIN_DURATION_MS = 1000
+      }
+
+      interface SegmentFile {
+        +filename: string
+        +contentType: string
+        +data: Buffer
+      }
+
+    }
+  }
+
+  package "Infrastructure Layer" {
+    interface PostgresRepository <<repository>> {
+      +listAlbums(page: number): Promise<AlbumSummary[]>
+      +getAlbum(id: string): Promise<AlbumSummary | null>
+      +listTracks(albumId: string): Promise<Track[]>
+      +getTrack(id: string): Promise<Track | null>
+    }
+
+    class PostgresRepositoryImpl <<repository>> {
+      -connection: unknown
+    }
+  }
+
+  UI --> LambdaHttpHandler
+  LambdaHttpHandler --> Router
+  Router --> AlbumsRoute
+  Router --> TracksRoute 
+  Router --> SegmentRoute
+
+  AlbumsRoute --> AlbumService
+  TracksRoute --> AlbumService
+  TracksRoute --> TrackService
+  SegmentRoute --> SegmentationService
+
+  AlbumService --> PostgresRepository
+  AlbumService --> Album
+  TrackService --> PostgresRepository
+  TrackService --> Track
+
+  SegmentationService --> PostgresRepository
+  SegmentationService --> SegmentSelection
+  SegmentationService --> SegmentFile
+
+  PostgresRepositoryImpl ..|> PostgresRepository
+  PostgresRepositoryImpl --> RDS
+
+
+  @enduml

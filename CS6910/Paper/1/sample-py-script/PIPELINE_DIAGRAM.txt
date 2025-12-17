@@ -1,0 +1,286 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                MUSIC RECOMMENDATION SYSTEM PIPELINE                        ║
+║         "Comparative Analysis of Pretrained Audio Representations"         ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STAGE 1: PRETRAINED AUDIO EMBEDDING EXTRACTION                             │
+│ (Audio files → Fixed-size vectors, Zero fine-tuning)                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    Audio Files (MP3/WAV, 56,512 tracks)
+           │
+           ├─→ [musicnn.py]          ── MusicNN (200D)
+           │
+           ├─→ [mert.py]             ── MERT-v1 (1024D)
+           │
+           ├─→ [m2v.py]              ── Music2Vec (768D)
+           │
+           ├─→ [emae.py]             ── EnCodec-MAE (768D)
+           │
+           ├─→ [jb.py]               ── JukeMiR (4800D)
+           │
+           ├─→ [mfm.py]              ── MusicFM (750D)
+           │
+           └─→ Random                ── Baseline (variable D)
+
+           ↓ (For each model)
+    
+    ┌─────────────────────────┐
+    │  Pretrained Model Load  │
+    │  (HuggingFace/Library)  │
+    └────────────┬────────────┘
+                 │
+    ┌────────────↓──────────────┐
+    │  Audio Load & Normalization│ (Handle various sample rates)
+    │  (Mono, padding, target SR)│
+    └────────────┬──────────────┘
+                 │
+    ┌────────────↓──────────────────┐
+    │  Extract Penultimate Layer     │ (Pre-output representations)
+    │  Average across time/frames    │ (seq_len, D) → (D,)
+    └────────────┬──────────────────┘
+                 │
+                 ↓
+    
+    embeddings/{model_name}.npy  ← Shape: (56512, embedding_dim)
+    trackid_sorted.csv           ← Index mapping
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STAGE 2A: DATA PREPARATION                                                  │
+│ (Raw logs → Train/Val/Test splits with Music4All-Onion strategy)           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    Raw Music4All Logs (userid_trackid_timestamp.tsv)
+           │
+    ┌──────↓──────────────────────────┐
+    │  0_get_plays_pqt.py              │
+    │  - Map original → sorted indices │
+    │  - Chunk-wise processing (1M)    │
+    └──────┬──────────────────────────┘
+           │
+           ↓
+    
+    plays.pqt  (All interactions, mapped)
+           │
+    ┌──────↓──────────────────────────────────────┐
+    │  1_train_test_split.py                       │
+    │  - Time-based split: 2019-02-20 → 2020-02-20│
+    │  - Aggregate play counts                     │
+    │  - 50/50 split on test users                 │
+    │  - Filter cold-start users/items             │
+    └──────┬──────────────────────────────────────┘
+           │
+    ┌──────┼──────┐
+    │      │      │
+    ↓      ↓      ↓
+    
+  train.pqt  val.pqt  test.pqt
+  (1-yr        (50%     (50%
+   history)    test)    test)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STAGE 2B: RECOMMENDATION MODEL TRAINING & INFERENCE                         │
+│ (Embeddings + interactions → Learned models → Predictions)                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌──────────────────────────────────────────────────────────────────┐
+    │  Embeddings loaded from Stage 1 (frozen for items)               │
+    │  + Data loaded from Stage 2A (train/val/test splits)             │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ╔════════════════════════════════════════════════════════════════════╗
+    ║  PATH A: KNN BASELINE (Zero learnable parameters)                 ║
+    ╚════════════════════════════════════════════════════════════════════╝
+    
+         [knn.py]
+              │
+         ┌────↓────────────────────────────┐
+         │  user_emb = mean(item_embs[...])│
+         │  Normalize → FAISS Index (IP)    │
+         └────┬────────────────────────────┘
+              │
+         ┌────↓──────────────────────────┐
+         │  For each user:                │
+         │  - Retrieve k=100 nearest      │
+         │  - Filter seen items           │
+         │  - Return top-100              │
+         └────┬──────────────────────────┘
+              │
+              ↓
+         
+         preds/knn_{model}_cosine.pqt
+         metrics/knn_{model}_cosine_val.csv
+         metrics/knn_{model}_cosine_test.csv
+
+
+    ╔════════════════════════════════════════════════════════════════════╗
+    ║  PATH B: SHALLOW EMBEDDING MODEL (Minimal learnable layers)       ║
+    ╚════════════════════════════════════════════════════════════════════╝
+    
+         [train.py] (model.py → ShallowEmbeddingModel)
+              │
+         ┌────↓────────────────────────────────────┐
+         │  Model Architecture:                     │
+         │                                          │
+         │  Item Embs (frozen)  User Embs (learn)  │
+         │         ↓                    ↓           │
+         │    Linear+ReLU          Linear+ReLU     │
+         │         ↓                    ↓           │
+         │    Cosine Similarity ←──────┘            │
+         └────┬────────────────────────────────────┘
+              │
+         ┌────↓──────────────────────────────────────┐
+         │  Training Loop:                            │
+         │  - Hinge Loss with negative sampling       │
+         │  - Confidence weighting (log interaction) │
+         │  - Early stop (patience=16)                │
+         │  - LR scheduler (ReduceLROnPlateau)       │
+         └────┬──────────────────────────────────────┘
+              │
+         ┌────↓──────────────────────────────────────┐
+         │  Best Model ──→ Extract Embeddings        │
+         │                 Build FAISS Index         │
+         └────┬──────────────────────────────────────┘
+              │
+              ↓
+         
+         preds/{run_name}.pqt
+         metrics/{run_name}_val.csv
+         metrics/{run_name}_test.csv
+         model_embeddings/{run_name}_users.npy
+         model_embeddings/{run_name}_items.npy
+
+
+    ╔════════════════════════════════════════════════════════════════════╗
+    ║  PATH C: BERT4REC (Masked Sequence Transformer)                   ║
+    ╚════════════════════════════════════════════════════════════════════╝
+    
+         [train_bert.py] (bert4rec.py → BERT4Rec)
+              │
+         ┌────↓──────────────────────────────────────┐
+         │  Dataset Handling:                         │
+         │  - MaskedLMDataset (training)             │
+         │  - Random 20% masking per sequence        │
+         │  - Variable length → pad_sequence()        │
+         └────┬──────────────────────────────────────┘
+              │
+         ┌────↓──────────────────────────────────────────┐
+         │  Model Architecture:                          │
+         │                                               │
+         │  Item IDs → Item Embeddings (frozen)         │
+         │                      ↓                        │
+         │          BERT Transformer Encoder            │
+         │          (2 layers, 2 heads, 256 hidden)     │
+         │                      ↓                        │
+         │          Linear Head (vocab_size output)     │
+         │                      ↓                        │
+         │          CrossEntropyLoss (masked pos only)  │
+         └────┬──────────────────────────────────────────┘
+              │
+         ┌────↓──────────────────────────────────────────┐
+         │  Inference:                                   │
+         │  - Last n-1 items + mask token               │
+         │  - Forward pass → get logits at last pos    │
+         │  - Top-k + filter seen                       │
+         └────┬──────────────────────────────────────────┘
+              │
+              ↓
+         
+         preds/bert_{run_name}.pqt
+         metrics/bert_{run_name}_val.csv
+         metrics/bert_{run_name}_test.csv
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STAGE 2C: RESULTS AGGREGATION & EVALUATION                                  │
+│ (Per-user metrics → Comparison tables)                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌────────────────────────────────────────────┐
+    │  metrics.py                                 │
+    │  Compute per-user recommendation metrics:  │
+    │  - HitRate@50                              │
+    │  - MRR@50                                  │
+    │  - Precision@50                            │
+    │  - Recall@50                               │
+    │  - NDCG@50                                 │
+    │  - Confidence intervals (95%, t-dist)      │
+    └────┬───────────────────────────────────────┘
+         │
+         ↓
+    
+    metrics/{run_id}_val.pqt   (per-user scores)
+    metrics/{run_id}_test.pqt  (per-user scores)
+    metrics/{run_id}_val.csv   (mean ± conf)
+    metrics/{run_id}_test.csv  (mean ± conf)
+         │
+    ┌────↓──────────────────────────────────────┐
+    │  table.py                                  │
+    │  - Load test metrics for all models       │
+    │  - Aggregate by method (KNN/Shallow/BERT) │
+    │  - Sort by performance                    │
+    │  - Add embedding dimension info           │
+    └────┬──────────────────────────────────────┘
+         │
+         ├─→ cosine.csv    (KNN comparison)
+         ├─→ shallow.csv   (Shallow Net comparison)
+         └─→ bert.csv      (BERT4Rec comparison)
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║  EXPECTED PERFORMANCE HIERARCHY                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+    BERT4Rec ≥ Shallow Net ≥ KNN
+    
+    Embedding Quality Ranking:
+    MusicNN ≈ MERT ≈ Music2Vec > EnCodec-MAE > MusicFM > JukeMiR (high-dim)
+    
+    (Exact ordering varies with recommendation model & dataset characteristics)
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║  KEY HYPERPARAMETERS TO EXPERIMENT WITH                                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+    Shallow Net:
+    - neg_samples: [5, 10, 20, 50] (default 20)
+    - hidden_dim: [0, 64, 128, 256, 512] (0 = no projection)
+    - use_confidence: [0, 1] (weight by log-interaction count)
+    - l2: [0.0, 0.001, 0.01] (L2 regularization)
+
+    BERT4Rec:
+    - max_seq_len: [50, 100, 200, 300] (longer = more context)
+    - mlm_probability: [0.1, 0.2, 0.3] (masking rate)
+    - batch_size: [32, 64, 128, 256] (memory dependent)
+
+    Both:
+    - item_freeze: [0, 1] (always 1 in paper)
+    - user_init: [0, 1] (init from avg item embeddings)
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║  FILE I/O SUMMARY                                                          ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+    INPUT:
+    ├─ Audio files (56K tracks) from Music4All
+    ├─ Raw interaction logs (userid_trackid_timestamp.tsv)
+    └─ Track ID mapping (trackid_sorted.csv)
+
+    INTERMEDIATE:
+    ├─ embeddings/*.npy (frozen item embeddings)
+    ├─ plays.pqt (mapped interactions)
+    ├─ data/{train,val,test}.pqt (split interactions)
+    └─ checkpoints/{model}/{run_name}_best.pt (best model)
+
+    OUTPUT:
+    ├─ preds/{run_name}.pqt (predictions)
+    ├─ metrics/{run_name}_*.csv (aggregated metrics)
+    ├─ runs/{run_name}/ (TensorBoard logs)
+    ├─ {cosine,shallow,bert}.csv (comparison tables)
+    └─ model_embeddings/{run_name}_*.npy (learned embeddings)
+

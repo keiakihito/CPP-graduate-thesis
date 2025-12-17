@@ -1,0 +1,53 @@
+@startuml
+title UC-03 Preview a Track
+
+actor Visitor
+boundary WebUI
+control API
+database RDS
+database S3
+
+Visitor -> WebUI: Open track page
+activate WebUI
+WebUI -> API: getTrack(trackId)
+activate API
+API -> RDS: Fetch track metadata
+activate RDS
+RDS --> API: Track metadata
+deactivate RDS
+API --> WebUI: Metadata + asset references
+deactivate API
+
+WebUI -> S3: Request waveform asset
+activate S3
+S3 --> WebUI: Waveform data or 404
+deactivate S3
+
+alt Waveform found
+  WebUI -> Visitor: Render waveform with playback controls
+else Fallback
+  WebUI -> Visitor: Render basic scrubber control
+end
+
+Visitor -> WebUI: Press Play / Seek controls
+WebUI -> S3: Stream audio segments
+activate S3
+
+alt Audio playback successful
+  S3 --> WebUI: Audio data stream
+  deactivate S3
+  WebUI -> Visitor: Play audio, update playhead
+else Playback failure
+  S3 --> WebUI: Error / timeout
+  deactivate S3
+  WebUI -> Visitor: Show retryable error message
+  Visitor -> WebUI: Retry playback?
+  WebUI -> S3: Re-request audio (on retry)
+  activate S3
+  S3 --> WebUI: Audio data or repeat error
+  deactivate S3
+  WebUI -> Visitor: Update playback status
+end
+
+deactivate WebUI
+@enduml

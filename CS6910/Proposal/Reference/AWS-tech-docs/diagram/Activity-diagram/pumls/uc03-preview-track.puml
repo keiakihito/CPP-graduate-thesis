@@ -1,0 +1,49 @@
+@startuml
+title UC-03 Preview a Track
+
+|Visitor|
+start
+:Open track page from album or shared link;
+
+|System|
+:Load track metadata and waveform assets;
+:Request audio stream and waveform data from S3;
+
+|Storage|
+:Return audio source and waveform payload (or missing);
+
+|System|
+if (Waveform available?) then (yes)
+  :Render waveform visualization with controls;
+else (no)
+  :Render fallback scrubber control;
+endif
+:Display playback buttons (Play, Stop, ±5s) and shortcuts;
+
+|Visitor|
+repeat
+  :Press Play to start preview;
+
+  |System|
+  :Buffer audio near current playhead;
+  if (Audio playback succeeds?) then (yes)
+    :Start playback from current playhead;
+
+    |Visitor|
+    repeat
+      :Use controls (Stop, ±5s, drag playhead);
+    repeat while (Adjusting preview)
+    :Confirm desired position reached;
+    stop
+  else (no)
+    :Show retryable playback error message;
+
+    |Visitor|
+    :Decide whether to retry playback;
+  endif
+repeat while (Retry playback?) is (yes)
+
+|Visitor|
+:Leave page or investigate issue;
+stop
+@enduml

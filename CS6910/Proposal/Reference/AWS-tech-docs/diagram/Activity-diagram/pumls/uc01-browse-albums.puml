@@ -1,0 +1,38 @@
+@startuml
+  title UC-01 Browse Albums
+
+  |Visitor|
+  start
+  :Land on site;
+  :Click "Albums";
+
+  |System|
+  :Render Albums page shell;
+
+  repeat
+  :Request album list from RDS;
+
+  |Storage|
+  :Return albums or error;
+
+  |System|
+  if (Request succeeded?) then (yes)
+    if (Albums exist?) then (yes)
+      :Render paginated album grid/list with metadata;
+      break
+    else (no)
+      :Render empty state with friendly message\n+ Retry action;
+    endif
+  else (no)
+    :Show non-blocking error toast\n+ keep page usable;
+  endif
+
+  |Visitor|
+  :Decide to Retry?;
+  repeat while (Retry selected?)
+
+  |Visitor|
+  :Browse album list;
+  :Open album to view tracks;
+  stop
+  @enduml
