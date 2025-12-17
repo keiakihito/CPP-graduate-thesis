@@ -1,0 +1,70 @@
+\chapter{Methodology} \label{ch:Methodology}
+
+\section{Theoretical Foundations}
+
+\subsection{The Cold Start Problem in Niche Archives}
+Standard recommendation algorithms, particularly Collaborative Filtering, depend on dense user-item interaction matrices to infer preferences. In specialized archives with limited traffic, these matrices are sparse, making it impossible to derive meaningful patterns---a challenge known as the \textbf{Cold Start Problem}. The theoretical premise of this work is that the audio signal itself provides a rich source of feature data. By projecting raw audio into a high-dimensional vector space using deep neural networks, we can quantify musical similarity mathematically (e.g., via Cosine Similarity) and generate recommendations without requiring prior user history.
+
+\subsection{Vector-Based Audio Representation and Retrieval}
+The core technical foundation of this system is the transformation of raw audio into high-dimensional vector embeddings. The iPalpiti music dataset is first segmented into consistent audio clips and processed through pretrained models (e.g., MusicNN, MERT) to generate dense feature vectors. These embeddings are stored in a vectorized database, enabling efficient similarity search and retrieval. Backend models leverage this latent vector space to identify semantic and acoustic relationships between tracks, while the frontend recommendation logic utilizes mock user interaction data mapped to these vectors to simulate and predict user preferences.
+
+\subsection{Sequential Audio Modeling (Content-Based)}
+Beyond simple similarity, this research explores the temporal aspect of music consumption. By employing sequential models like BERT4Rec \cite{sun2019} on top of audio embeddings, the system can model ``listening sessions'' as sequences of acoustic events. This allows for predicting the next most suitable track based on the flow of audio features in a session (simulated via mock data), effectively treating music recommendation as a content-driven sequence modeling task rather than just a static retrieval problem.
+
+\section{System Architecture}
+
+The proposed system is built on Amazon Web Services (AWS), integrating with an existing audio segmentation backend.
+
+\subsection{High-Level Architecture Diagram}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{architecture_diagram}
+    \caption{High-Level System Architecture. The existing backend handles audio segmentation via RDS and S3, while the research extension introduces a Vector Database for similarity-based recommendation.}
+    \label{fig:architecture}
+\end{figure}
+
+\subsection{Infrastructure Layer}
+\begin{itemize}
+    \item \textbf{Storage}: Amazon S3 stores the raw audio (WAV/MP3) and the pre-computed feature vectors (embeddings).
+    \item \textbf{Database}: Amazon RDS (PostgreSQL) manages metadata (Albums, Tracks) and user interaction logs.
+    \item \textbf{Compute}:
+    \begin{itemize}
+        \item \textbf{AWS Lambda}: Handles API requests and lightweight business logic.
+        \item \textbf{AWS SageMaker / Fargate}: Hosts the heavier inference tasks for extracting embeddings from new audio tracks.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Application Layer}
+\begin{itemize}
+    \item \textbf{RecommendationService}: Acts as a Facade, providing a clean API (\texttt{recommendForUser}, \texttt{recommendSimilar}) to the frontend.
+    \item \textbf{Strategy Implementation}:
+    \begin{itemize}
+        \item \textbf{KNN Baseline}: Performs similarity search directly on the frozen audio embeddings to find nearest neighbors.
+        \item \textbf{Shallow Network}: A lightweight neural network that learns to map simulated user preferences to the embedding space.
+        \item \textbf{Sequential Model}: Deploys BERT4Rec to predict the next track in a sequence, effectively modeling the ``flow'' of a listening session.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Data Pipeline}
+\begin{enumerate}
+    \item \textbf{Ingestion}: Audio uploaded to S3 triggers an extraction event.
+    \item \textbf{Feature Extraction}: A worker (container) downloads the audio, runs a pretrained model (e.g., MusicNN), and saves the embedding vector.
+    \item \textbf{Indexing}: Vectors are indexed (e.g., in a vector store or FAISS index) for fast retrieval.
+\end{enumerate}
+
+\section{Implementation Plan}
+
+\subsection{Phase 1: Dataset Preparation}
+\begin{itemize}
+    \item \textbf{Audio Data}: Use the iPalpiti Music Archive (digitized performances).
+    \item \textbf{Preprocessing}: Convert to mono, 16kHz (or model-specific sample rate).
+    \item \textbf{Mock Data Generation}: Since real user history is absent, we will generate \textbf{synthetic user sessions}. Virtual users will be simulated to have ``preferences'' for specific audio clusters (e.g., users who like high-tempo violin pieces), creating a ground truth for training.
+\end{itemize}
+
+\subsection{Phase 2: Model Implementation}
+We will implement three tiers of recommendation logic, all fundamentally driven by \textbf{content-based embeddings}:
+\begin{enumerate}
+    \item \textbf{Baseline (KNN)}: A pure content retrieval approach using K-Nearest Neighbors on raw audio embeddings to find acoustically similar tracks.
+    \item \textbf{Shallow Neural Net}: A lightweight model that learns to map user preferences to specific regions of the audio embedding space.
+    \item \textbf{Sequential (BERT4Rec)}: A transformer model that treats the sequence of listened tracks as a language modeling problem, using the underlying content embeddings to understand the musical progression of a session.
+\end{enumerate}
