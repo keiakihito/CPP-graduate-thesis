@@ -1,27 +1,40 @@
+Thesis Proposal
+
+
+Topics
+
 Comparative Analysis of Pretrained Audio Representations for Small-Scale Music Archives: A Case Study on the iPalpiti Collection
 
-ABSTRACT
+
+|                          | Printed | Signed | Date |
+|--------------------------|---------|--------|------|
+| Thesis Advisor           |         |        |      |
+| Possible Committee Member|         |        |      |
+| Possible Committee Member|         |        |      |
+
+
+# ABSTRACT
 This thesis investigates the application of content-based music recommendation techniques to small-scale, specialized music archives, specifically the iPalpiti Music Archive. While large streaming platforms leverage massive user interaction datasets for collaborative filtering, niche archives often face the "cold start" problem and lack sufficient user data. This research adapts the methodology of Tamm et al. (2024) [1]—who compared pretrained audio representations like MusicNN, MERT, and Jukebox—to evaluate their effectiveness in a small-domain context. By integrating these models into a modern AWS serverless architecture, this study aims to develop a cost-effective, scalable recommendation system. The project utilizes mock user data to train and compare backend models (KNN, Shallow Networks, and BERT4Rec) on frozen audio embeddings, ultimately determining the optimal configuration for enhancing music discovery in specialized libraries.
 
-INTRODUCTION
+# INTRODUCTION
 The digital preservation of music archives presents a unique challenge: making content discoverable without the massive user interaction data that powers commercial giants like Spotify or Apple Music. The iPalpiti Music Archive, featuring recordings by award-winning musicians from the iPalpiti Festival, is a prime example of such a specialized domain. In these contexts, traditional collaborative filtering fails due to data sparsity.
 
 Recent advancements in Music Information Retrieval (MIR) have shown that deep learning models can extract rich semantic information directly from audio signals. The work of Tamm et al. [1] demonstrates that "frozen" embeddings from pretrained models (e.g., MusicNN, MERT) can serve as powerful features for recommendation systems, even with limited data.
 
 This thesis proposes to adapt these findings to the iPalpiti archive, building a hybrid recommendation engine on AWS. By leveraging serverless infrastructure (Lambda, S3, RDS), the system aims to provide real-time, content-aware recommendations that help users navigate the emotional and stylistic landscape of the archive.
 
-LITERATURE REVIEW
+# LITERATURE REVIEW
 
-The domain of music recommendation has historically been dominated by Collaborative Filtering (CF) approaches, which rely on dense user-interaction matrices. However, specialized archives such as the iPalpiti Music Archive typically lack the massive volume of user data required for these methods, leading to the "Cold Start" problem. This literature review synthesizes thirteen key research contributions that collectively argue for a Deep Content-Based approach. By leveraging pretrained audio representations, sequential modeling, and efficient neural architectures, it is possible to build high-performance recommendation systems that rely on the audio signal itself rather than historical usage data.
+The domain of music recommendation has historically been dominated by Collaborative Filtering (CF) approaches, which rely on dense user-interaction matrices. However, specialized archives such as the iPalpiti Music Archive typically lack the massive volume of user data required for these methods, leading to the "Cold Start" problem. This literature review synthesizes twelve key research contributions that collectively argue for a Deep Content-Based approach. By leveraging pretrained audio representations, sequential modeling, and efficient neural architectures, it is possible to build high-performance recommendation systems that rely on the audio signal itself rather than historical usage data.
 
 Introduction: Thesis Objectives and Research Questions
 
 This thesis addresses four research questions that guide the development and evaluation of content-based music recommendation systems for small-scale, specialized archives:
 
-•	RQ1: How do pretrained audio representations perform in recommendation tasks when trained and evaluated on small-scale or domain-specific datasets (e.g., classical music)?
-•	RQ2: To what extent do different pretrained models overfit or generalize when the dataset size is reduced?
-•	RQ3: How does dataset size influence the relative performance ranking among pretrained audio models?
-•	RQ4 (Optional): Which aspects of audio embeddings (genre, timbre, dynamics) remain robust or degrade under small-sample fine-tuning or transfer?
+- RQ1: How do pretrained audio representations perform in recommendation tasks when trained and evaluated on small-scale or domain-specific datasets (e.g., classical music)?
+- RQ2: To what extent do different pretrained models overfit or generalize when the dataset size is reduced?
+- RQ3: How does dataset size influence the relative performance ranking among pretrained audio models?
+- RQ4 (Optional): Which aspects of audio embeddings (genre, timbre, dynamics) remain robust or degrade under small-sample fine-tuning or transfer?
 
 To answer these questions, the methodology consists of three phases:
 
@@ -29,43 +42,54 @@ To answer these questions, the methodology consists of three phases:
 2.	Model Implementation: Compare three recommendation approaches—KNN baseline (pure content retrieval), Shallow Neural Network (user preference mapping to embedding space), and Sequential Model (BERT4Rec for session modeling)—all fundamentally driven by frozen audio embeddings.
 3.	Evaluation: Develop metrics to assess both algorithmic accuracy (HitRate, NDCG adapted for small-scale archives) and system performance (AWS serverless infrastructure cost-efficiency and scalability), with emphasis on understanding how dataset size affects model performance and generalization.
 
-1. Pretrained Audio Representations and Feature Extraction
+## 1. Pretrained Audio Representations and Feature Extraction
 The core technical foundation of this thesis rests on the ability to extract meaningful semantic features directly from raw audio waveforms or spectrograms. Tamm et al. (2024) [1] provide the primary methodological framework for this research. Their comparative analysis of six pretrained models—MusiCNN, MERT, Jukebox, MusicFM, Music2Vec, and EncodecMAE—demonstrates that "frozen" embeddings from these models can effectively drive recommendation tasks. Crucially, MusiCNN (a lighter, supervised discriminative model trained on auto-tagging) achieved the best performance across all recommendation methods (HitRate@50: 0.385), significantly outperforming larger generative models like Jukebox (4800-dimensional embeddings). This validates the choice of efficient, discriminative backends for an AWS Lambda-based architecture.
-1.1 Compact Architectures for Resource-Constrained Deployment
+
+### 1.1 Compact Architectures for Resource-Constrained Deployment
 Pourmoazemi and Maleki (2024) [4] address the "Continuity Problem" in music streaming by proposing a Compact Convolutional Transformer (CCT) architecture for genre-based recommendation. Their hybrid model combines six convolutional layers (filters: 32, 64, 128) for local feature extraction from mel-spectrograms, followed by two transformer encoders with multi-head attention (2 heads, 128-dimensional). The CCT achieves 93.75% test accuracy on the GTZAN dataset while containing only 454,187 parameters—significantly fewer than state-of-the-art CRNN models. For recommendation, they use cosine similarity between feature maps, demonstrating that learned representations effectively capture genre-specific patterns for content-based music retrieval.
-1.2 Transfer Learning and Cross-Validation Strategies
+
+### 1.2 Transfer Learning and Cross-Validation Strategies
 Lin et al. (2024) [5] propose a Transfer Learning + CNN + GRU (TL-CNN-GRU) model that leverages pretrained MobileNetV2 weights for spatial feature extraction combined with bidirectional GRU (1024 units) for capturing temporal dependencies. Their architecture applies 10-Fold Cross-Validation (10-FCV) to mitigate overfitting. The model achieved 71% accuracy on GTZAN, representing significant improvement over TL+CNN baseline (53%) and TL+CNN+GRU (55%). With 7,779,402 total parameters (5,521,418 trainable, 2,257,984 frozen), the system demonstrates that transfer learning from vision models pretrained on ImageNet can be repurposed for audio classification. Genre-specific F1-scores improved substantially with 10-FCV: blues (0.49→0.74), classical (0.87→0.92), metal (0.61→0.84), and reggae (0.35→0.69), though rock remained challenging (0.26→0.50).
-1.3 Self-Supervised Learning for Unlabeled Data
+
+### 1.3 Self-Supervised Learning for Unlabeled Data
 Ramos et al. [6] explored Self-Supervised Learning (SSL) using the Audio Spectrogram Transformer (AST) within a SimCLR framework. Training on the Free Music Archive (FMA) dataset with InfoNCE contrastive loss, they demonstrated that music embeddings can be learned without explicit labels, organizing tracks by composition, timbre, and flow rather than conventional genre classifications. Their qualitative evaluation showed that the trained model achieved 48% satisfactory recommendations compared to only 10% for the untrained baseline, with learned representations capturing "subtle elements of musical structure" beyond obvious metadata.
-1.4 Edge Deployment and In-Model Featurization
+
+### 1.4 Edge Deployment and In-Model Featurization
 Reddy et al. [7] developed MusicNet, a compact CNN for real-time background music detection optimized for edge deployment. MusicNet achieves 81.3% TPR at 0.1% FPR while being only 0.2 MB in size—10x smaller than competing models—with 11.1ms inference time (4x faster than best-performing alternatives). MusicNet incorporates in-model featurization, processing raw audio directly without requiring external feature extraction, simplifying deployment and maintenance in production systems. Together with Pourmoazemi and Maleki's CCT, these papers contribute to the project's goal of cost-efficiency and scalability (RQ3).
 
-2. Sequential User Modeling and Recommendation Logic
+## 2. Sequential User Modeling and Recommendation Logic
 While audio features describe what a track sounds like, recommendation logic must understand how users consume music over time. This section examines strategies for modeling temporal listening patterns and user preferences.
-2.1 Personalized Popularity Awareness
+
+### 2.1 Personalized Popularity Awareness
 Abbattista et al. [8] offer a critical counter-perspective. Their study on Personalized Popularity Awareness revealed that complex transformer models often underperform compared to simple baselines because they fail to account for "repeated consumption" (users re-listening to favorites). While the iPalpiti archive focuses on discovery, this insight suggests that the recommendation engine should perhaps include a "Personalized Most Popular" signal or a mechanism to handle repeat listening, preventing the model from over-optimizing for novelty.
-2.2 Hybrid Content and Sequential Modeling
+
+### 2.2 Hybrid Content and Sequential Modeling
 Lin et al. [9] propose a hybrid architecture that combines a Deep CNN for audio emotion modeling with a Self-Attention mechanism for user emotion modeling. Their system integrates three components: (1) Deep Convolutional Neural Network (DCNN) for extracting emotional features from audio signals using spectrograms, (2) Self-Attention Mechanism (specifically Scaled Dot-Product Attention with Multi-Head Attention) for capturing temporal dynamics in user emotional states, and (3) collaborative filtering enhanced with Neural Collaborative Filtering (NCF) and SVD++. Achieving 82% emotion matching accuracy and 83% recommendation accuracy (Precision@10), their hybrid approach significantly outperforms traditional content-based filtering (63% emotion matching, 62% Precision@10) and collaborative filtering (66% emotion matching, 68% Precision@10). Although this project scopes out explicit emotion recognition, Lin's architectural pattern—fusing a static content vector (Audio CNN) with a dynamic context vector (Self-Attention)—directly informs our "Hybrid Strategy" (RQ2).
-2.3 User Archetypes and Clustering-Based Modeling
+
+### 2.3 User Archetypes and Clustering-Based Modeling
 Schedl et al. [10] further refine user modeling by identifying Country Archetypes based on geographic listening behavior and unsupervised clustering. Using t-SNE and OPTICS on 369 million listening events from 70 countries, they identified 9 distinct country clusters reflecting shared music preferences at the track level. Their "geo-aware" VAE architecture extends standard collaborative filtering by incorporating geographic context through a gating mechanism, testing four user models (country ID, cluster ID, cluster distances, country distances). Results demonstrated that all context-aware models significantly outperformed baseline VAE, with relative improvements of 4.9-7.4% across precision, recall, and NDCG metrics. For our project, this contributes to the design of the Mock Data Generation phase (Methodology Phase 1), suggesting that synthetic users should be modeled not just randomly, but as distinct "listener archetypes" (e.g., "Fast Tempo Violin Enthusiast" vs. "Orchestral Purist").
 
-3. End-to-End System Architectures and Deployment Strategies
+## 3. End-to-End System Architectures and Deployment Strategies
 Beyond theoretical model design, practical recommendation systems require careful architectural decisions regarding feature aggregation, user representation, and deployment infrastructure. The following papers demonstrate strategies for operationalizing deep learning models in production environments.
-3.1 User Preference Aggregation via Feature Averaging
+
+### 3.1 User Preference Aggregation via Feature Averaging
 Zhang [11] proposes a CNN-based system that constructs user preference vectors by aggregating the classification features of their listening history. Using MFCC and mel spectrogram features extracted from 400 digital piano pieces (100 per genre) across four genres (classical, pop, rock, pure music), they compared two user modeling approaches: "Comprehensive" (single averaged feature vector, achieving 50.35% accuracy) vs. "Multicategory" (distinct category-specific vectors, achieving 42.89% accuracy overall but performing better for multicategory users). The Comprehensive approach achieved higher overall accuracy, while the Multicategory approach was more effective for users with diverse genre preferences. This comparison directly informs the Shallow Network tier of our methodology (Methodology Phase 2), specifically demonstrating how to map a user's listening history to a single point in the embedding space through feature averaging—a computationally efficient approach suitable for serverless deployment.
-3.2 API Integration and Microservice Deployment
+
+### 3.2 API Integration and Microservice Deployment
 Lin et al. [5] demonstrate practical deployment integration by connecting their TL-CNN-GRU model to external music platforms. Their prototype system integrates the trained model with YouTube and Spotify APIs to provide real-time genre-based recommendations, bridging the gap between offline model training and online serving. This validates that deep learning recommendation models can be deployed as microservices that interface with existing music streaming infrastructure, supporting our AWS Lambda-based architecture where feature extraction and recommendation logic exist as separate, scalable services.
-3.3 Modular Architecture and Separation of Concerns
+
+### 3.3 Modular Architecture and Separation of Concerns
 Prasad et al. [12] provide a comprehensive architectural framework for AI-Powered Recommendation Systems, emphasizing modular design principles. Their architecture separates concerns between data collection, feature extraction, and recommendation generation, integrating multiple ML paradigms: supervised learning (decision trees, random forests, neural networks) for classification, unsupervised learning (K-Means, DBSCAN) for pattern discovery, and reinforcement learning (Deep Q-learning, Multi-Armed Bandit) for continuous improvement. This modular approach directly parallels our architectural decision to decouple feature extraction (Lambda/Fargate for audio processing) from the recommendation serving layer, enabling independent scaling and maintenance of each component.
-3.4 Addressing the Metadata Bottleneck
+
+### 3.4 Addressing the Metadata Bottleneck
 Dias et al. [13] further validate the end-to-end viability of CNN-based genre classification for recommendation, achieving 76% accuracy on the GTZAN dataset. By explicitly addressing the metadata bottleneck that arises from manual genre labeling, their work reinforces the core thesis premise: deep learning can replace manual annotation pipelines, making content-based recommendation viable even for archives lacking comprehensive metadata.
 
-4. Beyond Accuracy: Diversity and Long-Tail Discovery
+## 4. Beyond Accuracy: Diversity and Long-Tail Discovery
 Traditional recommendation evaluation focuses on accuracy metrics like HitRate or Precision@K, which measure how often the system correctly predicts user preferences. However, for specialized archives whose mission is educational and exploratory, diversity and novelty become equally important success criteria.
 
 Porcaro et al. [14] conducted a 12-week longitudinal study with 110 participants on the Impact of Diversity in music recommendations. Focusing on Electronic Music exposure, they found that high-diversity recommendations significantly increased users' openness to unfamiliar genres, fueled curiosity, and helped deconstruct genre stereotypes. Specifically, they measured both implicit attitudes (via Single Category IAT) and explicit openness (via Guttman scale), demonstrating that exposure diversity positively impacts listeners' willingness to explore new music. This is particularly relevant for the iPalpiti Music Archive, whose mission is to expose listeners to specialized, potentially unfamiliar classical performances. It suggests that our evaluation metrics (Evaluation Phase 3) should look beyond simple accuracy (HitRate) and consider Diversity or Novelty metrics to ensure the system is effectively surfacing the "long tail" of the archive.
 
-5. Synthesis and Contributions to the Thesis
+## 5. Synthesis and Contributions to the Thesis
 These twelve papers collectively provide the theoretical foundation, technical methodologies, and evaluation frameworks necessary to address the four research questions guiding this thesis on small-scale, domain-specific music recommendation.
 
 Addressing RQ1 (Small-Scale Dataset Performance): Papers [1, 4-7] demonstrate that pretrained audio representations can perform effectively even with limited training data. Tamm et al. [1] establish that frozen embeddings from models like MusiCNN achieve HitRate@50 of 0.385, validating that audio signals alone can drive recommendations without requiring massive datasets. Critically, Pourmoazemi and Maleki [4] and Lin et al. [5] both evaluate on GTZAN—a relatively small dataset (1000 tracks, 100 per genre)—achieving 93.75% and 71% accuracy respectively, demonstrating viability for domain-specific archives. Ramos et al. [6] show that self-supervised learning on the Free Music Archive can capture "subtle elements of musical structure" beyond obvious metadata, suggesting pretrained models generalize well to specialized domains like classical music. Reddy et al. [7] prove that compact models (0.2 MB) can achieve production-grade performance, addressing resource constraints typical of small-scale archives.
@@ -80,44 +104,44 @@ Supporting Methodologies: Papers [8-10] inform the mock data generation strategy
 
 In summary, these papers collectively validate that pretrained audio embeddings can drive effective recommendation systems for small-scale archives (RQ1), frozen representations and cross-validation strategies mitigate overfitting (RQ2), compact models may outperform larger models on domain-specific tasks (RQ3), and timbral, spectral, and compositional features remain robust while genre-specific and high-level semantic attributes show variable performance under small-sample conditions (RQ4). This synthesis provides a comprehensive roadmap for adapting the Tamm et al. methodology to the iPalpiti Music Archive context.
 
-THEORETICAL FOUNDATIONS
+# THEORETICAL FOUNDATIONS
 
-1. The Cold Start Problem in Niche Archives
+## 1. The Cold Start Problem in Niche Archives
 Standard recommendation algorithms, particularly Collaborative Filtering, depend on dense user-item interaction matrices to infer preferences. In specialized archives with limited traffic, these matrices are sparse, making it impossible to derive meaningful patterns—a challenge known as the Cold Start Problem. The theoretical premise of this work is that the audio signal itself provides a rich source of feature data. By projecting raw audio into a high-dimensional vector space using deep neural networks, we can quantify musical similarity mathematically (e.g., via Cosine Similarity) and generate recommendations without requiring prior user history.
 
-2. Vector-Based Audio Representation and Retrieval
+## 2. Vector-Based Audio Representation and Retrieval
 The core technical foundation of this system is the transformation of raw audio into high-dimensional vector embeddings. The iPalpiti music dataset is first segmented into consistent audio clips and processed through pretrained models (e.g., MusicNN, MERT) to generate dense feature vectors. These embeddings are stored in a vectorized database, enabling efficient similarity search and retrieval. Backend models leverage this latent vector space to identify semantic and acoustic relationships between tracks, while the frontend recommendation logic utilizes mock user interaction data mapped to these vectors to simulate and predict user preferences.
 
-3. Sequential Audio Modeling (Content-Based)
+## 3. Sequential Audio Modeling (Content-Based)
 Beyond simple similarity, this research explores the temporal aspect of music consumption. By employing sequential models like BERT4Rec [3] on top of audio embeddings, the system can model "listening sessions" as sequences of acoustic events. This allows for predicting the next most suitable track based on the flow of audio features in a session (simulated via mock data), effectively treating music recommendation as a content-driven sequence modeling task rather than just a static retrieval problem.
 
-SYSTEM ARCHITECTURE
+# SYSTEM ARCHITECTURE
 
 The proposed system is built on Amazon Web Services (AWS), integrating with an existing audio segmentation backend.
 
-High-Level Architecture Diagram
+## High-Level Architecture Diagram
 ![Architecture Diagram](architecture_diagram.png)
 
-1. Infrastructure Layer
+## 1. Infrastructure Layer
 - Storage: Amazon S3 stores the raw audio (WAV/MP3) and the pre-computed feature vectors (embeddings).
 - Database: Amazon RDS (PostgreSQL) manages metadata (Albums, Tracks) and user interaction logs.
 - Compute:
     - AWS Lambda: Handles API requests and lightweight business logic.
     - AWS SageMaker / Fargate: Hosts the heavier inference tasks for extracting embeddings from new audio tracks.
 
-2. Application Layer
+## 2. Application Layer
 - RecommendationService: Acts as a Facade, providing a clean API (recommendForUser, recommendSimilar) to the frontend.
 - Strategy Implementation:
     - KNN Baseline: Performs similarity search directly on the frozen audio embeddings to find nearest neighbors.
     - Shallow Network: A lightweight neural network that learns to map simulated user preferences to the embedding space.
     - Sequential Model: Deploys BERT4Rec to predict the next track in a sequence, effectively modeling the "flow" of a listening session.
 
-3. Data Pipeline
+## 3. Data Pipeline
 1. Ingestion: Audio uploaded to S3 triggers an extraction event.
 2. Feature Extraction: A worker (container) downloads the audio, runs a pretrained model (e.g., MusicNN), and saves the embedding vector.
 3. Indexing: Vectors are indexed (e.g., in a vector store or FAISS index) for fast retrieval.
 
-RESEARCH GOAL
+# RESEARCH GOAL
 
 	Problem Statement
 Small-scale music institutions possess valuable cultural assets but lack the technical resources to build personalized discovery tools. Existing state-of-the-art models are often evaluated on generic pop datasets (e.g., MTG-Jamendo) and require expensive infrastructure.
@@ -137,7 +161,7 @@ This research aims to:
 •	RQ3: How does dataset size influence the relative performance ranking among pretrained audio models?
 •	RQ4 (Optional): Which aspects of audio embeddings (genre, timbre, dynamics) remain robust or degrade under small-sample fine-tuning or transfer?
 
-METHODOLOGY
+# METHODOLOGY
 
 Phase 1: Dataset Preparation
 - Audio Data: Use the iPalpiti Music Archive (digitized performances).
@@ -156,7 +180,7 @@ We will implement three tiers of recommendation logic, all fundamentally driven 
 Phase 3: Evaluation Strategy
 The specific evaluation metrics and experimental protocols are currently under development and will be finalized in the upcoming semester. The research will focus on establishing a robust framework for assessing both the recommendation quality (using the synthetic datasets) and the system efficiency (latency and cost) within the AWS environment.
 
-EVALUATION ROADMAP
+# EVALUATION ROADMAP
 
 The detailed evaluation plan is a key objective for the next semester. The current research direction identifies the following areas for development:
 
@@ -168,31 +192,27 @@ The detailed evaluation plan is a key objective for the next semester. The curre
     - Definition of benchmarks for the serverless infrastructure.
     - Planning for scalability tests to evaluate the cost-effectiveness of the proposed AWS architecture.
 
-References
+# References
 [1] R. Tamm, M. Sachdeva, and S. Lind, "Comparative Analysis of Pretrained Audio Representations in Music Recommender Systems," in *Proceedings of the 18th ACM Conference on Recommender Systems (RecSys '24)*, Bari, Italy, Oct. 2024.
 
-[2] J. Pons and X. Serra, "musicnn: Pre-trained convolutional neural networks for music audio tagging," in *Proceedings of the 20th International Society for Music Information Retrieval Conference (ISMIR)*, 2019, pp. 1-7.
+[2] N. Pourmoazemi and S. Maleki, "A music recommender system based on compact convolutional transformers," *Expert Systems With Applications*, vol. 255, Art. no. 124473, 2024.
 
-[3] F. Sun, J. Liu, J. Wu, C. Pei, X. Lin, W. Ou, and P. Jiang, "BERT4Rec: Sequential Recommendation with Bidirectional Encoder Representations from Transformer," in *Proceedings of the 28th ACM International Conference on Information and Knowledge Management (CIKM)*, 2019, pp. 1471–1480.
+[3] P.-C. Lin, C.-Y. Yu, and E. Odle, "Prototype for a Personalized Music Recommendation System Based on TL-CNN-GRU Model with 10-Fold Cross-Validation," in *Proceedings of the 7th Artificial Intelligence and Cloud Computing Conference (AICCC 2024)*, Tokyo, Japan, Dec. 2024, pp. 87-94.
 
-[4] N. Pourmoazemi and S. Maleki, "A music recommender system based on compact convolutional transformers," *Expert Systems With Applications*, vol. 255, Art. no. 124473, 2024.
+[4] A. C. Ramos and B. A. T. de Freitas, "Self-Supervised Learning of Music Representations for Recommendation Systems," Course Project, Institute of Computing, University of Campinas (UNICAMP).
 
-[5] P.-C. Lin, C.-Y. Yu, and E. Odle, "Prototype for a Personalized Music Recommendation System Based on TL-CNN-GRU Model with 10-Fold Cross-Validation," in *Proceedings of the 7th Artificial Intelligence and Cloud Computing Conference (AICCC 2024)*, Tokyo, Japan, Dec. 2024, pp. 87-94.
+[5] C. K. A. Reddy, V. Gopal, H. Dubey, S. Matusevych, R. Cutler, and R. Aichner, "MusicNet: Compact Convolutional Neural Network for Real-time Background Music Detection," in *Proceedings of Interspeech 2022*, Incheon, Korea, Sept. 2022.
 
-[6] A. C. Ramos and B. A. T. de Freitas, "Self-Supervised Learning of Music Representations for Recommendation Systems," Course Project, Institute of Computing, University of Campinas (UNICAMP).
+[6] D. Abbattista, V. W. Anelli, T. Di Noia, C. Macdonald, and A. Petrov, "Enhancing Sequential Music Recommendation with Personalized Popularity Awareness," in *Proceedings of the 18th ACM Conference on Recommender Systems (RecSys '24)*, Bari, Italy, Oct. 2024.
 
-[7] C. K. A. Reddy, V. Gopal, H. Dubey, S. Matusevych, R. Cutler, and R. Aichner, "MusicNet: Compact Convolutional Neural Network for Real-time Background Music Detection," in *Proceedings of Interspeech 2022*, Incheon, Korea, Sept. 2022.
+[7] J. Lin, S. Huang, and Y. Zhang, "Deep neural network-based music user preference modeling, accurate recommendation, and IoT-enabled personalization," *Alexandria Engineering Journal*, vol. 125, pp. 232-244, 2025.
 
-[8] D. Abbattista, V. W. Anelli, T. Di Noia, C. Macdonald, and A. Petrov, "Enhancing Sequential Music Recommendation with Personalized Popularity Awareness," in *Proceedings of the 18th ACM Conference on Recommender Systems (RecSys '24)*, Bari, Italy, Oct. 2024.
+[8] M. Schedl, C. Bauer, W. Reisinger, D. Kowald, and E. Lex, "Listener Modeling and Context-Aware Music Recommendation Based on Country Archetypes," *Frontiers in Artificial Intelligence*, vol. 3, Art. no. 508725, Feb. 2021.
 
-[9] J. Lin, S. Huang, and Y. Zhang, "Deep neural network-based music user preference modeling, accurate recommendation, and IoT-enabled personalization," *Alexandria Engineering Journal*, vol. 125, pp. 232-244, 2025.
+[9] J. Dias, H. Deshmukh, V. Pillai, and A. Shah, "Music Genre Classification & Recommendation System using CNN," St. John College of Engineering and Management, Palghar, India.
 
-[10] M. Schedl, C. Bauer, W. Reisinger, D. Kowald, and E. Lex, "Listener Modeling and Context-Aware Music Recommendation Based on Country Archetypes," *Frontiers in Artificial Intelligence*, vol. 3, Art. no. 508725, Feb. 2021.
+[10] Y. Zhang, "Music Recommendation System and Recommendation Model Based on Convolutional Neural Network," *Mobile Information Systems*, vol. 2022, Art. no. 3387598, May 2022.
 
-[11] Y. Zhang, "Music Recommendation System and Recommendation Model Based on Convolutional Neural Network," *Mobile Information Systems*, vol. 2022, Art. no. 3387598, May 2022.
+[11] M. S. V. Prasad and G. Sharma, "Music Recommendation System," Parul University, Vadodara, Gujarat, India.
 
-[12] M. S. V. Prasad and G. Sharma, "Music Recommendation System," Parul University, Vadodara, Gujarat, India.
-
-[13] J. Dias, H. Deshmukh, V. Pillai, and A. Shah, "Music Genre Classification & Recommendation System using CNN," St. John College of Engineering and Management, Palghar, India.
-
-[14] L. Porcaro, E. Gómez, and C. Castillo, "Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study," Manuscript, 2022.
+[12] L. Porcaro, E. Gómez, and C. Castillo, "Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study," Manuscript, 2022.
