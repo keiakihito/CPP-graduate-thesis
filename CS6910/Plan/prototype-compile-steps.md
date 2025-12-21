@@ -19,7 +19,7 @@ We will convert the existing Markdown content into LaTeX fragments suitable for 
     -   Action: Convert MD to LaTeX. Since this file already has citations like `[1]`, we will map them to BibTeX keys (e.g., `[1]` -> `\cite{tamm2024}`).
 
 -   **Methodology & Architecture (`chapters/chapter03.tex`)**
-    -   Source: `Proposal/proposal_draft.md`
+    -   Source: `Proposal/proposal_draft_v3.md`
     -   Sections to extract:
         -   Methodology (Phase 1-3)
         -   System Architecture

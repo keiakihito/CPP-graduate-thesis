@@ -166,13 +166,17 @@
 \begin{document}
     %% The content before first chapter
     \begin{frontmatter}
-        \maketitle
+        % \maketitle
 
         % Custom made for Cal Poly (by Mark Barry, modified by Andrew Tsui).
-        \copyrightpage
+        % \copyrightpage
 
         % Custom made for Cal Poly (by Andrew Tsui).
-        \committeemembershippage
+        % \committeemembershippage
+        
+        % \input{frontmatter/proposal_title}
+
+\input{frontmatter/proposal_title}
 
         % Abstract page
         \begin{abstract}
@@ -180,17 +184,17 @@
         \end{abstract}
 
         % Acknowledgments page (if wanted)
-        \input{frontmatter/acknowledgments}
+        % \input{frontmatter/acknowledgments}
 
         % Insert table of contents
         \tableofcontents
 
         % Insert all of the potentially optional listings
-        \input{frontmatter/listings}
+        % \input{frontmatter/listings}
 
         % Insert list of symbols
         % Note: package handles inserting into table of contents
-        \input{frontmatter/nomenclature.tex}
+        % \input{frontmatter/nomenclature.tex}
     \end{frontmatter}
 
     %% Input the chapters as configured from the file
@@ -204,5 +208,5 @@
     ]
 
     %% Input the appendices (if any) as configured from the file
-    \input{appendices/outline}
+    % \input{appendices/outline}
 \end{document}
