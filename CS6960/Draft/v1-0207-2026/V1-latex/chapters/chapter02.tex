@@ -3,69 +3,48 @@
 This chapter reviews prior work relevant to backend audio embeddings for music similarity and retrieval, with a particular focus on architectural model families, evaluation strategies, and the challenges posed by classical music archives. The review is structured to support the thesis focus on backend-only comparison using ranking-based metrics, while placing collaborative filtering, user modeling, and system deployment in a background role.
 
 \section{Content-Based Recommendation and the Role of Audio Embeddings}
-
 Music recommendation systems have traditionally been dominated by collaborative filtering approaches that leverage large-scale user interaction data. While effective for mainstream streaming platforms, these methods are less suitable for curated archives with sparse or nonexistent user feedback. In such settings, content-based recommendation methods, which rely on intrinsic properties of the audio signal, become essential.
-
 Audio embeddings provide a compact representation of musical content that can be used for similarity search, retrieval, and downstream recommendation tasks. Advances in deep learning have enabled the extraction of embeddings that capture timbral, harmonic, rhythmic, and temporal characteristics of music directly from audio signals. As a result, learned audio representations now form the backbone of many content-based music retrieval systems \cite{tamm2024}.
-
 For classical music archives, content-based approaches are particularly attractive. Classical collections are often smaller, stylistically coherent, and rich in structural relationships between works, movements, and performances. However, these same properties raise questions about how well embedding models developed and evaluated on popular music datasets transfer to the classical domain.
 
-\section{Backend Audio Embedding Model Families}
 
+\section{Backend Audio Embedding Model Families}
 This thesis focuses on comparing backend audio embedding model families rather than individual end-to-end recommendation systems. Prior work in music information retrieval has explored a range of architectural approaches for learning audio representations.
 
 \subsection{CNN-Based Models}
-
 Convolutional neural networks (CNNs) have been widely used for music tagging, classification, and representation learning. By applying convolutional filters to time--frequency representations such as mel-spectrograms, CNNs can capture local spectral patterns that correspond to timbral and harmonic features. Compact CNN architectures have been shown to provide efficient and effective embeddings for music-related tasks \cite{reddy2022}.
-
-Several studies evaluate CNN-based embeddings using supervised objectives, such as genre or tag classification, demonstrating strong performance with relatively modest model complexity \cite{dias_cnn}. These models are often attractive for deployment in resource-constrained environments due to their computational efficiency.
+Several studies evaluate CNN-based embeddings using supervised objectives, such as genre or tag classification, demonstrating strong performance with relatively modest model complexity \cite{dias_cnn, zhang2022}. These models are often attractive for deployment in resource-constrained environments due to their computational efficiency.
 
 \subsection{Hybrid CNN--RNN Models}
-
 To better capture temporal structure in music, hybrid architectures combining CNN feature extractors with recurrent neural networks (RNNs) have been proposed. In these models, convolutional layers extract local features from spectrograms, while recurrent layers such as gated recurrent units (GRUs) or long short-term memory (LSTM) networks model longer-term temporal dependencies.
-
 Hybrid CNN--RNN architectures have been applied to tasks such as emotion recognition and music classification, where temporal dynamics play an important role \cite{lin2024}. These models represent a design point that explicitly balances local spectral modeling with sequence-level temporal aggregation.
 
 \subsection{CNN--Transformer and Transformer-Based Models}
-
-More recent work explores the use of self-attention mechanisms and transformer architectures for audio representation learning. CNN--Transformer hybrids combine convolutional front-ends with transformer encoders to model global temporal relationships, while pure transformer-based models operate directly on spectrogram patches or learned audio tokens.
-
+More recent work explores the use of self-attention mechanisms and transformer architectures for audio representation learning. CNN--Transformer hybrids combine convolutional front-ends with transformer encoders to model global temporal relationships, while pure transformer-based models operate directly on spectrogram patches or learned audio tokens\cite{pourmoazemi2024}.
 Self-supervised learning approaches based on transformers have gained popularity due to their ability to leverage large unlabeled datasets. Models such as Audio Spectrogram Transformer (AST) demonstrate that transformer-based embeddings can achieve strong performance across a variety of audio tasks \cite{ramos_ssl}. These approaches represent a contrasting architectural family to CNN and CNN--RNN models, often trading increased model capacity for improved representational flexibility.
 
 \subsection{Compact and Efficient Models}
-
 Across all architectural families, there is growing interest in compact and efficient models that reduce parameter count and inference cost while maintaining competitive performance. Such models are particularly relevant for archival systems and research prototypes, where computational resources may be limited.
-
 Compact models are not a distinct architectural class but rather a design objective that can be applied to CNN-based, hybrid, or transformer-based approaches. Evaluating the trade-offs between efficiency and retrieval performance is therefore an important consideration when selecting backend embeddings for classical music archives.
 
 \section{Evaluation Strategies for Music Embeddings}
-
 The quality of audio embeddings is commonly assessed through downstream evaluation tasks. Prior work employs a variety of evaluation strategies, each with different implications for recommendation and retrieval.
 
 \subsection{Classification-Based Evaluation}
-
 Many studies evaluate audio embeddings using classification tasks, such as genre, mood, or tag prediction. Metrics such as accuracy, precision, recall, and F1-score are commonly reported on benchmark datasets. While classification performance provides insight into the discriminative power of embeddings, it does not directly measure their effectiveness for similarity search or ranking-based retrieval.
 
 \subsection{Ranking-Based Evaluation for Retrieval}
-
 For recommendation and retrieval systems, ranking-based metrics are more appropriate. Metrics such as normalized discounted cumulative gain (NDCG), Precision@K, and Recall@K explicitly evaluate how well relevant items are ranked near the top of a retrieved list.
-
 Some prior work applies ranking-based evaluation to music retrieval tasks, demonstrating that embeddings with strong classification performance do not always yield optimal ranking behavior \cite{tamm2024}. This distinction motivates the use of ranking metrics as the primary evaluation criterion in this thesis.
 
 \subsection{Beyond Accuracy: Diversity and Long-Tail Considerations}
-
 In addition to accuracy-oriented metrics, several studies highlight the importance of diversity and long-tail discovery in music recommendation. Diversity-aware evaluation emphasizes the ability of a system to surface varied and less popular items, which is particularly relevant for cultural and archival collections \cite{porcaro2022}.
-
 While diversity metrics are not the primary focus of this thesis, they provide useful context for interpreting ranking results in classical music archives, where exploration and discovery are often prioritized over popularity.
 
 \section{User Modeling and System-Level Approaches (Background)}
-
-A parallel line of research focuses on modeling user behavior, preferences, and context to improve recommendation quality. Sequential recommendation models, emotion-aware systems, and geographically informed approaches incorporate user interaction data to personalize recommendations \cite{abbattista2024, schedl2021}.
-
-At the system level, prior work also explores scalable architectures and deployment strategies for music recommendation platforms. These studies address challenges related to latency, scalability, and system integration. While such approaches are essential for large-scale commercial systems, they are secondary to the present thesis, which isolates backend embedding quality and evaluates it independently of user modeling and deployment concerns.
+A parallel line of research focuses on modeling user behavior, preferences, and context to improve recommendation quality \cite{lin2025}. Sequential recommendation models, emotion-aware systems, and geographically informed approaches incorporate user interaction data to personalize recommendations \cite{abbattista2024, schedl2021}.
+At the system level, prior work also explores scalable architectures and deployment strategies for music recommendation platforms. These studies address challenges related to latency, scalability, and system integration \cite{prasad_music}. While such approaches are essential for large-scale commercial systems, they are secondary to the present thesis, which isolates backend embedding quality and evaluates it independently of user modeling and deployment concerns.
 
 \section{Synthesis and Research Gap}
-
 The reviewed literature demonstrates significant progress in learning audio embeddings for music-related tasks, spanning CNN-based, hybrid, and transformer-based architectures. However, several gaps remain. First, most evaluations focus on classification tasks or popular music datasets, limiting insight into ranking-based retrieval performance for classical music. Second, there is a lack of systematic comparison across embedding model families under a shared evaluation protocol tailored to archival settings.
-
 This thesis addresses these gaps by focusing on backend audio embedding models and evaluating them on classical music similarity and retrieval tasks using ranking-based metrics. By isolating the embedding component and applying consistent evaluation criteria, the study aims to clarify how architectural design choices influence retrieval performance in classical music archives.

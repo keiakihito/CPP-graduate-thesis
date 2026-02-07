@@ -145,3 +145,117 @@ Include:
 - Explicit notes on what is fixed vs what will be expanded later
 
 This section should read as “designed but not fully executed yet”.
+
+
+
+## Write to Latex
+
+
+Task 6-1: Write LaTeX for Chapter 1 (Introduction)
+
+Please write LaTeX source code for Chapter 1 (Introduction)
+using the Cal Poly CSC thesis template.
+
+v1 latex file
+/Users/keita-katsumi/Dropbox/Academic/CalPolyPomona/Thesis/CPP-graduate-thesis/CS6960/Draft/v1/V1-latex
+
+
+Constraints:
+- Write ONLY the contents of a chapter file (e.g., introduction.tex).
+- Do NOT include documentclass, packages, or preamble.
+- Start with \chapter{Introduction}.
+- Use \section and \subsection where appropriate.
+- Do NOT modify or reference main.tex.
+- Do NOT invent figures, tables, or citations.
+- Preserve the finalized V1 Introduction text exactly in meaning.
+
+Output:
+- Raw LaTeX code only.
+
+The abstract and Introduction file.
+
+/Users/keita-katsumi/Dropbox/Academic/CalPolyPomona/Thesis/CPP-graduate-thesis/CS6960/Draft/v1/output/task4.md
+
+
+
+
+
+Task 6-2: Write LaTeX for Chapter 3 (Problem Formulation and System Overview)
+
+Please write LaTeX source code for Chapter 3
+based on the finalized V1 Chapter 3 text.
+
+Constraints:
+- Write ONLY the contents of a chapter file (e.g., 03_problem_formulation.tex).
+- Start with \chapter{Problem Formulation and System Overview}.
+- Use \section and \subsection for Sections 3.1, 3.2, and 3.3.
+- Preserve the wording and meaning exactly as provided.
+- Do NOT add equations, figures, tables, or citations.
+- Do NOT modify or reference main.tex or the preamble.
+
+
+
+
+
+
+Task 6-3: Write LaTeX for Chapter 4 (Methodology)
+
+Please write LaTeX source code for Chapter 4
+based on the finalized Methodology placeholder.
+
+
+Constraints:
+- Write ONLY the contents of a chapter file (e.g., 04_methodology.tex).
+- Start with \chapter{Methodology}.
+- Use \section and \subsection as appropriate.
+- Preserve the "designed but not fully executed" tone.
+- Do NOT invent hyperparameters, results, or implementation details.
+- Do NOT add equations, figures, or tables.
+- Do NOT modify or reference main.tex or the preamble.
+
+
+
+
+
+
+
+
+
+Task 7-1: Write LaTeX skeleton for Chapter 2 (Literature Review)
+
+Please write a LaTeX skeleton for Chapter 2
+based on the revised V1 literature review structure.
+
+Constraints:
+- Write ONLY the contents of a chapter file (e.g., 02_literature_review.tex).
+- Start with \chapter{Background and Literature Review}.
+- Include ONLY \section and \subsection titles.
+- Do NOT include paragraph text.
+- Do NOT include citations or references.
+- Do NOT modify or reference main.tex or the preamble.
+
+
+
+
+
+
+
+
+Task 7-2: Migrate Literature Review Content into Chapter 2
+
+Please migrate content from the following Markdown file
+into the corresponding sections of Chapter 2 (Literature Review),
+based on the V1 structure.
+
+Source:
+literature_review_v2.md
+/Users/keita-katsumi/Dropbox/Academic/CalPolyPomona/Thesis/CPP-graduate-thesis/CS6960/Literature_Review/literature_review_v2.md
+
+Constraints:
+- Preserve technical meaning and citations.
+- Adapt formatting to LaTeX (\section, \subsection, \cite{}).
+- Do NOT rewrite or summarize content.
+- Minor wording adjustments for flow are allowed.
+- Do NOT add new citations.
+- Do NOT touch other chapters.
+
