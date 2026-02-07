@@ -1,0 +1,10 @@
+Learned audio embeddings are increasingly used to support music recommendation and similarity search, yet most existing work and deployed systems are optimized for large, heterogeneous, often pop-centric catalogs.
+In contrast, curated classical music archives such as the iPalpiti collection lack large-scale user interaction data and exhibit different structural properties, raising questions about how alternative audio embedding models behave in this domain.
+This thesis investigates the performance of multiple backend audio embedding model families on classical music similarity and retrieval tasks, focusing on convolutional, recurrent, hybrid, and transformer-based architectures.
+Using a consistent offline evaluation pipeline, raw audio from the iPalpiti archive is transformed into embeddings, indexed for nearest-neighbor search, and evaluated on metadata-defined proxy tasks (e.g., retrieving tracks from the same work or performer).
+Ranking quality is assessed with standard information retrieval metrics, including NDCG, Precision@K, and Recall@K.
+
+The experimental study, conducted at modest scale, compares families of pretrained models rather than exhaustively tuning any single architecture.
+Results indicate that certain lightweight convolutional and hybrid models can achieve competitive or superior ranking performance to more complex architectures in this classical setting, though differences vary across proxy tasks and evaluation cutoffs.
+The analysis highlights architectural and representational choices that most influence ranking quality in this domain, while also illustrating the limitations of offline proxy evaluation.
+The thesis concludes with practical recommendations for backend embedding selection in classical music archives and identifies directions for future extension.

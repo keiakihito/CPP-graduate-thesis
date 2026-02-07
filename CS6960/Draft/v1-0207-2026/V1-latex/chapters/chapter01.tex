@@ -1,0 +1,40 @@
+\chapter{Introduction}\label{ch:introduction}
+
+Modern music streaming platforms rely heavily on machine learning to support search, recommendation, and discovery.
+Much of the prior work in this area, as well as many industrial systems, is built around large-scale collaborative filtering and deep models trained on extensive user interaction logs.
+While effective for mainstream catalogs, these approaches are ill-suited to small, curated archives that lack dense user data and whose mission emphasizes exploration over pure popularity.
+Classical music archives such as the iPalpiti collection exemplify this setting: they contain high-quality, stylistically coherent recordings but limited usage data, and they require tools that can surface musically meaningful relationships among works, performances, and artists.
+
+In such environments, content-based methods driven by audio embeddings become central.
+Recent advances in pretrained audio models---including convolutional networks, recurrent architectures, hybrid CNN--RNN and CNN--Transformer designs, and self-supervised transformers---have made it possible to encode rich musical information in fixed-length vectors.
+However, most evaluations of these models focus on genre or tag classification in popular-music datasets, or on recommendation tasks for broad, heterogeneous catalogs.
+It remains unclear how different embedding families compare when applied specifically to classical music, and how their design choices impact ranking performance in realistic similarity and retrieval tasks for archives like iPalpiti.
+
+\section{Approach and Scope}
+
+This thesis addresses that gap by focusing exclusively on the backend: the stage that maps audio recordings to embeddings and supports similarity search, independent of full end-to-end user modeling.
+We formulate a set of metadata-based proxy tasks---such as retrieving other recordings of the same work or performances by the same ensemble---and evaluate multiple pretrained embedding families under a shared classical corpus and evaluation protocol.
+Ranking quality is quantified using standard metrics from information retrieval, including NDCG, Precision@K, and Recall@K, enabling a controlled comparison across architectures.
+
+\section{Research Questions}
+
+The primary research question guiding this work is: for a classical music archive (iPalpiti), how do different backend audio embedding model families (e.g., CNN-based, RNN-based, and alternative architectures) compare in terms of ranking performance on proxy similarity and retrieval tasks, as measured by NDCG, Precision@K, and Recall@K?
+
+A secondary, exploratory question asks which characteristics of the embedding models---such as temporal modeling strategy, input representation, or embedding dimensionality---are most associated with improved ranking performance on these tasks.
+Together, these questions frame the thesis as a systematic, if small-scale, study of backend design choices for classical music retrieval.
+
+\section{Contributions}
+
+This work makes three main contributions.
+First, it provides a focused empirical comparison of several backend audio embedding model families on a classical music archive using consistent preprocessing, indexing, and evaluation procedures.
+Second, it establishes a set of proxy tasks and ranking-metric baselines tailored to classical music, which can be reused or extended in future studies.
+Third, it distills the experimental findings into practical recommendations for selecting and deploying audio embeddings in small, content-driven archives, and identifies limitations and opportunities for integrating these backends into richer, user-aware systems.
+
+\section{Thesis Organization}
+
+The remainder of the thesis is organized as follows.
+Chapter~2 reviews related work on audio embeddings, evaluation strategies, and system design for music recommendation.
+Chapter~3 formalizes the problem setting and describes the overall backend pipeline.
+Chapter~4 details the methodology and experimental design.
+Chapter~5 presents and analyzes the results.
+Chapter~6 discusses implications, limitations, and directions for future work.

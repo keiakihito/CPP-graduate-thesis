@@ -1,0 +1,132 @@
+\chapter{Background and Literature Review}\label{ch:literature}
+
+\section{Introduction and Motivation}
+
+The domain of music recommendation has historically been dominated by Collaborative Filtering (CF) approaches, which rely on dense user-interaction matrices.
+However, specialized archives such as the iPalpiti Music Archive typically lack the massive volume of user data required for these methods, leading to the ``Cold Start'' problem.
+This literature review synthesizes key research contributions that collectively argue for a deep content-based approach.
+By leveraging pretrained audio representations and efficient neural architectures, it is possible to build recommendation systems that rely on the audio signal itself rather than historical usage data.
+
+\section{Backend Audio Embedding Model Families for Music Recommendation}
+
+The core technical foundation of this thesis rests on the ability to extract meaningful semantic features directly from raw audio waveforms or spectrograms.
+
+\subsection{CNN-based and Compact Models}
+
+\cite{tamm2024} provide the primary methodological framework for this research.
+Their comparative analysis of six pretrained models---MusiCNN, MERT, Jukebox, MusicFM, Music2Vec, and EncodecMAE---demonstrates that ``frozen'' embeddings from these models can effectively drive recommendation tasks.
+Crucially, MusiCNN (a lighter, supervised discriminative model trained on auto-tagging) achieved the best performance across all recommendation methods (HitRate@50: 0.385), significantly outperforming larger generative models like Jukebox (4800-dimensional embeddings).
+This validates the choice of efficient, discriminative backends for content-based recommendation.
+
+\cite{reddy2022} developed MusicNet, a compact CNN for real-time background music detection optimized for edge deployment.
+MusicNet achieves 81.3\% TPR at 0.1\% FPR while being only 0.2 MB in size---10$\times$ smaller than competing models---with 11.1ms inference time (4$\times$ faster than best-performing alternatives).
+Crucially, MusicNet incorporates in-model featurization, processing raw audio directly without requiring external feature extraction, simplifying deployment and maintenance in production systems.
+
+\cite{dias_cnn} further validate the viability of CNN-based genre classification for recommendation, achieving 76\% accuracy on the GTZAN dataset.
+By explicitly addressing the metadata bottleneck that arises from manual genre labeling, their work reinforces the core thesis premise: deep learning can replace manual annotation pipelines, making content-based recommendation viable even for archives lacking comprehensive metadata.
+
+\cite{zhang2022} propose a CNN-based system that constructs user preference vectors by aggregating the classification features of their listening history.
+Using MFCC and mel spectrogram features extracted from 400 digital piano pieces (100 per genre) across four genres (classical, pop, rock, pure music), they compared two user modeling approaches: ``Comprehensive'' (single averaged feature vector, achieving 50.35\% accuracy) vs.\ ``Multicategory'' (distinct category-specific vectors, achieving 42.89\% accuracy overall but performing better for multicategory users).
+The Comprehensive approach achieved higher overall accuracy, while the Multicategory approach was more effective for users with diverse genre preferences.
+This comparison demonstrates how to map a user's listening history to a single point in the embedding space through feature averaging---a computationally efficient approach suitable for retrieval and ranking.
+
+\subsection{Hybrid CNN--RNN and Temporal Modeling}
+
+Complementing the CCT approach, \cite{lin2024} propose a Transfer Learning + CNN + GRU (TL-CNN-GRU) model that leverages pretrained MobileNetV2 weights for spatial feature extraction combined with bidirectional GRU (1024 units) for capturing temporal dependencies in music sequences.
+Using spectrograms resized to 256$\times$256$\times$3 as input, their architecture applies 10-Fold Cross-Validation (10-FCV) to mitigate overfitting and improve generalization.
+The model achieved 71\% accuracy on the GTZAN dataset, representing a significant improvement over the TL+CNN baseline (53\% accuracy) and the TL+CNN+GRU model (55\% accuracy).
+With 7,779,402 total parameters (5,521,418 trainable, 2,257,984 frozen from MobileNetV2), the system demonstrates that transfer learning from vision models pretrained on ImageNet can be effectively repurposed for audio classification tasks.
+Notably, genre-specific F1-scores improved substantially with 10-FCV: blues (0.49$\to$0.74), classical (0.87$\to$0.92), metal (0.61$\to$0.84), and reggae (0.35$\to$0.69), though rock remained challenging (0.26$\to$0.50).
+This work reinforces the emphasis on transfer learning and sequential modeling for audio recommendation systems.
+
+\subsection{CNN--Transformer Hybrids and Pure Transformers}
+
+\cite{pourmoazemi2024} address the ``Continuity Problem'' in music streaming---maintaining a continuous flow of music that aligns with user preferences---by proposing a Compact Convolutional Transformer (CCT) architecture for genre-based recommendation.
+Their hybrid model combines six convolutional layers (with progressively increasing filters: 32, 64, 128) for local feature extraction from mel-spectrograms, followed by two transformer encoders with multi-head attention (2 heads, 128-dimensional) to capture global interdependencies among feature maps.
+Critically for resource-constrained deployment, the CCT achieves 93.75\% test accuracy on the GTZAN dataset while containing only 454,187 parameters---significantly fewer than state-of-the-art CRNN models.
+The model outperforms previous architectures across precision (0.923), recall (0.928), and F1-score (0.923) metrics.
+For recommendation, they use cosine similarity between feature maps extracted from the penultimate layer, demonstrating that the learned representations effectively capture genre-specific patterns for content-based music retrieval.
+This validates the architectural strategy of using lightweight hybrid CNN-Transformer models for efficient feature extraction.
+
+\subsection{Self-Supervised and Transfer-Learning Approaches}
+
+Expanding on the potential of transformer-based architectures for audio, \cite{ramos_ssl} explored Self-Supervised Learning (SSL) using the Audio Spectrogram Transformer (AST) within a SimCLR framework.
+Training on the Free Music Archive (FMA) dataset with InfoNCE contrastive loss, they demonstrated that music embeddings can be learned without explicit labels, organizing tracks by composition, timbre, and flow rather than conventional genre classifications.
+Notably, their qualitative evaluation showed that the trained model achieved 48\% satisfactory recommendations compared to only 10\% for the untrained baseline, with the learned representations capturing ``subtle elements of musical structure'' beyond obvious metadata.
+This supports the thesis that unsupervised embeddings can uncover the latent ``musicality'' of archives without manual annotation.
+
+Together with the CCT of \cite{pourmoazemi2024}, the compact and hybrid models above prove that high-performance audio analysis does not require prohibitive computational resources.
+Transfer learning from ImageNet (as in \cite{lin2024}) and self-supervised learning (as in \cite{ramos_ssl}) change embedding properties in ways relevant when comparing model families.
+
+\section{Evaluation Strategies for Music Embeddings}
+
+\subsection{Classification-Based Evaluation (Accuracy, F1, etc.)}
+
+Many works evaluate audio embeddings via genre or tag classification.
+\cite{pourmoazemi2024} and \cite{lin2024} both evaluate on GTZAN---a relatively small dataset (1000 tracks, 100 per genre)---achieving 93.75\% and 71\% accuracy respectively, demonstrating viability for domain-specific archives.
+\cite{dias_cnn} achieve 76\% accuracy on GTZAN with CNN-based genre classification.
+\cite{lin2025} propose a hybrid architecture that combines a Deep CNN for audio emotion modeling with a Self-Attention mechanism for user emotion modeling, achieving 82\% emotion matching accuracy and 83\% recommendation accuracy (Precision@10).
+Their system integrates a Deep Convolutional Neural Network (DCNN) for extracting emotional features from audio signals using spectrograms, demonstrating that high-level semantic attributes can be evaluated via classification metrics.
+These classification-based evaluations dominate the literature but have limitations for ranking-based recommendation, where the goal is to order candidates rather than assign a single label.
+
+\subsection{Ranking-Based Evaluation for Recommendation (NDCG, Precision@K, Recall@K)}
+
+\cite{tamm2024} establish that frozen embeddings from models like MusiCNN achieve HitRate@50 of 0.385, validating that audio signals alone can drive recommendations without requiring massive datasets.
+Their comparative analysis uses recommendation-oriented metrics (HitRate, NDCG) that directly assess ranking quality.
+\cite{lin2025} report Precision@10 for recommendation accuracy (83\%).
+\cite{schedl2021} demonstrate that context-aware models significantly outperformed baseline VAE, with relative improvements of 4.9--7.4\% across precision, recall, and NDCG metrics.
+This body of work bridges from classification to the ranking metrics (NDCG, Precision@K, Recall@K) used in this thesis for proxy similarity and retrieval tasks.
+
+\subsection{Beyond Accuracy: Diversity and Long-Tail Discovery}
+
+Traditional recommendation evaluation focuses on accuracy metrics like HitRate or Precision@K, which measure how often the system correctly predicts user preferences.
+However, for specialized archives whose mission is educational and exploratory, diversity and novelty become equally important success criteria.
+
+\cite{porcaro2022} conducted a 12-week longitudinal study with 110 participants on the Impact of Diversity in music recommendations.
+Focusing on Electronic Music exposure, they found that high-diversity recommendations significantly increased users' openness to unfamiliar genres, fueled curiosity, and helped deconstruct genre stereotypes.
+Specifically, they measured both implicit attitudes (via Single Category IAT) and explicit openness (via Guttman scale), demonstrating that exposure diversity positively impacts listeners' willingness to explore new music.
+This is particularly relevant for the iPalpiti Music Archive, whose mission is to expose listeners to specialized, potentially unfamiliar classical performances.
+It suggests that evaluation metrics should look beyond simple accuracy (HitRate) and consider Diversity or Novelty metrics to ensure the system is effectively surfacing the ``long tail'' of the archive.
+
+\section{System-Level and User-Modeling Work (Background / Related Work)}
+
+A parallel line of work models how users interact with music over time, incorporating user preferences, emotion, popularity, and geographic context.
+This thesis instead holds the user side fixed and focuses on backend audio embeddings; the following is a compressed view of that related work.
+
+\subsection{User and Context Modeling}
+
+\cite{abbattista2024} offer a critical counter-perspective: their study on Personalized Popularity Awareness revealed that complex transformer models often underperform compared to simple baselines because they fail to account for ``repeated consumption'' (users re-listening to favorites).
+\cite{lin2025} fuse a static content vector (Audio CNN) with a dynamic context vector (Self-Attention) and collaborative filtering (NCF, SVD++), achieving 82\% emotion matching accuracy and 83\% Precision@10.
+\cite{schedl2021} identify Country Archetypes based on geographic listening behavior and unsupervised clustering (t-SNE, OPTICS on 369 million listening events from 70 countries), and extend standard collaborative filtering with a ``geo-aware'' VAE; context-aware models yielded 4.9--7.4\% improvements across precision, recall, and NDCG.
+For this thesis, user and context modeling are out of scope; we isolate the embedding backend and evaluate it via metadata-based proxy tasks.
+
+\subsection{Deployment and System Architectures (Optional Background)}
+
+\cite{lin2024} demonstrate practical deployment integration by connecting their TL-CNN-GRU model to external music platforms (YouTube and Spotify APIs) for real-time genre-based recommendations, bridging offline model training and online serving.
+\cite{prasad_music} provide a comprehensive architectural framework for AI-powered recommendation systems, emphasizing modular design (data collection, feature extraction, recommendation generation) and integrating supervised, unsupervised, and reinforcement learning paradigms.
+Their modular approach parallels the decision to decouple feature extraction from the recommendation serving layer.
+In this thesis, deployment is out of scope or limited to a minimal pipeline; the focus is on how embeddings are computed, stored, and queried for similarity search.
+
+\section{Synthesis and Positioning of This Thesis}
+
+\subsection{Summary of Evidence Across Model Families}
+
+The papers reviewed collectively demonstrate that pretrained audio representations can perform effectively even with limited training data.
+CNN-based and compact models (MusiCNN, MusicNet, CCT, and CNN genre classifiers) achieve strong accuracy and efficiency; \cite{tamm2024} show that MusiCNN outperformed larger generative models like Jukebox on recommendation metrics.
+Hybrid CNN--RNN models (\cite{lin2024}) add temporal modeling and benefit from transfer learning (e.g., ImageNet).
+CNN--Transformer hybrids (\cite{pourmoazemi2024}) and self-supervised transformers (\cite{ramos_ssl}) capture global structure and can learn without explicit labels.
+Compact models (\cite{reddy2022}, \cite{pourmoazemi2024}) prove that high-performance audio analysis does not require prohibitive resources.
+Frozen embeddings and cross-validation strategies mitigate overfitting on small datasets; timbral, spectral, and compositional features remain robust, while genre-specific performance varies (e.g., classical 0.92 vs.\ rock 0.50 in \cite{lin2024}).
+
+\subsection{Gaps in Current Literature for Classical Archives}
+
+Existing work relies heavily on classification accuracy (e.g., GTZAN genre accuracy) and on recommendation tasks designed for broad or pop-centric catalogs.
+There is a lack of systematic comparison of backend embedding \emph{families} specifically on \emph{classical} music.
+Ranking-based proxy tasks (e.g., same work, same performer) for archives without user data are underexplored.
+The iPalpiti archive and similar classical collections thus represent a gap: it remains unclear how CNN-based, RNN-based, transformer, and compact backends compare when evaluated with ranking metrics on classical music similarity and retrieval.
+
+\subsection{Link to Research Questions and Objectives}
+
+This thesis addresses that gap by focusing on backend-only embedding comparison, using ranking metrics (NDCG, Precision@K, Recall@K) and metadata-based proxy tasks on a classical music corpus (iPalpiti).
+The primary research question asks how different backend audio embedding model families compare in terms of ranking performance on these tasks; the secondary question explores which model characteristics (temporal modeling, input representation, embedding dimensionality) are most associated with improved ranking.
+The literature reviewed above provides the technical foundation and evaluation precedents; the present work positions itself as a systematic, if small-scale, comparison of embedding families for classical music archives.
