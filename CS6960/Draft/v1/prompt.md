@@ -82,9 +82,34 @@ No LaTeX code yet.
 
 
 
+Task 3.5: Chapter 3 skeleton (text only)
+
+Before drafting Abstract or Conclusion, please help me
+write a very lightweight skeleton for Chapter 3.
+
+Please include:
+- One-paragraph description of the problem setting
+  (items, queries, relevance for proxy tasks).
+- A high-level description of the backend pipeline
+  (audio → embeddings → index → ranking → evaluation).
+- Clear statement of what is fixed in V1 and what is provisional.
+
+Constraints:
+- No equations.
+- No figures.
+- No LaTeX.
+- Keep it concise and conceptual.
+
+
+
+
+
 Task 4: Draft key sections for V1
 
-Please draft:
+Based on the refined problem statement, research questions,
+literature positioning, and the Chapter 3 problem formulation,
+please draft the following sections for my V1 thesis:
+
 1. Abstract
 2. Introduction
 3. Conclusion (V1-level, preliminary)
@@ -92,12 +117,18 @@ Please draft:
 Assumptions:
 - Experiments are small-scale but methodologically sound.
 - Results are interpreted cautiously.
-- Emphasize future scalability and extension.
+- The thesis emphasizes backend design and embedding evaluation,
+  not full end-to-end user modeling.
+- Scalability and extension are framed as future work.
 
 Tone:
-- Honest
-- Academic
-- Clear about limitations
+- Honest and academic.
+- Clear about limitations.
+- Appropriate for a CS Master’s thesis.
+
+
+
+
 
 
 
