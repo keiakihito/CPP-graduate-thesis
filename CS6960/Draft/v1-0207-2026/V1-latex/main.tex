@@ -197,12 +197,13 @@
     \input{chapters/outline}
 
     %% Bibliography/references section
-    \input{bibliography/bib_info.tex}
+    % \input{bibliography/bib_info.tex}  % Phase 2: excluded from build; only cited refs printed
     \printbibliography[
         heading=bibintoc,
         title={\MakeUppercase{\bibname}}
     ]
 
     %% Input the appendices (if any) as configured from the file
-    \input{appendices/outline}
+    %% V1.1: Appendices disabled for minimal thesis skeleton; uncomment to restore.
+    % \input{appendices/outline}
 \end{document}
