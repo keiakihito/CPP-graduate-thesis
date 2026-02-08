@@ -68,14 +68,22 @@ The choice will be stated in the results.
 \textbf{Query protocol}: For each track in the evaluation query set, the system retrieves the top-K candidates from the index, excluding the query track itself when it appears in the collection.
 K is chosen to cover the range of cutoffs needed for the evaluation metrics (e.g., K at least the maximum of the Precision@K and Recall@K cutoffs used).
 
-\textbf{Ground truth}: Relevance for each query is defined by the proxy task.
-For example, for a ``same work'' task, relevant items are all other tracks that share the same work identifier in the metadata.
-For ``same performer,'' relevant items share the same performer or ensemble.
-The exact metadata fields and matching rules will be specified per proxy task when the evaluation set is finalized.
+\textbf{Ground truth}: Relevance for each query is defined by the chosen proxy task.
+For the sanity proxy, relevance is defined by composer identity.
+For the primary musical proxy, relevance is defined by a coarse character label
+(e.g., heavy vs.\ light).
 
+Other metadata relationships, such as shared musical work or performer,
+may be used as optional sanity checks to verify basic consistency,
+but they are not treated as primary proxy tasks in V1.
+
+The exact metadata fields and matching rules will be specified per proxy task
+when the evaluation set is finalized.
 This procedure yields one ranked list per query per model; these lists are the inputs to the evaluation step.
 
+
 \section{Proxy Tasks (V1.2 Placeholder)}
+
 
 \subsection{Sanity Proxy: Composer-Based Retrieval}
 % Definition (to be finalized):
@@ -121,7 +129,7 @@ This is optional for V1 and will be included only if feasible without expanding 
     \item Exact list of model names and checkpoints per family.
     \item Dataset: subset of the iPalpiti archive (number of tracks, metadata coverage, train/validation/test or query/corpus splits).
     \item Preprocessing: concrete segment length, aggregation method, and per-model parameters where they differ.
-    \item Proxy tasks: final set of tasks (e.g., same work, same performer) and exact metadata definitions.
+    \item Proxy tasks: final metadata definitions and matching rules for the sanity proxy (composer-based) and the primary musical proxy (character similarity, e.g., heavy vs.\ light).
     \item Index: library, configuration, and K values used for retrieval.
     \item Metric cutoffs: specific K values for NDCG@K, Precision@K, Recall@K.
     \item Computational environment and runtime constraints that determine which models are included.
