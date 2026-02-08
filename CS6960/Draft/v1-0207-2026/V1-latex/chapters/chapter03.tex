@@ -3,12 +3,14 @@
 \section{Problem Setting}
 
 This thesis evaluates backend audio embedding models on classical music similarity and retrieval tasks using offline proxy tasks.
-The fundamental problem is to rank a collection of classical music tracks (items) in response to a query track, where relevance is defined by metadata-based ground truth rather than user interaction data.
-Specifically, we consider proxy tasks such as finding tracks that share the same musical work, the same performer or ensemble, or belong to the same compositional era or style period.
+The fundamental problem is to rank a collection of classical music tracks (items) in response to a query track, where relevance is defined through offline proxy signals rather than user interaction data.
+Specifically, we consider proxy tasks ranging from metadata-based sanity checks (e.g., same musical work or same performer) to higher-level musical proxies that reflect perceived similarity in character (e.g., stylistic or expressive tendencies).
 Each item in the collection is a complete audio recording from the iPalpiti archive, and each query is also a track from this same collection.
 The goal is to measure how well different embedding models can retrieve relevant items when ranked by embedding-space similarity (e.g., cosine similarity), where relevance is determined by metadata relationships (e.g., ``same work'' or ``same performer'').
 This approach allows us to evaluate embedding quality without requiring real user feedback, making it suitable for small archives where user data is scarce.
 By framing similarity search as a ranking problem, we can directly assess how well embedding models support retrieval-oriented use cases typical of music archives.
+These proxy tasks are not treated as end goals, but as diagnostic tools to analyze how different embedding models organize musical similarity under constrained archival conditions.
+
 
 \section{Backend Pipeline Overview}
 
@@ -20,6 +22,11 @@ Fourth, for each query track, the system retrieves and ranks candidate tracks by
 This pipeline isolates the embedding extraction stage as the variable of interest, holding all other components (preprocessing, indexing, evaluation protocol) constant across model comparisons.
 
 \section{Scope and Constraints for V1}
+\paragraph{Condition Z.}
+All claims in this thesis are conditioned on a small-scale, single-domain classical music setting and retrieval-based proxy evaluation.
+\paragraph{Proxy-task design philosophy.}
+We separate proxy tasks into (1) sanity checks to ensure embeddings preserve basic musical structure and (2) a primary musical proxy reflecting perceived character similarity. Exploratory discovery-oriented analysis is deferred to future work.
+
 
 \textbf{Fixed in V1:} The core problem formulation (items as tracks, queries as tracks, metadata-based relevance for proxy tasks), the overall pipeline structure (audio preprocessing to embedding extraction to indexing to ranking to evaluation), the commitment to ranking-based metrics (NDCG, Precision@K, Recall@K), and the focus on comparing multiple backend embedding model families rather than end-to-end recommendation systems.
 

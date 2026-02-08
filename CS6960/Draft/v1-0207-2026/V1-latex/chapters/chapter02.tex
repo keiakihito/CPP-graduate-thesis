@@ -46,5 +46,15 @@ A parallel line of research focuses on modeling user behavior, preferences, and 
 At the system level, prior work also explores scalable architectures and deployment strategies for music recommendation platforms. These studies address challenges related to latency, scalability, and system integration \cite{prasad_music}. While such approaches are essential for large-scale commercial systems, they are secondary to the present thesis, which isolates backend embedding quality and evaluates it independently of user modeling and deployment concerns.
 
 \section{Synthesis and Research Gap}
-The reviewed literature demonstrates significant progress in learning audio embeddings for music-related tasks, spanning CNN-based, hybrid, and transformer-based architectures. However, several gaps remain. First, most evaluations focus on classification tasks or popular music datasets, limiting insight into ranking-based retrieval performance for classical music. Second, there is a lack of systematic comparison across embedding model families under a shared evaluation protocol tailored to archival settings.
-This thesis addresses these gaps by focusing on backend audio embedding models and evaluating them on classical music similarity and retrieval tasks using ranking-based metrics. By isolating the embedding component and applying consistent evaluation criteria, the study aims to clarify how architectural design choices influence retrieval performance in classical music archives.
+
+The reviewed literature demonstrates significant progress in learning audio embeddings for music-related tasks, spanning CNN-based, hybrid, and transformer-based architectures.
+Prior studies show that increasing architectural complexity and model capacity can improve performance on large-scale classification benchmarks and heterogeneous music datasets.
+However, these findings are predominantly derived from settings with abundant training data, broad musical domains, and evaluation protocols focused on discriminative accuracy rather than retrieval behavior.
+
+For classical music archives and other small, curated collections, the applicability of these conclusions remains unclear.
+While ranking-based evaluation has been adopted in some music retrieval studies, there is limited work that systematically examines how embedding model capacity interacts with the choice of proxy task in small-scale, single-domain settings.
+In particular, little attention has been paid to conditions under which increased model capacity may fail to translate into improved retrieval performance when similarity is evaluated through coarse, musically motivated proxies rather than fine-grained labels.
+
+This thesis addresses this gap by focusing on backend audio embedding models in a constrained archival context.
+Rather than seeking a universally optimal architecture, the study aims to identify and characterize conditions under which increasing embedding-model capacity does not yield meaningful gains for music similarity retrieval.
+By combining ranking-based evaluation with a structured proxy-task design tailored to classical music, this work contributes insight into the limits and trade-offs of embedding model complexity in small, content-driven archives.

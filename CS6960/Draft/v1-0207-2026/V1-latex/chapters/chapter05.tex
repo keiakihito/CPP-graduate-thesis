@@ -1,6 +1,6 @@
 \chapter{Experimental Results and Analysis}
 
-This chapter addresses Research Question~1 by empirically comparing backend audio embedding model families on classical music similarity and retrieval tasks using ranking-based evaluation metrics.
+This chapter outlines the experimental result structure for addressing Research Question~1, focusing on how backend audio embedding model families will be compared using ranking-based evaluation on predefined proxy tasks.
 
 
 \section{Overview of Experiments}
@@ -11,13 +11,13 @@ This chapter addresses Research Question~1 by empirically comparing backend audi
 % Concise recap of dataset subset, model families, similarity metric,
 % index type, and evaluation cutoffs, for readers who jump directly to results.
 
-\section{Results on Proxy Task 1: Same Work Retrieval}
++ \section{Results on Sanity Proxy: Composer-Based Retrieval}
 % Brief description of the proxy task and evaluation setup.
 
 \begin{table}[t]
 \centering
-\caption{Ranking performance on the Same Work retrieval task.}
-\label{tab:results_same_work}
+\caption{Ranking performance on the sanity proxy (composer-based retrieval).}
+\label{tab:results_sanity_proxy}
 \begin{tabular}{lccc}
 \hline
 \textbf{Model / Family} & \textbf{NDCG@K} & \textbf{Precision@K} & \textbf{Recall@K} \\
@@ -32,13 +32,13 @@ Compact model D           & -- & -- & -- \\
 
 % Short interpretation of the results.
 
-\section{Results on Proxy Task 2: Same Performer / Ensemble Retrieval}
+\section{Results on Primary Musical Proxy: Character Similarity (Heavy vs.\ Light)}
 % Brief description of the proxy task and evaluation setup.
 
 \begin{table}[t]
 \centering
-\caption{Ranking performance on the Same Performer / Ensemble retrieval task.}
-\label{tab:results_same_performer}
+\caption{Ranking performance on the primary musical proxy (character similarity).}
+\label{tab:results_primary_musical_proxy}
 \begin{tabular}{lccc}
 \hline
 \textbf{Model / Family} & \textbf{NDCG@K} & \textbf{Precision@K} & \textbf{Recall@K} \\
@@ -54,13 +54,19 @@ Compact model D           & -- & -- & -- \\
 % Short interpretation of the results.
 
 \section{Cross-Task Comparison and Model Family Trends}
-% Compare performance trends across proxy tasks.
-% Discuss differences between model families.
+% This section will compare trends observed across the sanity and musical proxies,
+% focusing on whether relative performance differences between model families
+% are consistent across proxy types.
+% This comparison is intended to reveal whether relative differences
+% between model families persist across proxies with different semantic roles.
 
-\section{Exploratory Analysis: Architectural Factors (Optional)}
-% Optional analysis related to RQ2.
-% Examples: temporal modeling, embedding dimensionality, model complexity.
+\section{Exploratory Analysis: Architectural Factors (Not Included in V1.2)}
+% This section is intentionally left for future extensions.
+% Exploratory analysis of architectural factors is deferred to future work
+% and is not part of the core claims of this thesis.
+
 
 \section{Summary of Findings}
-% Bullet-point style summary of key observations.
-% Bridge to Chapter 6 (Discussion and Conclusions).
+% This section will summarize key observations from the sanity and musical proxies
+% and highlight condition-dependent insights related to model capacity.
+% Detailed interpretation is deferred to Chapter~6.

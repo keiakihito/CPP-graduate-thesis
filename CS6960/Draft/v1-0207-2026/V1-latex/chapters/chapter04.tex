@@ -47,6 +47,8 @@ The choice (per-model vs common preprocessing) will be stated explicitly so that
 Full tracks may exceed the maximum input length of some models.
 The methodology allows for either (a) segmenting each track into fixed-length or variable-length chunks, extracting embeddings per segment, and aggregating to a single vector per track (e.g., by averaging or max-pooling), or (b) using a single representative segment per track (e.g., a fixed-duration clip from the middle or from multiple non-overlapping windows).
 The chosen strategy will be applied consistently across all models that require segmentation, and will be documented (including segment length and aggregation method) so that the procedure can be replicated.
+Segmentation is treated as a representation-level preprocessing step in V1, rather than as a primary factor for improving retrieval performance.
+
 
 \subsection{Normalization}
 
@@ -73,6 +75,18 @@ The exact metadata fields and matching rules will be specified per proxy task wh
 
 This procedure yields one ranked list per query per model; these lists are the inputs to the evaluation step.
 
+\section{Proxy Tasks (V1.2 Placeholder)}
+
+\subsection{Sanity Proxy: Composer-Based Retrieval}
+% Definition (to be finalized):
+% Given a query track, retrieve top-K neighbors and measure composer-consistency as a sanity check.
+
+\subsection{Primary Musical Proxy: Character Similarity (Heavy vs. Light)}
+% Definition (to be finalized):
+% A coarse musical-character label (e.g., heavy vs. light) is assigned to tracks.
+% Evaluate whether nearest neighbors share the same character label more than chance.
+
+
 \section{Evaluation Metrics}
 
 Ranking quality is measured with standard information retrieval metrics:
@@ -95,7 +109,7 @@ This is optional for V1 and will be included only if feasible without expanding 
 
 \begin{itemize}
     \item Pipeline structure: preprocessing to embedding extraction to indexing to ranking to evaluation, with the embedding model as the only variable.
-    \item Use of metadata-based proxy tasks for relevance.
+    \item Use of metadata-based proxy tasks for sanity checking, alongside a primary musical-character-based proxy for evaluation.
     \item Evaluation metrics: NDCG, Precision@K, Recall@K as the primary metrics; diversity optional.
     \item Model grouping into the four families above (CNN-based, RNN-based/hybrid, transformer/SSL, compact).
     \item Consistency rules: same index type and similarity measure for all models; same aggregation and reporting conventions.
