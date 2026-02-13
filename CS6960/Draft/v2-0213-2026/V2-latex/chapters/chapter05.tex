@@ -1,0 +1,72 @@
+\chapter{Experimental Results and Analysis}
+
+This chapter outlines the experimental result structure for addressing Research Question~1, focusing on how backend audio embedding model families will be compared using ranking-based evaluation on predefined proxy tasks.
+
+
+\section{Overview of Experiments}
+% This section summarizes what was evaluated in this chapter.
+% Emphasize that experiments are small-scale but methodologically consistent.
+
+\section{Experimental Setup Summary}
+% Concise recap of dataset subset, model families, similarity metric,
+% index type, and evaluation cutoffs, for readers who jump directly to results.
+
+\section{Results on Sanity Proxy: Composer-Based Retrieval}
+% Brief description of the proxy task and evaluation setup.
+
+\begin{table}[t]
+\centering
+\caption{Ranking performance on the sanity proxy (composer-based retrieval).}
+\label{tab:results_sanity_proxy}
+\begin{tabular}{lccc}
+\hline
+\textbf{Model / Family} & \textbf{NDCG@K} & \textbf{Precision@K} & \textbf{Recall@K} \\
+\hline
+CNN-based model A         & -- & -- & -- \\
+CNN--RNN hybrid model B   & -- & -- & -- \\
+Transformer-based model C & -- & -- & -- \\
+Compact model D           & -- & -- & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+% Short interpretation of the results.
+
+\section{Results on Primary Musical Proxy: Character Similarity (Heavy vs.\ Light)}
+% Brief description of the proxy task and evaluation setup.
+
+\begin{table}[t]
+\centering
+\caption{Ranking performance on the primary musical proxy (character similarity).}
+\label{tab:results_primary_musical_proxy}
+\begin{tabular}{lccc}
+\hline
+\textbf{Model / Family} & \textbf{NDCG@K} & \textbf{Precision@K} & \textbf{Recall@K} \\
+\hline
+CNN-based model A         & -- & -- & -- \\
+CNN--RNN hybrid model B   & -- & -- & -- \\
+Transformer-based model C & -- & -- & -- \\
+Compact model D           & -- & -- & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+% Short interpretation of the results.
+
+\section{Cross-Task Comparison and Model Family Trends}
+% This section will compare trends observed across the sanity and musical proxies,
+% focusing on whether relative performance differences between model families
+% are consistent across proxy types.
+% This comparison is intended to reveal whether relative differences
+% between model families persist across proxies with different semantic roles.
+
+\section{Exploratory Analysis: Architectural Factors (Not Included in V1.2)}
+% This section is intentionally left for future extensions.
+% Exploratory analysis of architectural factors is deferred to future work
+% and is not part of the core claims of this thesis.
+
+
+\section{Summary of Findings}
+% This section will summarize key observations from the sanity and musical proxies
+% and highlight condition-dependent insights related to model capacity.
+% Detailed interpretation is deferred to Chapter~6.

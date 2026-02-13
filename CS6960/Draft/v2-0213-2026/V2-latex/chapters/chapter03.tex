@@ -1,0 +1,34 @@
+\chapter{Problem Formulation and System Overview}\label{ch:problem}
+
+\section{Problem Setting}
+
+This thesis evaluates backend audio embedding models on classical music similarity and retrieval tasks using offline proxy tasks.
+The fundamental problem is to rank a collection of classical music tracks (items) in response to a query track, where relevance is defined by the chosen proxy task (e.g., composer identity for the sanity proxy, or character labels for the primary proxy).
+Specifically, we consider (1) a sanity-check proxy (e.g., composer-based retrieval) to ensure that embeddings preserve basic musical structure, and (2) a primary musical proxy reflecting perceived character similarity (e.g., heavy vs.\ light).
+Each item in the collection is a complete audio recording from the iPalpiti archive, and each query is also a track from this same collection.
+The goal is to measure how well different embedding models can retrieve relevant items when ranked by embedding-space similarity (e.g., cosine similarity), where relevance is defined by the chosen proxy task (e.g., composer identity for the sanity proxy, or a character label for the primary musical proxy).
+
+This approach allows us to evaluate embedding quality without requiring real user feedback, making it suitable for small archives where user data is scarce.
+By framing similarity search as a ranking problem, we can directly assess how well embedding models support retrieval-oriented use cases typical of music archives.
+These proxy tasks are not treated as end goals, but as diagnostic tools to analyze how different embedding models organize musical similarity under constrained archival conditions.
+
+
+\section{Backend Pipeline Overview}
+
+The evaluation pipeline consists of four sequential stages.
+First, raw audio files from the iPalpiti archive are preprocessed into a consistent input format (e.g., mel-spectrograms or waveform segments) suitable for the embedding models under study.
+Second, each pretrained embedding model processes these inputs to produce fixed-dimensional vector representations (embeddings) for each track.
+Third, these embeddings are stored in an index structure that supports efficient similarity search, enabling fast retrieval of candidate tracks for any query.
+Fourth, for each query track, the system retrieves and ranks candidate tracks by embedding similarity, and these rankings are evaluated against metadata-based ground truth using standard ranking metrics such as NDCG, Precision@K, and Recall@K.
+This pipeline isolates the embedding extraction stage as the variable of interest, holding all other components (preprocessing, indexing, evaluation protocol) constant across model comparisons.
+
+\section{Scope and Constraints for V1}
+\paragraph{Condition Z.}
+All claims in this thesis are conditioned on a small-scale, single-domain classical music setting and retrieval-based proxy evaluation.
+\paragraph{Proxy-task design philosophy.}
+We separate proxy tasks into (1) sanity checks to ensure embeddings preserve basic musical structure and (2) a primary musical proxy reflecting perceived character similarity. Exploratory discovery-oriented analysis is deferred to future work.
+
+
+\textbf{Fixed in V1:} The core problem formulation (items as tracks, queries as tracks, metadata-based relevance for proxy tasks), the overall pipeline structure (audio preprocessing to embedding extraction to indexing to ranking to evaluation), the commitment to ranking-based metrics (NDCG, Precision@K, Recall@K), and the focus on comparing multiple backend embedding model families rather than end-to-end recommendation systems.
+
+\textbf{Provisional (to be finalized during experiments):} The exact set of proxy tasks (e.g., which metadata relationships are used as ground truth), the specific subset of the iPalpiti archive used for evaluation (number of tracks, time period coverage, instrument/ensemble distribution), the precise preprocessing parameters (spectrogram settings, segment length, normalization), the indexing implementation details (exact library and configuration), and the computational constraints that determine which models can be evaluated within available resources.
