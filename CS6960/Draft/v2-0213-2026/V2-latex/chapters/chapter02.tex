@@ -13,6 +13,7 @@ Classical collections are often smaller, stylistically coherent, and rich in str
 
 
 \section{Backend Audio Embedding Model Families}
+These architectural distinctions reflect broader trends in audio representation learning, where advances in model design and pretraining strategies have reshaped the landscape of music information retrieval.
 This thesis focuses on comparing backend audio embedding model families rather than individual end-to-end recommendation systems. 
 Prior work in music information retrieval has explored a range of architectural approaches for learning audio representations. 
 Comprehensive surveys categorize deep learning architectures for audio modeling into distinct families, including convolutional neural networks (CNNs), recurrent neural networks (RNNs), transformer-based models, and hybrid architectures \cite{zaman2023}. 
@@ -33,11 +34,19 @@ Hybrid CNN–RNN architectures integrate convolutional layers for spectral featu
 These architectures combine local spectral feature extraction with sequence-level temporal modeling, providing a unified framework for capturing both spatial and temporal characteristics of music.
 
 \subsection{CNN--Transformer and Transformer-Based Models}
+
 CNN–Transformer hybrid architectures employ convolutional front-ends to extract local spectral features before passing them to transformer encoders for modeling long-range temporal dependencies \cite{pourmoazemi2024}. 
-In contrast, pure transformer-based models such as the Audio Spectrogram Transformer (AST) operate directly on spectrogram representations using self-attention mechanisms to capture global context \cite{gong2021ast}.
-These approaches represent a contrasting architectural family to CNN and CNN--RNN models, often characterized by higher model capacity and greater representational flexibility. 
-Transformer-based architectures are commonly pretrained on large-scale datasets and may benefit from extensive data exposure. Compared to convolutional models, which embed stronger locality-based inductive biases, transformer models rely more heavily on data-driven learning, potentially leading to performance sensitivity in small-data regimes. 
-This raises questions about whether such high-capacity architectures retain their advantage when applied to small, domain-constrained archives with limited data diversity.
+In contrast, pure transformer-based models such as the Audio Spectrogram Transformer (AST) operate directly on spectrogram representations using self-attention mechanisms to capture global context \cite{gong2021ast}. 
+
+These approaches represent a contrasting architectural family to CNN and CNN--RNN models, often characterized by higher representational flexibility and reliance on large-scale data.
+
+Recent transformer-based audio models increasingly rely on large-scale self-supervised pretraining to learn general-purpose representations from unlabeled audio corpora. 
+For example, BEATs introduces an iterative self-supervised framework based on masked discrete label prediction using semantic acoustic tokenizers \cite{chen2023beats}. 
+Such approaches demonstrate that carefully designed pretraining objectives and large-scale exposure can yield substantial improvements in downstream audio tasks, even without proportionally increasing model size.
+
+
+However, these advantages are typically demonstrated on large and diverse datasets such as AudioSet. 
+It remains unclear whether such scale-dependent benefits transfer to small, domain-constrained archival collections, where data diversity and pretraining conditions differ substantially.
 
 
 \subsection{Compact and Efficient Models}
@@ -50,7 +59,8 @@ In the context of this thesis, compact architectures represent the lower-capacit
 The quality of audio embeddings is commonly assessed through downstream evaluation tasks. Prior work employs a variety of evaluation strategies, each with different implications for recommendation and retrieval.
 
 \subsection{Classification-Based Evaluation}
-Audio embeddings are often evaluated using classification-based benchmarks in music information retrieval \cite{gong2021ast, lin2024}, where Metrics such as accuracy, precision, recall, and F1-score are commonly reported on benchmark datasets. 
+Audio embeddings are often evaluated using classification-based benchmarks in music information retrieval \cite{gong2021ast, lin2024}. 
+Metrics such as accuracy, precision, recall, and F1-score are commonly reported on benchmark datasets.
 While classification performance provides insight into the discriminative power of embeddings, it does not directly measure their effectiveness for similarity search or ranking-based retrieval.
 Moreover, classification benchmarks are typically conducted on large-scale, well-annotated datasets. In such settings, increased model capacity often translates into improved discriminative accuracy. However, it remains unclear whether gains observed in large-scale classification tasks meaningfully transfer to small-scale retrieval scenarios in which data diversity and label granularity are limited.
 Furthermore, improvements in classification accuracy do not necessarily imply improved neighborhood structure in embedding space, which is critical for similarity-based retrieval tasks.
@@ -83,7 +93,8 @@ However, such considerations are beyond the scope of this thesis, which isolates
 
 \section{Synthesis and Research Gap}
 The reviewed literature demonstrates significant progress in learning audio embeddings for music-related tasks, spanning CNN-based, hybrid, and transformer-based architectures.
-Prior studies frequently report that increasing architectural complexity and model capacity is associated with improved performance on large-scale classification benchmarks and heterogeneous music datasets.
+Prior studies frequently associate increased architectural complexity and model capacity with improved performance on large-scale classification benchmarks and heterogeneous music datasets.
+
 
 However, these conclusions are predominantly derived from settings with abundant training data and broad musical domains.
 It remains unclear whether increased embedding-model capacity yields comparable benefits in small-scale, single-domain archives such as classical music collections.
