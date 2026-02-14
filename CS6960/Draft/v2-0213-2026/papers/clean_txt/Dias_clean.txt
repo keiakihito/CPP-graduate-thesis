@@ -1,0 +1,187 @@
+Music Genre Classification &
+Recommendation System using CNN Jessica Dias
+
+Vaishak Pillai
+
+Assistant Professor, Department of Information Technology St. John College of Engineering and Management Palghar, India dias.jessica29@gmail.com
+
+U.G. Student, Department of Information Technology St. John College of Engineering and Management Palghar, India vaishakp@sjcem.edu.in
+
+Hrutvik Deshmukh U.G. Student, Department of Information Technology St. John College of Engineering and Management Palghar, India hrutvikd@sjcem.edu.in
+
+Abstract— Musical genres are human-made categories for different types of music. A musical genre is defined by the shared features of its members. These features are typically linked to instrumentation, rhythmic structure, and harmonic content. To organize the massive amounts of music available on the Internet,
+genre hierarchies are extensively used. At the time, musical genre identification is done manually. Automatic musical genre classification can help, if not completely replace, the human user in this task, making it a key component of music information retrieval systems. Furthermore, automated musical genre classification offers a framework for constructing and assessing features for any type of content-based assessment of musical signals.
+Index Terms— Musical Genre, rhythmic structure, harmonic content, retrieval system, musical signals.
+
+I. INTRODUCTION
+
+Ashok Shah U.G. Student, Department of Information Technology St. John College of Engineering and Management Palghar, India ashoks@sjcem.edu.in
+
+precisely detecting the user's preferences. This means that computers will have to think like humans, evaluating each user's past choices to predict what they desire in the future.
+Machine Learning approaches must be used whenever a machine is required to emulate human behavior, as we have already seen. As a result, in this project, we will combine Machine Learning and Neural Networking to construct the optimal music recommendation system.
+The following is the rest of the document. Section 2 discusses the literature that was analyzed for the project. The proposed approach for music genre classification and recommendation is discussed in Section 3. In Section 4, the emphasis is on implementation. Section 5 contains the results and discussion.
+Section 6, which outlines the reach and probable directions,
+brings the investigation to a close.
+
+II. LITERATURE REVIEW Data mining is a technique for extracting and detecting patterns in huge data sets that combines machine learning,
+Jongseol Lee et.al.[7] presented that thousands of songs are statistics, and database systems. Data mining is an available through various distribution systems, such as interdisciplinary subject of computer science and statistics downloading and streaming services. The need for effective with the purpose of extracting information from a data recommendation and retrieval from a vast digital music collection using intelligent methods and transforming it into database is growing. However, because to the unfathomable an intelligible structure for subsequent use. With numerous time commitment of the job, selecting a desired song from real-world applications, genre classification is an important among all of these songs is not feasible. As a result, the field of task. As the amount of music released on a daily basis music information retrieval study is gaining traction. The continues to rise, particularly on internet platforms like MusicRecom system, which we propose, is made up of four key Soundcloud and Spotify (a 2018 estimate suggests that tens functional modules. The usage history generator captures and of thousands of songs were released every month on Spotify),
+categorizes user music usage trends. The genre categorization the need for accurate meta-data for database management and module extracts and categorizes musical features. For the search/storage purposes rises in tandem. The ability to suggested genre classification, we use advanced algorithms.
+rapidly identify songs in any given playlist or collection by Music information such as Singer, Title, Artist, Composer, and genre is a critical feature for any music streaming/purchasing Album Name is collected by the music information generator.
+business, and the statistical analysis potential provided by Our system's feature extraction procedure is as follows: - First,
+accurate and full labelling of music and audio is virtually decoding, down sampling, and mono-conversion are applied to endless. A specific dataset can be used to classify genres, and the input audio. The pre-processed audio is framed using a the model can be trained to match the dataset. The low-level 23ms hamming window with a 50% overlap. Raw features are frequencies and temporal domain of the audio recordings will extracted from each window. Decorrelated filter bank (DFB),
+be used to classify them. The goal of a recommendation Mel-frequency cepstral coefficients (MFCC), and Octavesystem like this would be to provide tailored content by based spectrum contrast (OSC) all employed in our method.
+Electronic copy available at: https://ssrn.com/abstract=4111849
+
+MFCCs are utilized in many music categorization methods to express spectrum features based on Mel-frequency scaling. The DFB takes into account amplitude differences between adjacent bands. It's calculated by subtracting the log spectrum of a nearby mel-scale band. In each octave-based sub band, the OSC examines the spectral peak, spectral valley, and spectral contrast. The usage history generator creates the history based on the user's listening habits. The pattern collector collects candidate patterns from usage patterns and determines updated positive and negative patterns for classification. We came up with the following pattern policies. - a) Negative pattern: song skips after 15 seconds. - b) A positive pattern is a song that is rewinded or repeated. To compare user-favorite songs and music datasets,
+we use the cosine coefficient. User preference features and dataset features are extracted by the recommendation engine.
+MusicRecom is a system that provides tailored music services based on previous usage and automatic genre classification. For genre categorization, we used 5- and 10dim feature vectors with no performance decrease. This system can be applied to various audio gadgets, applications and services.
+In 2016, Mr. Mangesh Panchwagh et.al.[3] set out to determine which classifier is the most effective at categorizing music into its various genres. They have put single classifier and ensemble classifier approaches to the test and compared them. The research makes use of the garage band dataset, which was donated by the TU Dortmund. The process of extracting numerous features from music files is known as feature extraction. MFCC, LPC, and ZCR are utilized for this. The Java-Weka Library was used to create these. As classifiers, algorithms like NaiveBayes, BayesNet,
+J48, SMO, and logistic classifiers are used. An ensemble of classifiers is implemented using the Java-Weka package. As classifiers, algorithms like NaiveBayes, BayesNet, J48,
+SMO, and logistic classifiers are used. The Java-Weka package is used to implement an ensemble of classifiers.
+Many studies now employ the ensemble of classifier technique, which employs more than one classifier to classify a single instance. The J48 classifier achieves the highest classification accuracy of 83.9001 percent. With a classification accuracy of 27.5339 percent, the logistic classifier is the most accurate. Various data mining classifiers are used in the experimentation. The SMO classifier, when combined with the PKIDiscretize pre-processing approach,
+has the greatest classification accuracy of 100 percent for MFCC. It has also been discovered that of the three characteristics employed (MFCC, LPC, and ZCR), the MFCC feature provides the most accurate classification. For music genre categorization, it has been discovered that a single classifier technique outperforms an ensemble of classifiers.
+
+with the results contrasted in terms of performance. The research used the GTZAN dataset, and the SVM approach produced the best results. The rise in Internet use has caused havoc on the music industry, as well as driving a raft of other changes. The widespread usage of online music streaming and sales platforms, the management of music copyright, the categorization of music genre, and song suggestions are all examples of these improvements. Thanks to the emergence of music broadcast platforms such as Spotify and Last.fm, which allow access to millions of songs, people may now listen to music at any time and from anywhere. The goal of this research is to employ digital signal processing algorithms to deliver musical recommendations and genre categorization based on acoustic data extracted from raw music, without taking into account the user's songs profile or collaborative filtering. As the model only employs one deep learning approach, CNN, the recommendations may be inaccurate.
+In 2018 Mr. Sharaj Panwar et.al.[2] have used a combination of Convolutional Neural Networks(CNN) and Recurrent Neural Networks(RNN). Convolutional Recurrent Neural Networks are a hybrid model of CNN and RNN
+(CRNN). They used the MagnaTagATune dataset, which contains 188 distinct tags as well as raw music in mp3 format.
+Information is created using a mel-spectogram signal, which is then input into the CRNN model, which is meant to grasp the local and temporal aspects of a specific music recording. To construct mel-spectograms of log amplitude, the Liborsa library is utilized to process and pre-process a raw audio mp3 input.
+After that, an array of spectrograms is sent into the CRNN model. The top 50 tags in the dataset are predicted by the model. These tags contain various music genres, moods, and other information. The model's goal is to accurately predict whether a specific tage is present in a music file. The developers attempted to attain a 94 percent accuracy with a 0.15 second data loss. A network architecture that combines CNN and RNN networks has the potential to explore the required information for tag classification. A CRNN network is proposed for tag recognition on the MagnaTagATune database in this paper. There are 188 takes in the complete dataset, but only 50 are chosen from the largest population, and the rest are combined into those 50 tags.
+
+In 2019, Nikki Pelchat et.al.[1] published that musical genres offered a system for human-created labels for classifying and describing the vast collections of music.
+Musical genres have no clear limits or boundaries since they are the result of a complex interaction of public perception,
+marketing, history, and culture. Several academics have suggested that a new genre classification scheme be created solely for the purpose of accessing music information as a result of this discovery. Even today's musical genres have some common characteristics, such as instrumentation, rhythmic structure, and pitch content. Extracting music metadata In 2018, Ahmet Elbir et.al.[4] proposed a system for One programmatically is becoming more important as a way to of the subjects that digital music processing is interested in is organize and manage the growing quantity of music tracks music genre prediction. In this study, the acoustic aspects of available online on the Internet. All recorded music from music were extracted using digital signal processing human history will very likely be available on the Internet in techniques, and then machine learning algorithms were used the not-too-distant future. All recorded music from human to classify and recommend music genres. Convolutional history will very likely be available on the Internet in the notneural networks (CNN), which are deep learning methods,
+too-distant future. Automatic music analysis will be one of the were also used to categorize genres and recommend music,
+services offered by music content distribution companies to Electronic copy available at: https://ssrn.com/abstract=4111849
+
+attract clients. To give Automation Classification and Evaluation of particular Genres, the developers will use the same Feature Extraction technique, which contains three subparts: Timbral Texture, Rhythmic Structure, and Pitch Content of Musical Signals.
+In 2019, Ferdos Fessahaye et.al.[5] proposed that a recommendation system, according to the author, is a system that use strategies to recommend an item to a user who is likely to prefer it. The proposed method could be applied to a wide variety of substrates and domains, like YouTube
+(videos), Netflix (movies), Amazon (commerce), and many others, regardless of the fact that the focus of this research is on enhancing music recommendation systems. When more factors are introduced to current systems, they become inefficient. T-RECSYS (Tunes Recommendation System) is a deep learning classification model that creates an accurate recommendation system with real-time prediction using a hybrid of content-based and collaborative filtering as input.
+the data used is from the Spotify Recsys Challenge to demonstrate our method, achieving precision scores of up to 88 percent at a balanced discrimination threshold. They propose an algorithm for recommending music to users in the form of a factor (k) recommendations in this work. Tunes Recommendation System (T-RECSYS) uses a trained hybridization of content-based and collaborative filtering to score each song in a database according to user choice, then returns the top-k scoring songs. The system uses previous data and preferences to include user input, extracting numerous essential metadata factors such as genre, mood,
+and tempo. These factors are used as input for our recommendation engine, which allows for quick and accurate recommendations. The precise scoring mechanism ranks confidences derived from deep learning categorization. This model is a third-party system that may or may not be compatible with certain devices. Furthermore, the implementation of this project is more costly.
+
+enormous. According to related research, a feature set is utilized to provide data with fewer values, and a single feature value for an entire audio signal can be produced. Meaningful representation: while the raw audio file has all of the information we could ever extract and use, it's critical that we express the musical aspects in a way that machines or people can understand. The classification results of the Convolutional Neural Network (CNN) when trained on spectrograms, threesecond features, and thirty-second features are presented in this subsection. The three-second feature set provides more training data, which may explain why it achieves higher accuracy. The CNN implementation had the lowest accuracy, at 53.50 percent, because to the thirty-second duration features. This study was divided into three phases: 'phase A,' 'phase B,' and
+'phase C.' Each step had an importance that corresponded to the research's contribution to the present body of knowledge. We offer music genre categorization using machine-learning and deep-learning methodologies, as well as a comparison of machine-learning and deep-learning models' accuracy in completing the classification assignment.
+III.PROPOSED SYSTEM The block diagrams of the proposed system for music genre classification and recommendation are shown in Figures 1 and 2. This project aims to determine the genre of a music track that has been submitted to the system by a user. The GTZAN dataset served as the basis for training and testing the models. The GTZAN genre collection dataset was compiled in the years 2000-2001. It consists of 1000 audio files, each of which lasts 30 seconds. Each class has 100 audio tracks and is divided into ten categories (10 music genres). All of the tracks are in.wav format. It features audio songs from the following eleven genres:
+• Blues
+• Classical
+• Country
+• Disco
+• HipHop
+• Jazz
+• Metal
+• Pop
+• Reggae
+• Rock
+
+In 2021 Mr. Ndiatenda Ndou et.al.[6] published a paper which looks into automatic music genre classification with the goal of demonstrating that machine-learning and deep learning approaches can be used to classify music based solely on the audio signal, reducing the time it takes to find music pieces in the massive music databases that have sprung up as a result of digital music platforms. We show four types of qualities that are used to categorize music genres. In order We'll utilise Convolutional Neural Networks because they've to execute accurate and informed categorization, the right set demonstrated to be the most effective for this task in numerous of features must be chosen. 1) A characteristic depending on studies. Convolutional Neural Networks (CNN) are a type of magnitude 2) Features dependent on time 3) Features based artificial neural network that uses convolutional neural on pitch, and 4) Features based on chord progression. The networks. CNNs are excellent at detecting design elements in GTZAN dataset was used in each of the three-research done.
+input images, such as lines, gradients, circles, and even eyes This GTZAN dataset is an ensemble of 1000 thirty-secondand faces. CNN is made up of multiple convolutional layers long snippets. The 1000 pieces of music are divided into ten stacked on top of each other, each capable of identifying more genres, each containing 100 pieces of music. We've found complex structures.
+four kinds of characteristics that are thought to play a role in 1. Music Genre Classification correctly classifying music genres. Important preprocessing experiments must be carried out before to selecting these A music genre classifier is a piece of software that determines features for model implementation in order to make the raw what type of music is being played in an audio file. These data suitable for the classification task. In this work, feature devices are utilized for things like automatically labelling extraction was used for two purposes: Dimensionality music for services like Spotify and Billboard, as well as reduction: raw data dimensions are usually too huge to choosing appropriate background music for events.
+handle efficiently, e.g., an entire raw audio file may be too Electronic copy available at: https://ssrn.com/abstract=4111849
+
+2. Music Recommendation System:
+The Recommender System is a software application and algorithm that makes recommendations for the products that a user is most interested in. Recommendations are used in a variety of real-world situations, such as deciding what products to buy, listening to music, or reading the latest news.
+Three algorithms are used by the recommendation engine:
+•
+
+Popularity filtering
+
+It's a simple model that ranks the songs in the training set in order of popularity and proposes the most popular ones. This strategy does not take into account the preferences of the users.
+•
+
+Content-Based filtering
+
+Filtering methods based on content are based on the item's description and a profile of the user's preferences. These strategies work best when there is known information about an item (name, location, description, etc.) but not about the user. Suggestion is approached as a user-specific classification problem, with content-based recommenders developing a classifier based on product attributes for the user's likes and dislikes. The system employs two sorts of information to generate a user profile: a model of the user's preferences and a history of the user's interactions with the recommender system.
+•
+
+Fig. 1. Block diagram of music genre classification.
+
+Collaborative filtering
+
+Collaborative filtering is founded on the idea that people who have agreed in the past will agree again in the future, and that they will enjoy comparable products. Only information about rating profiles for various persons or things is used to generate suggestions by the algorithm. It creates recommendations using this neighborhood by seeking peer users/items with a rating history similar to the current user or item. A collaborative filtering model based on items has been implemented. The listen count option is utilized as implicit training feedback. To determine how similar two items are,
+we examine the collection of items that the target user has rated and determine how similar they are to the target item I then choose the K most similar items.
+3. Data Visualization The graphical depiction of information and data is known as data visualization. Data visualization tools make it easy to examine and comprehend trends, outliers, and patterns in data by employing visual elements like charts, graphs, and maps. Another sort of visual art that piques our curiosity and keeps our gaze fixed on the message is data visualization. We can rapidly spot trends and outliers while looking at a chart. 1.
+
+Fig. 2. Block diagram of recommendation system
+
+IV. IMPLEMENTATION
+
+1. Convolutional Neural Networks
+
+A CNN, or convolutional neural network, is a deep learning neural network designed to analyse structured arrays of data like representations. CNNs are excellent at detecting design elements in input images, such as lines, gradients,
+circles, and even eyes and faces. It is because of this feature that convolutional neural networks are so effective in computer The music files can be visualized using their frequency vision. CNN does not require any pre-processing and can run spectrum or by converting those frequencies into a numeric directly on an underdone image. A feed forward neural network value and holding them in a .csv file.
+with up to 20 layers is known as a convolutional neural network. A convolutional neural network's strength stems from a type of layer known as the convolutional layer. CNN is made Electronic copy available at: https://ssrn.com/abstract=4111849 The data is here is from the GTZAN Dataset. The GTZAN Dataset contains 100 files from 10 genres each resulting into 1000 music files. These music files can be visualized using various visualization software and also through python libraries.
+
+up of multiple convolutional layers stacked on top of each other, each capable of identifying more complex structures.
+Handwritten digits can be recognised with three or four convolutional layers, while human faces can be distinguished with 25 layers. The goal of this field is to train machines to see the world in the same way that humans do, to perceive it in the same way, and to use that knowledge for a variety of tasks such as image and video recognition, image inspection and classification, media recreation, recommendation systems, natural language processing, and so on.
+2. Dataset For training purposes, any Machine Learning model requires some data. Because future predictions are fully dependent on the training data, the data is tremendously crucial. The ensuing predictions would be abnormal if the dataset was not adequately filtered. The GTZAN dataset (as shown in fig 3) is the most often used public dataset for music genre recognition evaluation in machine learning research.
+The files were collected in 2000-2001 from a variety of sources, including personal CDs, radio, and microphone recordings, in order to represent a variety of recording settings.
+
+Fig. 5. Music Recommendation
+
+Here, we can see that when ‘Fleet Foxes’ and ‘The End’ were given as input we get similar music as output.
+
+(http://marsyas.info/downloads/datasets.html).
+
+V.
+
+RESULTS AND DISCUSSION
+
+Fig.3. Dataset
+
+Figure 4&5 shows the implementation of music genre classification and music recommendation respectively.
+
+Fig. 6.
+
+Accuracy using CNN
+
+Fig. 7.
+
+Data loss compared with accuracy using CNN
+
+Fig. 4. Music Genre Classification
+
+Here, we can see that the music file is classified into “pop”
+genre.
+
+Electronic copy available at: https://ssrn.com/abstract=4111849
+
+Fig. 8.
+
+Comparison with other algorithms.
+Fig. 10. Python Streamlit Webapp
+
+Figure 10 shows the webapp implementation of classifier using Python Streamlit where a music file is uploaded by the user.
+
+VI. CONCLUSION AND FUTURE SCOPE Fig. 9.
+
+Accuracy of CNN with other algorithms.
+
+The above figures 8 & 9 depict the accuracy of the algorithm in comparison with SVM, Feed-forward Neural Network and KNN, and the accuracy of CNN is 76%.
+
+In this project, we created a classifier that can predict the genre of audio recordings. The GTZAN music genre classification dataset is used in this study. This project explains how to use audio files to extract relevant information.. We used the Convolutional Neural Network Model in this research. The system will sort the music into one of ten genres: Blues,
+Classical, Country, Metal, Hip Hop, Jazz, Disco, and Pop.
+Reggae and rock are two genres of music. The recommendation algorithm suggests music to the user that is similar to what they are listening to. The project can now be implemented in a graphical user interface (GUI) format. It can then be turned into a fully functional website or application.
+REFERENCES
+[1] Nikki Pelchat and Craig M. Gelowitz, “Neural Network
+
+Music Genre Classification”, Canadian Journal of Electrical and Computer Engineering, Vol. 43, No. 3, Summer 2020.
+[2] Sharaj Panwar, Arun Das, Mehdi Roopaei; Paul Rad, “A deep learning approach for mapping music genres”, 2018 12th System of Systems Engineering Conference (SoSE), 2018.
+[3] Mangesh M. Panchwagh, Vijay D. Katkar, “Music Genre Classification Using Data Mining Algorithm”, 2016 Conference on Advances in Signal Processing (CASP)
+Fig. 9. GUI Cummins College of Engineering for Women, Pune, Jun 9-11,
+2016.
+[4] Ahmet Elbir, Hilmi Bilal Çam, Mehmet Emre İyican,
+Berkay Öztürk, Nizamettin Aydın, “Music Genre Classification and Recommendation by Using Machine Figure 9 shows the HTML CSS User Interface Design of the Learning Techniques”, 2018 Innovations in Intelligent Systems project.
+and Applications Conference (ASYU), 2018.
+[5] Ferdos Fessahaye, Luis Perez, Tiffany Zhan, Raymond Zhang, Calais Fossier, Robyn Markarian, Carter Chiu, Justin Zhan, Laxmi Gewali, Paul Oh; “T-RECSYS: A Novel Music Recommendation System Using Deep Learning”, 2019 IEEE International Conference on Consumer Electronics (ICCE),
+Electronic copy available at: https://ssrn.com/abstract=4111849
+
+2019.
+[6] Mr. Ndiatenda Ndou, Mr. Ritesh Ajoodha and Ms.
+Ashwini Jadhav, “Music Genre Classification: A Review of Deep-Learning and Traditional Machine-Learning Approaches”, 2021 IEEE International IOT, Electronics and Mechatronics Conference (IEMTRONICS), 2021.
+[7] Jongseol Lee; Saim Shin; Dalwon Jang; Sei-Jin Jang;
+Kyoungro Yoon, “Music Recommendation System Based on Usage History and Automatic Genre Classification”, 2015 IEEE International Conference on Consumer Electronics
+(ICCE), 2015.
+
+Electronic copy available at: https://ssrn.com/abstract=4111849
+
+

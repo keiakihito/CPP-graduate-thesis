@@ -1,0 +1,2480 @@
+Assessing the Impact of Music Recommendation Diversity
+on Listeners: A Longitudinal Study
+
+arXiv:2212.00592v1 [cs.HC] 1 Dec 2022
+
+LORENZO PORCARO, Music Technology Group, Universitat Pompeu Fabra, Spain and Joint Research
+Centre, European Commission, Italy
+EMILIA GÓMEZ, Music Technology Group, Universitat Pompeu Fabra, Spain and Joint Research Centre,
+European Commission, Spain
+CARLOS CASTILLO, Web Science and Social Computing Group, Universitat Pompeu Fabra, Spain
+and ICREA, Spain
+We present the results of a 12-week longitudinal user study wherein the participants, 110 subjects from
+Southern Europe, received on a daily basis Electronic Music (EM) diversified recommendations. By analyzing
+their explicit and implicit feedback, we show that exposure to specific levels of music recommendation diversity
+may be responsible for long-term impacts on listeners’ attitudes. In particular, we highlight the function of
+diversity in increasing the openness in listening to EM, a music genre not particularly known or liked by the
+participants previous to their participation in the study. Moreover, we demonstrate that recommendations may
+help listeners in removing positive and negative attachments towards EM, deconstructing pre-existing implicit
+associations but also stereotypes associated with this music. In addition, our results show the significant clout
+that recommendation diversity has in generating curiosity in listeners.
+CCS Concepts: • Information systems → Information retrieval; • Human-centered computing →
+User studies; • Applied computing → Sound and music computing.
+Additional Key Words and Phrases: music information retrieval, longitudinal analysis, diversity
+
+1
+
+INTRODUCTION
+
+Recommender Systems (RS) affect several choices in our daily life, helping us choose, for instance,
+the news we read, the movies we watch, the job positions we apply for, or the music we listen to.
+Besides the end-users consuming the recommendations, RS also affect those producing the items
+being recommended: artists’ royalty revenues may depend on whether they are recommended or
+not within a streaming platform; the fame of a brand in e-commerce may rely upon if its products
+are displayed or not as similar to the ones previously purchased by users; the time spent unemployed
+may depend on whether a profile is shown or not to potential employers. These are just a few
+examples of the several RS stakeholders subject to different, sometimes unintended, and emerging
+impacts [43].
+The awareness of these impacts is at the basis of the flourishing fair ranking and recommendations literature [75]. For instance, Hasan et al. [36] show that RS potentially increases excessive
+video usage on online platforms. Adomavicius et al. [1] highlight the role of recommendations in
+manipulating consumers’ preference ratings. Fabbri et al. [21] investigate the role of RS in promoting
+users’ radicalization. Notwithstanding, RS may certainly be responsible also for positive changes.
+Hauptmann et al. [37] propose an app for healthy food recommendations that positively affect
+nutritional behaviour. Music recommendations have been used for helping recover the musical
+memory of people with Alzheimer’s disease [70]. In the work by Starke et al. [88] users’ adoption
+of energy-saving measures is boosted thanks to a proper recommendation interface design. Other
+examples are provided in the comprehensive overview of RS stakeholders, values, and risks by
+Jannach and Bauer [41].
+Among the recommendation characteristics under the spotlight in RS impact-oriented research,
+diversity has drawn the interest of researchers, practitioners, policy-makers and also affected
+communities because of its latent influence on individuals’ choices. In particular, exposure diversity as
+mediated by recommender systems is a research topic attracting scholars from different disciplines,
+1
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+especially in relation to its impact on human rights such as inclusion, non-discrimination and
+fairness [39]. Previous works in the RS literature have investigated how recommendations may
+influence aspects such as consumption or sales diversity, sometimes focusing on the impact of
+diversity on other recommendation characteristics, such as their usefulness or attractiveness e.g.,
+[101]. Nevertheless, in this strain of RS research longitudinal user studies are still quite rare.
+We contribute to this latter corpus of research with this work, the first longitudinal user study
+in the Music RS literature presenting an impact analysis of diversity on listeners’ attitudes. It
+consists of a 12-week study wherein the participants, 110 subjects from Southern Europe, received
+daily Electronic Music (EM) recommendations with different levels of diversity. We propose a
+critical evaluation that takes into account insights from the music psychology and education field.
+Indeed, music exposure is proven to have the power of reducing stereotypes and prejudice against
+unknown or unfamiliar cultures. In addition, repeated exposure and familiarity have been linked to
+the construction of aesthetic preferences in the music domain. Under this lens, we evaluate the
+impact of recommendation diversity not from a behavioural perspective but instead assessing how
+music recommendations may be a vehicle for attitudinal change. Specifically, the purpose of this
+study is to answer the following research questions:
+[RQ1] to what extent listeners’ implicit and explicit attitudes towards an unfamiliar music
+genre can be affected by exposure to music recommendations?
+[RQ2] what is the relationship between music recommendation diversity and the impact
+on listeners’ attitudes?
+By analyzing participants’ explicit and implicit feedback, we show that exposure to specific levels
+of music recommendation diversity may be responsible for long-term impacts on listeners’ attitudes.
+In particular, we highlight the function of diversity in increasing the openness in listening to EM,
+a music genre not particularly known or liked by the participants previous to their participation
+in the study. Moreover, we demonstrate that recommendations may help listeners in removing
+positive and negative attachments towards EM, deconstructing pre-existing implicit associations
+but also stereotypes associated with this music. In addition, our results show the significant clout
+that recommendation diversity has in generating curiosity in listeners.
+The rest of the article is organised as follows. Section 2 starts with an overview of impact
+assessment practices, followed by a brief survey of recent developments of RS simulation-based
+methods, and lastly presents several works on the impact of music exposure on listeners. Afterwards,
+Section 3 describes the user study design, while Section 4 reports the process designed to create the
+music recommendation to which study participants have been exposed. Then, Section 5 presents
+the results of our analysis, discussed together with their limitations in Section 6. Finally, conclusions
+are drawn in Section 7.
+2
+
+BACKGROUND AND RELATED WORK
+
+Algorithmic Impact Assessment (AIA) is a complex process that goes beyond the development of
+practices to measure quantitatively some kind of change. Instead, it includes the involvement of
+several actors, starting from the system designers arriving at the community affected by algorithmic
+systems. In Section 2.1, we discuss the idea of impact and impact assessment, in particular with regard
+to recent proposals of AIA. Afterwards, in Section 2.2 we centre our attention on RS simulationbased frameworks, which have attracted the attention of the practitioners interested in assessing
+the impact of these systems. On the contrary, as recently observed by Liang and Willemsen [59],
+longitudinal studies are not common in RS literature and their recent work is a notable exception,
+together with the study presented by Hauptmann et al. [37]. Finally, in Section 2.3 we present
+several insights from the music psychology field on the impact of music exposure on listeners.
+2
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+2.1
+
+,,
+
+Algorithmic Impact Assessment
+
+In its simplest form, Impact Assessment (IA) may be defined as “[...] the process of identifying the
+future consequences of a current or proposed action. The impact is the difference between what
+would happen with the action and what would happen without it” [40]. Far from being a novel area
+of research, IA practices have been discussed globally since 1980 by the International Association
+for Impact Assessment (IAIA),1 and justifiably one among the first framework proposed in this
+regard is the Environmental Impact Assessment (EIA). During the last 40 years, EIA had to deal with
+issues associated with loss of biodiversity, damage to marine areas, and climate change, just to
+mention a few [67].
+At the same time the second strain of IA practices has emerged to monitor socio-cultural impacts,
+among the others Social (and Societal) Impact Assessment (SIA) [54, 95, 96], Human Rights Impact
+Assessment (HRIA) [49], and Cultural Impact Assessment (CIA) [74]. Vanclay [95] defines SIA as
+“analysing, monitoring and managing the social consequences of development”, wherein a particular
+focus is posed on values such as fairness and equity, commitment to sustainability, or openness
+and accountability [96]. Similarly, Societal Impact Assessment targets technology as potentially
+responsible for altering society as a whole, and Kreissl et al. [54] exemplify this framework by
+discussing the case of Privacy Impact Assessment (PIA). Instead, HRIA is based on a series of
+internationally recognised human rights, such as the right to a livelihood, the right to participate
+in the cultural life of a community, or the right to a fair wage [49].
+Algorithmic Impact Assessment (AIA) is relatively a new field in comparison to the aforementioned frameworks, but nevertheless, its importance is quickly growing. Despite its relations with
+other IA such as Privacy Impact Assessment (PIA) or Data Protection Impact Assessment (DPIA)
+[46], AIA can be defined as a set of “emerging governance practices for delineating accountability,
+rendering visible the harms caused by algorithmic systems, and ensuring practical steps are taken
+to ameliorate those harms” [65]. A few aspects of AIA are addressed in detail below, but we point
+the reader interested in a comprehensive overview and discussion on current AIA practices towards
+the reports published by the non-profit organisations AI Now Institute [80] and Data & Society [69].
+As discussed by Vecchione et al. [97] in the context of algorithmic auditing, most of the impact
+which may result from the interaction with an algorithmic system appears beyond discrete moments
+of decision-making. This is particularly true for RS, wherein the impact may not be evident after a
+single interaction, but instead be the fruit of multiple exposures through time. Second, as Metcalf
+et al. [65] argue, the impact is co-constructed by all the actors linked to an algorithmic system:
+developers, designers, decision-makers, public and private organisations, and most importantly the
+affected communities. Therefore, it is fundamental to involve each of these actors while defining the
+AIA practice, a vision shared also in [97]. While the exploration of the long-term impact is already
+on the agenda of RS practitioners, and as discussed in the next section mostly addressed by the use
+of simulated environments, the involvement of the wider community of people affected by RS is
+still rare to find. A notable exception is a work by Ferraro [22] considering the artists’ perspective
+on the impact of music recommendation, wherein he interviews several artists to understand how
+effectively algorithmic automated decisions were impacting their work-life. In the music field,
+another example that is worth mentioning is the work done in the Algorithmic Responsibility
+research area at Spotify, resulting in the development of AIA in the platform [87].
+A limitation of current impact-oriented RS research is the lack of assembling a wide range
+of expertise. Indeed, being RS research mostly driven by computer science-inspired approaches,
+most of what until now has been measured as impact is the result of technical and engineering
+knowledge. Despite the several efforts to properly develop robust metrics and evaluation procedures,
+1 https://iaia.org
+
+3
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+the narrowness of the considered approaches has been counterproductive because it limited the
+concept of impact itself to what is measurable according to such procedures, a deterministic
+approach by definition which needs to be expanded to make AIA practices shared and effective.
+2.2
+
+Diversity in Simulation-based Methods
+
+The interest in impact-oriented research using synthetic data and simulation environments is
+rapidly growing within and outside the RS community [19]. However, this growing interest is
+accompanied by an equally growing concern about the high heterogeneity and low transparency
+of methods, evaluation practices, and more general assumptions on which such simulation studies
+are built [102]. Next, we review the simulation-based recommender system literature wherein the
+impact on, or the impact of diversity has been studied.
+Agent-Based Modelling (ABM) has been applied in several works to understand the long-term
+impact of RS [2]. For instance, Zhang et al. [105] centre their attention on simulating users’
+consumption strategies, showing how relying on recommendations users may end in the longterm contributing to the decrease of aggregate diversity. Zhou et al. [106] use ABM to study
+how preference bias — the distortion in users’ self-reported ratings caused by recommendations
+— influences the performance of recommender systems. In particular, they show how the bias
+introduced into the system through the users’ ratings may negatively influence the overall diversity
+of the recommended items.
+Further examples of simulated environments can be found in the RS literature analysing the
+impact of feedback loops. Mansoury et al. [62] design an iterative model to analyse the feedback
+loop, showing how it may cause a decline in aggregate diversity. Moreover, Jiang et al. [44] provide
+a theoretical analysis of the relationship between feedback loops, echo chambers and filter bubbles.
+Instead, Chaney et al. [12] by simulating different models of users’ engagement with RS prove
+the impact of feedback loops on algorithm confounding, indicating such outcome as the cause of
+homogenization of users’ behaviours.
+Another strain of simulation-based analysis focuses on comparing the performance of different
+typologies of recommender systems. Hazrati et al. [38] create a simulated environment where users
+are exposed to different kinds of recommender systems, proving that non-personalized methods
+produce the lowest diversity in terms of users’ choices. Ferraro et al. [23] focus on the analysis of
+several session-based recommendation techniques in the music domain, using an iterative approach
+wherein users are assumed to interact with a fraction of the recommended tracks. The authors
+show that in terms of the spread and coverage of recommendations, the various systems analysed
+led to an increased concentration effect over time. The same simulation technique is presented by
+Jannach et al. [42], this time in the context of movie recommendations, where again the authors
+show how different algorithms lead to highly different performances in both recommendations
+spread and coverage.
+Under a different lens, sales diversity is at the centre of attention in a series of studies by Fleder
+and Hosangar [25, 26] and Lee and Hosanagar [56, 57]. Fleder and Hosangar prove that collaborative
+filtering recommender systems exert a concentration bias, early delineating the idea that it may be
+possible that, at the individual level, diversity may increase, while at the aggregate level, diversity
+may decrease. Lee and Hosanger using field experiment data confirm such results, highlighting
+how users do effectively explore novel items thanks to the recommendations, but such explorations
+are highly correlated among users.
+The impact on content and source diversity has been also investigated. Haim et al. [35] model four
+agents interacting with a personalised news recommender system in order to study the effect of
+personalization on diversity. They do no evidence of any strong link between personalization and
+content and source diversity, as similarly found in [66]. Moreover, Aridor et al. [6] use numerical
+4
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+simulations to model user decision-making processes, providing an explanation of the findings of a
+previous study by Nguyen et al. [71] on the influence of recommender systems on content diversity.
+In the latter, the authors found that users’ interacting with the provided recommendations ended
+up consuming more diverse content in comparison to the users who did not. Aridor and colleagues
+confirm such results by means of their simulation, but also observe an increase in the homogeneity
+across users i.e. decrease in aggregate diversity.
+2.3
+
+Impact of Music Exposure
+
+Several scholars in the music psychology and education field investigated the role of music exposure
+in influencing stereotypes and attitudes, and we highlight some examples hereafter.
+Greitemeyer and colleagues [33] prove that exposure to music with pro-integration lyrics may
+reduce prejudice and discrimination towards immigrant groups, and later in [32] they show that
+exposing listeners to music with pro-equality lyrics may enhance positive attitudes and behaviours
+toward women. In both cases, the authors found that the musical characteristics of the music
+exposed and the preference for it do not influence such impacts. Clarke et al. [14] investigate the
+relationship between music, empathy and cultural understanding, showing that music exposure
+may indeed generate a sense of affiliation with unknown cultures. Their results are expanded in
+[99], confirming that, especially in listeners with high trait empathy, music may increase positive
+implicit attitudes towards images representing members of foreign cultures. Tu [94] provides
+empirical evidence that exposing young students to 10 minutes of a Chinese music curriculum,
+when prolonged for 10 weeks, may impact the attitudes towards Chinese people. In a similar study,
+Sousa et al. [85] show that exposure to Cape Verdean songs together with Portuguese songs may
+reduce anti-dark-skinned stereotyping among light-skinned Portuguese children. Even if these
+examples consider different stimuli and different subjects, they all provide evidence that music
+listening may impact the idea that we have about other social groups, and more broadly about
+other cultures.
+Another strain of research in the field of Music Psychology has been interested in understanding
+the impact of repeated exposure on music preference, based on Berlyne’s psychobiological theory
+(see [13] for an overview). Among his several contributions, he theorised the existence of a relationship between aesthetic preferences and familiarity. Even if some studies support his claims,
+e.g., [92], while others confute it, e.g., [61], nowadays it is commonly accepted that familiarity
+with music has a prominent role in the development of preferences [45], a topic in which also
+neuroscience practitioners extensively debate [27]. These studies motivate our interest in exploring
+the impact that music recommendation diversity may have, connecting exposure, familiarity, and
+preferences. Indeed, whilst music recommender systems are known to be influential on exposure
+diversity [39, 77], less is known about how such exposure diversity may affect the users’ opinions,
+beliefs and attitudes.
+3
+
+STUDY DESIGN
+
+The study is divided into four main stages, namely prescreening, PRE, COND and POST, detailed
+hereafter. First, we designed a prescreening online survey to select subjects matching a set of
+criteria, presented in Section 3.2. After selecting the desired set of participants, we started collecting
+their data using two methods. First, we asked them to create a ListenBrainz2 account to gather
+information about their listening habits (Section 3.3). Additionally, participants completed the
+Electronic Music Feedback (EMF) questionnaire, where they provided their opinion about several
+2 https://listenbrainz.org
+
+5
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+aspects of EM (Section 3.4). For the following four weeks, no further actions were required to the
+participants. This stage of the experiment is referred to as PRE.
+In the 5th week, participants started to be exposed to music recommendations in what we call
+the COND (conditioning) stage. At that point, participants were already randomly divided into
+two groups, one receiving high diversity (HD) and the other low diversity (LD) recommendations,
+created following the procedure described in Section 4. For four weeks, from Monday to Friday,
+participants received on a daily basis an audio mix to be listened to, for a total of 20 listening
+sessions (Section 3.5). After each listening session, additional feedback was collected by asking
+participants their impressions about the music listened to. During this stage, they were also asked
+to complete the EMF questionnaire on a weekly basis, on Saturday. At the start of the 9th week,
+the COND stage ended and the POST stage started. Again for four weeks, no further actions were
+required to the participants. Finally, at the end of the 12th week, we asked participants first to fill
+for the last time the EMF questionnaire, and then to fill out the End-of-Study (EoS) survey described
+in Section 3.6. Figure 1 depicts the study’s high-level structure.
+
+Fig. 1. High-level view of the longitudinal study. Participants are divided into two groups: low diversity
+recommendations (white) and high diversity recommendations (shading grey). LS stands for Listening Sessions.
+EMF stands for Electronic Music Feedback questionnaire. EoS stands for End-of-Study survey.
+
+3.1
+
+Recruitment and Informed Consent
+
+The Institutional Committee for Ethical Review of Projects (CIREP) at Universitat Pompeu Fabra
+approved the study design and confirmed the compliance of the research project with the data
+protection legal framework, namely, with the European General Data Protection Regulation (EU)
+2016/679 (GDPR) and Spanish Organic Law 3/2018, of December 5th, on Protection of Personal
+Data and Guarantee of Digital Rights (LOPDGDD). A digital copy of the submitted documentation,
+the ethics certificate and the data protection certificate is available upon request.
+Before the main study, a smaller-scale pilot study was conducted to test the data collection
+process. The pilot study took place in February and April 2022, and the main study took place from
+May to July 2022. All participants were recruited using the online recruitment service Prolific,3 and
+they were paid £6.00 per hour, the recommended minimum pay. They were informed about the
+voluntary nature of their participation, having the freedom to withdraw at any point, and of their
+rights including the right to access, rectify, and delete their information. They were also shown the
+information sheet describing the research objectives, methodology, risks, and benefits. Informed
+consent was obtained from all participants.
+3 https://prolific.co
+
+6
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+3.2
+
+,,
+
+Prescreening
+
+The prescreening of the participants was performed as a two-step process: first, using pre-determined
+criteria that are available in the recruiting platform (Prolific), and then, based on a questionnaire.
+In the first step, we selected participants based on age (18-42), nationality and country of residence
+(Italy, Spain, and Portugal), fluent in English, who had participated in at least 20 surveys in Prolific,
+and with a task approval rate above 90%. In terms of gender, sex, and education level, no filter was
+applied. We chose to limit age including only Millennials and Generation Z subjects, i.e., those
+born between 1981 and 2012, known to have a predilection for Electronic Music (EM) [60, 72, 98],
+but also to narrow the generational differences among participants. The selection of only three
+countries in Southern Europe was motivated by the idea of having participants: 1) with a relatively
+similar cultural background; 2) living in the same time zone (GMT +1/+2). This last factor was
+fundamental to facilitating the daily interaction between participants and the researchers, being
+they resident in the same time zone.
+Subjects matching the aforementioned criteria were redirected to the second part of the prescreening that consisted of a questionnaire in PsyToolkit [89, 90], a web-based framework to conduct
+psychological surveys and experiments. The questionnaire was composed of three main parts. In
+the first part, we asked participants to optionally confirm their demographic information. This
+step was included to double-check the reliability of the information provided by Prolific. In the
+second part, we asked for additional information about participants’ listening habits. In detail, they
+self-assessed with 5-point Likert items their taste variety, EM listening frequency, and EM taste
+variety. Additionally, we asked them to indicate the preferred music streaming platform and the
+average daily time spent listening to music. This information was used to filter out participants
+who self-declared to listen to EM very often, who indicated listening to music less than an hour a
+day, and who did not select Spotify as the preferred streaming service. The latter condition was
+necessary for collecting participants’ listening logs through ListenBrainz, as explained in the next
+section. The former two conditions were designed to create a group of subjects who listen to music
+more than occasionally, but who are not EM frequent listeners.
+In the third part, we included a test to verify the participants’ familiarity with EM artists and
+genres. We replicated the test proposed in a previous study [79], summarised hereafter. Participants
+had to specify whom from a list of mainstream EM artists was (i) known, (ii) possibly known or
+(iii) unknown to them. The list was composed of 20 artists selected by AllMusic, an expert-curated
+online music database, as representatives of EM [4]. Afterwards, they had to do the same task
+for a list of EM genres, composed of 20 genres part of the Wikipedia page about EM [100]. The
+final score of each test, separately for artists and genres, was computed giving more points to
+participants who knew less popular artists (or genres). The rationale behind this is that knowing
+a popular EM artist or genre (such as Skrillex, or dubstep) makes you less a connoisseur of EM
+at large, in comparison to knowing a less popular EM artist or genre (such as Autechre, or IDM).
+The popularity of each artist and genre was computed using several signals from Spotify, Twitter,
+Facebook, Deezer, SoundCloud, and Last.fm, aggregated using the GAP0 metric proposed in [53]. The
+list of artists and genres and the corresponding GAP0 score is presented in Appendix B (Figures
+17 and 18). We filter out participants who according to this test were too familiar with EM. In
+summary, the following criteria were used for the prescreening:
+• First prescreening step
+– Age: 18-42
+– Nationality & country of residence: Italy, Spain, Portugal
+– Gender and sex: No restrictions
+– Highest education level: No restrictions
+7
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+– Fluent languages: English
+– Number of Prolific previous submissions: > 20
+– Prolific approval rate: 90%
+• Second prescreening step
+– Taste variety (self-declared): No restrictions
+– EM taste variety (self-declared): No restrictions
+– EM listening frequency (self-declared): Not very often
+– Preferred music streaming platform: Spotify
+– Average daily listening time (self-declared): > 1 hour
+– Average EM familiarity score: < 5 (over 10.5)
+This prescreening allowed us to select a population of listeners quite homogenous in terms of
+demographics, listening habits and familiarity with EM. Indeed, our main goal is to study the
+impact of EM recommendations on people who are not experts nor huge fans of this genre. We
+also aimed at reducing the response variability caused by different cultural backgrounds. These
+two aspects, familiarity with EM and cultural background, have been shown to be at the root of
+different perceptions of diversity in music lists [79], and by controlling for those while selecting
+the study participants, we aimed at minimizing the influence of such factors in the analysis.
+3.3
+
+Listening Logs Collection
+
+After being selected for participating in the study, participants were asked to create an account
+on ListenBrainz, allowing the collection of their listening logs for the entire duration of the study.
+ListenBrainz is a platform that keeps track of what music its users listen to and provides them
+with insights into their listening habits. It is operated by the MetaBrainz foundation,4 a nonprofit organisation that has been set up to build community-maintained databases and make them
+available in the public domain or under Creative Commons licences. Data is collected complying
+with the GDPR, and more information about MetaBrainz privacy policy can be found online.
+Among the options for submitting the music listened to, it is possible to link Listenbrainz to the
+Spotify account. One of the advantages of this approach is the reliability of the metadata accessible
+for each log. Indeed, once a log is collected by ListenBrainz through its link with Spotify, the
+associated Spotify track ID and artist ID are available. With the retrieved IDs, by using the Spotify
+Web API,5 it is possible to obtain several types of data, from the acoustic properties of a track to
+the genres associated with the artists. However, a few drawbacks of this method to collect listening
+logs are noticeable.
+First, creating a ListenBrainz account is a time-consuming task for which participants need
+to be paid, increasing the cost of the experiment. Moreover, for privacy reasons people may be
+reluctant to link their ListenBrainz and Spotify accounts. Lastly, whilst the use of the Spotify API
+is quite accepted in the Music IR and RS communities, the proprietary nature of the algorithms
+behind the API makes it difficult to know exactly how the data is generated. Nonetheless, by using
+ListenBrainz we aimed to foster the reproducibility of our study, but also to ensure the availability
+of the collected data for future works making them publicly available through the ListenBrainz API.
+3.4
+
+Electronic Music Feedback Questionnaire
+
+The Electronic Music Feedback (EMF) questionnaire is designed to measure implicit and explicit
+attitudes towards EM. Participants completed it at the beginning, four times while being exposed
+to the music recommendations, and the last time at the end of the study, for a total of six times
+4 https://metabrainz.org
+5 https://developer.spotify.com
+
+8
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+(see Figure 1). In particular, the EMF measures: 1) the participants’ openness in listening to EM; 2)
+the valence of their implicit association with EM; 3) the stereotypes they associated with EM. It is
+implemented in PsyToolkit, and the time needed to complete it is approximately 10 minutes. We
+now continue describing separately the three parts of the questionnaire.
+3.4.1 Measuring Openness. Openness in listening to EM is measured using a dichotomous Guttman
+scale [34]. It is a unidimensional ordinal cumulative scale for the assessment of an attribute, in
+this study namely the openness in listening to EM. In detail, subjects are asked if they would be
+open to listening to one hour of EM, selecting Yes or No to the following options: a) once every
+month; b) once every two weeks; c) once a week; d) twice a week; e) every day. The ordinal nature
+of the scale suggests that a participant answering No to the first option, naturally would answer
+No to the following questions, as shown in Table 1. The score of this scale ranges from 0 for
+participants declaring to be not open to listening to even one hour per month of EM, to 5 for
+participants affirming to be open to listening to EM one hour every day. Among the advantages
+of using the Guttman scale are its compact form and pretty intuitive nature while analysing the
+scores, apart from the ease of computing the score by simply looking for affirmative answers from
+the participants. Having an interest in understanding how music recommendations with different
+levels of diversity may affect the participants’ openness in listening to EM, we used the score
+obtained from the Guttman scale as one of the variables of the longitudinal analysis, for the rest of
+the paper referred to as o-score.
+Table 1. Guttman scale built using the question “Would you be open to listening to one hour of Electronic
+Music” for measuring the openness in listening to EM. 0 represent a negative answer, while 1 is an affirmative
+answer.
+
+monthly
+
+biweekly
+
+weekly
+
+twice a week
+
+every day
+
+o-score
+
+0
+1
+1
+1
+1
+1
+
+0
+0
+1
+1
+1
+1
+
+0
+0
+0
+1
+1
+1
+
+0
+0
+0
+0
+1
+1
+
+0
+0
+0
+0
+0
+1
+
+0
+1
+2
+3
+4
+5
+
+3.4.2 Measuring Implicit Association. People’s conscious judgement represents only a facet of
+how evaluative associations are experienced. This is why we included in the questionnaire the
+Single Category Implicit Association Test (SC-IAT) [48], a variant of the more famous Implicit
+Association Test (IAT) [31]. The IAT aims at measuring implicit attitudes, defined as “actions or
+judgments that are under the control of automatically activated evaluation, without the performer’s
+awareness of that causation” [31]. By measuring the response latencies in a categorization task,
+the IAT evaluates the strengths of associations between concepts, using complementary pairs of
+concepts and attributes. For instance, IAT has been used to measure people’s positive or negative
+associations with Women and Men, Black and White people, or Transgender and Cisgender people.
+Several examples of IATs can be found on the Project Implicit webpage.6
+In the music field, Clarke, Vuoskoski and DeNora [14, 99] made use of the IAT for measuring if
+mere exposure to music may evoke empathy towards unknown cultures. Their findings support
+the hypothesis that, even without any accessible semantic content, listening to music can evoke
+6 https://www.projectimplicit.net
+
+9
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+empathy and affiliation in listeners. Inspired by their results, we chose to implement an SC-IAT to
+understand if exposure to EM may influence the implicit association of listeners. The use of SC-IAT
+rather than IAT has been motivated by the absence of a complementary category to EM.
+In summary, using the keyboard participants have been asked to categorise as fast as possible: 1)
+pleasant words (Joy, Love, Peace, Wonderful, Pleasure, Glorious, Laughter, Happy); 2) unpleasant
+words (Agony, Terrible, Horrible, Nasty, Evil, Awful, Failure, Hurt); 3) EM genres (Dubstep, Techno,
+Electronica, Hardcore, Vaporwave, Breakbeat, Electroacoustic, Downtempo). By measuring the time
+they employed in categorising these words correctly, we evaluated participant associations’ valence
+towards Electronic Music. The outcome of this test is referred to as d-score, which takes negative
+values if a negative valence is associated with EM and positive values in the opposite case.7 Karpinski
+and Steinman [48] provide a detailed description of the SC-IAT design, the formula for computing
+the d-score, and proof of its reliability and validity.
+3.4.3 Measuring Stereotypes. The goal of this part of the EMF questionnaire is to measure what
+listeners opine on three kinds of stereotypes: 1) the context wherein they listen to EM; 2) the
+musical properties they associate with EM tracks; 3) the characteristics of EM artists they think are
+prominent. Responses are collected by using 5-point Likert items. First, participants are asked in
+which contexts they would listen to EM presenting a list of eight activities (Relaxing, Commuting,
+Partying, Running, Shopping, Sleeping, Studying, Working), selecting an option ranging from Totally
+Disagree to Totally Agree. In order to analyse the stereotypes associated with EM tracks’ musical
+properties, we ask questions about: a) tempo (0: mostly slow, 5: mostly fast), b) level of danceability,
+c) presence of acoustic instruments, e.g. violin, trumpet, acoustic guitar , and d) presence of singing
+voice parts (0: mostly low, 5: mostly high). The reason why we selected these four features is twofold.
+First, they exemplify some of the stereotypes usually associated with EM, e.g., it has a fast tempo,
+high danceability, and low acousticness. Second, these features are among the ones retrievable at a
+track level (see Appendix A).
+Lastly, participants’ feedback on which characteristics they associate with Electronic Music
+artists is collected, focusing on: gender (0: mostly women or other gender minorities, 5: mostly
+men); skin colour (0: mostly white-skinned, 5: mostly dark-skinned); origin (0: mostly low-income /
+developing countries, 5: mostly high-income / developed countries); and age (0: mostly under 40, 5:
+mostly over 40). Considering the nature of the experiment, no impact on the answers related to the
+artists was expected to be caused by the exposure, because no information about the artists was
+provided during the listening session. Nevertheless, understanding the EM artists’ characteristics
+that participants felt to be more representative is a complementary perspective on the stereotypes
+they associated with EM. Even if not influenced by the provided music recommendation, these
+questions gave us further insights into what ideas the participants had about EM.
+3.5
+
+Listening Sessions
+
+Participants’ exposure to EM recommendations took place during the twenty daily listening sessions
+part of the COND stage. Being the sessions proposed on a daily basis, their design favoured the
+easiness and rapidness of completing the proposed task, described as follows. As an initial step, a
+thirty-second audio clip was presented to calibrate the audio volume, to avoid exposing participants
+to extremely louder audio potentially damaging their hearing. Afterwards, we explicitly asked
+participants to entirely listen to a 3 minutes audio containing a mix of a few excerpts of EM tracks,
+asking them to be sure to be in a quiet environment and to allow themselves to be immersed in the
+music.
+7 The test is accessible online: https://github.com/LPorcaro/longterm-musdiv/tree/main/material/SC-IAT
+
+10
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+After each listening section, the participants provided their feedback on the music listened to.
+Specifically, they indicated with a 5-point Likert item if they liked or disliked the music, and they
+selected if the listened music was familiar or not. With that, the mandatory part of the listening
+session ended. Following, on a voluntary basis, they were asked if they wanted to explore the
+playlist with the full tracks part of the audio previously listened to. If selecting Yes, they were
+redirected to a page with a link to a YouTube playlist. If they were not interested in discovering,
+the listening session ended. The time needed to complete the mandatory part of each session was
+approximately 5 minutes. It is important to note that the interaction with the playlists was declared
+to be completely optional and did not affect the participants’ payment, i.e. they were not paid for
+the time extra spent interacting with the playlists. Figure 2 depicts the structure of a listening
+session.
+
+Fig. 2. Flow diagram representing a listening session.
+
+This design allowed us to collect several types of data. First, the explicit liking and the familiarity
+ratings of the tracks listened to. Second, the willingness of discovering more about such tracks,
+by choosing to explore the playlists. Third, by checking the YouTube playlist views, we also had
+a further metric of the actual interaction with the music proposed daily. Whilst the definition of
+“legitimate view” in YouTube is not transparent [104], a common belief is that to increase views a
+user has to click the play button to begin the video, and the video has to be played for at least 30
+seconds. Even if we cannot validate these hypotheses, we double-checked that simply accessing a
+YouTube playlist without listening to any tracks does not increase the view count of such playlists.
+We chose to avoid redirecting participants to Spotify playlists to not confound the listening log
+collections and the platform usage. Indeed, Spotify algorithms could have registered the signal of
+participants’ interaction with such playlists influencing eventually future recommendations by
+including EM related to the study. Lastly, YouTube playlists were not made public but accessible
+only to the participants of the experiment, to avoid affecting the view count with interactions from
+external users.
+3.6
+
+End-of-Study Survey
+
+Over the course of the study, we collected several types of feedback, implicit and explicit, quantitative
+and qualitative, that we used to understand the impact of music recommendation diversity. As the
+last step, we included a final survey to collect participants’ overall feedback on their participation.
+It is composed of four sections. The first section (16 Likert items) includes questions about the
+participants’ relationship with EM before participating in the study. The second (16 items) collects
+feedback about the experience of participants during the study. In the third (21 items), we ask
+about participants’ feelings about EM after the study. Lastly, we insert a final section (8 items)
+to understand the overall impression of participating in the study. The complete list of items is
+presented in the supplementary material.8
+8 https://github.com/LPorcaro/longterm-musdiv/blob/main/material/surveys/5_EndofStudySurvey.pdf
+
+11
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+The survey is built to investigate the participants’ openness, appreciation and willingness to
+discover EM. Besides, a few questions are related to stereotypes associated with this genre (e.g., EM
+has a fast tempo or it is mostly for partying), while others are about the perceived variety of the
+genre itself. In order to avoid acquiescence bias we balanced the number of positive and negative
+statements in each section, and items were presented in a randomised fashion to avoid order effect
+bias. The time needed to complete this survey is approximately 10 minutes.
+4
+
+MATERIAL
+
+This section outlines the semi-automatic procedure to create the diversified recommendations to
+which participants were exposed during the listening sessions. We report here a summary of the
+several steps carried out, including in Appendix A a detailed description of the process.
+The first step was to create a dataset of candidate EM tracks to be included in the listening
+sessions. The goal was to select a set of tracks covering as many EM styles as possible to create
+a varied representation of the EM culture, however without the presumption of including every
+existing nuance of it. We consulted Wikipedia [100] and Every Noise at Once9 (ENO) to select
+20 EM genres with associated 165 subgenres, listed in Table 7. For each of the subgenres, we
+retrieved from ENO a playlist of around 100 representative tracks for a total of around 16 thousand
+tracks. Then, we filtered out tracks too popular by using the Spotify popularity indicator and the
+YouTube view count, to avoid that familiarity with the music listened to could have an effect on
+participants’ ratings. Lastly, we randomly select 10 tracks (when available, if not less) for each
+subgenre, remaining with a final set of 1444 candidate tracks.
+As a second step, we made use of Music Information Retrieval (MIR) techniques to design a
+diversification model. This was a three-step process: 1) we extracted audio embedding from the
+candidate tracks using state-of-the-art Deep Learning models; 2) we validated these models by
+using standard MIR hand-crafted features; 3) we designed the diversification process to obtain EM
+recommendations.
+Tracks’ audio embeddings were extracted using EfficientNet [93] trained with a dataset of
+tracks annotated with Discogs10 metadata. Among the four models tested, this showed the best
+performance in terms of clustering the candidate tracks coherently with respect to the considered
+taxonomy of EM genres. Figure 13 (Appendix B) displays a 2-dimensional representation of the
+embedded space obtained with this model. Then, focusing on four features (tempo, danceability,
+acousticness and instrumentalness) we investigated the consistency of the tracks’ embedded space.
+In particular, we centre our attention on if track embeddings clustered together displayed similarity
+also in terms of the aforementioned features.
+We continued by creating two sets of 20 recommendation lists, one list for each listening session,
+the first set with high and the second with low inter-list diversity, from now on the High Diversity
+(HD) and Low Diversity (LD) lists. In the set of HD lists, the idea was to have tracks spanning
+different EM, giving to the listeners the opportunity to discover different facets of this culture
+throughout the study. In order to do that, we create one list for each of the 20 genres in the dataset.
+On the contrary, LD lists were focused on a single genre (trance) for having 20 listening sessions
+quite homogeneous. Figure 16 provides a 2-dimensional representation of the recommendation lists
+obtained using the two diversification strategies (HD and LD). Besides, every list was formed by
+four tracks having the minimum average distance in the embedded space, to minimise the intra-list
+diversity. Thanks to this, we ensured that each session was coherent and pleasant to listen to,
+avoiding to include in the same session tracks with very different musical traits.
+9 https://everynoise.com
+10 https://discogs.com
+
+12
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+Once having the 20 HD and 20 LD recommendation lists, each one formed by 4 tracks, the last
+step was to create the audio mixes to be listened to by the participants in our study. We did that by
+randomly selecting 45 seconds of every track, creating 3-minute long mixes. The list of tracks used
+in the listening sessions,11 and the audio mixes 12 are publicly available.
+5
+
+RESULTS
+
+This section introduces the results of the analysis of participants’ feedback and listening logs
+collected during the twelve weeks of the experiment. We start by describing in Section 5.1 the
+population of our study, commenting on demographics, listening habits, and familiarity with EM,
+including in Section 5.1.1 the analysis of the data retrieved from ListenBrainz. Then, we continue
+in Section 5.2 reporting on the participants’ group assignments, participation and drop-out rate. In
+Section 5.3, we analyze participants’ feedback during the 20 listening sessions. Afterwards, Section
+5.4 includes the longitudinal analysis of the Electronic Music Feedback (EMF) questionnaire’s
+responses, focusing first on openness and implicit association, and then on EM stereotypes. Lastly,
+Section 5.5 presents the results of the End-of-Study survey.
+5.1
+
+Participants’ Demographics and Listening Habits
+
+The exploratory nature of the study, and the lack of any meta-analysis that defines the ground
+truths of our variables, made it difficult to estimate with a power analysis the exact number of
+participants needed in order to observe potentially existing statistical differences. Nonetheless,
+guidelines from Human-Computer Interaction research helped us in estimating a valid number
+of participants [11, 15, 47]. Indeed, when performing a t-test (or an equivalent non-parametric
+statistical hypothesis test) for the difference between two independent means, to observe a medium
+effect size (an effect likely to be visible to the naked eye of a careful observer), at a significance level
+of 𝛼 = .10 (acceptable for an exploratory study), with a statistical power of .80 (to avoid incurring
+a too great risk of a Type II error), according to Cohen [15], it is required a sample of size 100
+participants, i.e. 50 participants for each group. This is the reason why following the prescreening
+we recruited 110 participants for this study, also foreseeing the eventuality of some of them
+dropping out.
+Most of the selected participants are aged between 18 and 32 years old (91%), come from Portugal
+(61%), Italy (32%) or Spain (7%), almost equally divided into binary genders (53% women and 44%
+men)13 with a small fraction of non-binary participants (3%). In terms of education, 69% have a
+bachelor’s degree or lower, and 63% indicate to still studying. According to their self-declared
+answers, the 88% affirm having varied listening habits, only a quarter affirms listening often to EM,
+and a third affirms listening to a varied selection of EM. In terms of listening time, 78% declare to
+daily listening on average between 1 and 3 hours of music.
+The two familiarity tests (artist and genre, see Section 3) help us in estimating the participants’
+knowledge of the Electronic Music (EM) scene. The test score ranges from 0, if no item in the
+lists is known, to 10.5 if all items are known. In the artist test, the average score obtained by the
+selected participants (𝑁 = 110) is 1.7±1.2. Instead, the average score of all the participants in the
+prescreening (𝑁 = 437) is 2.6±2.1. In terms of genre familiarity, the average score is 5.1±1.6 against
+5.7±1.9. Averaging over the two tests, the recruited participants got 3.4±1.1 against 4.2±1.8. As
+these numbers evidence, the filter applied during the prescreening made it possible to select a group
+11 https://github.com/LPorcaro/longterm-musdiv/tree/main/material/listening_sessions
+12 https://drive.google.com/drive/folders/1KLhBl5tXKeOUPzUzkG7JnqUdKi9e9woW
+13 Women and men include both cisgender and transgender identities.
+
+13
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+of participants on average less familiar with mainstream EM artists and genres in comparison to a
+wider group of listeners with shared demographics.
+Further characterization of the study participants may be done by looking at the average d-score
+(implicit association) and o-score (openness) obtained after the first Electronic Music Feedback
+(EMF) questionnaire in the PRE stage. Indeed, at the beginning of the experiment participants
+affirmed being open to listening to Electronic Music, with a median o-score of 4 with an interquartile
+range of 2.75, and did not attach a negative nor positive valence to EM, having an average d-score
+of –0.09±0.42. In the next section, we further characterize the study participants by analyzing their
+listening logs.
+5.1.1 Listening Logs Analysis. The ListenBrainz listening logs give us an alternative perspective
+for understanding the relationship that the participants have with EM. Unfortunately, the analysis
+comprehends only data from 66 accounts because technical issues limited the stability of the
+connection between Spotify and Listenbrainz, which eventually made it impossible to collect data
+from all the participants. Nonetheless, the collected data are representative of some trends that we
+describe hereafter.
+We start by analysing the participants’ log-playcount over the course of the study, considering
+first the whole set of listening logs, and then only the EM logs.14 On average, participants listened to
+1479 tracks over the course of the study, more or less a daily hour of music if considering 3-minute
+long tracks. In contrast, during the study they listened on average only to 56 EM tracks, meaning
+more or less 1 EM track a day. Figure 3 (top) displays the distribution of the log-playcount separately
+over the whole tracks (left), and only for EM tracks (right). We may observe that several participants
+have an EM log-playcount lower than 1, i.e. they listened to less than 10 EM tracks over the course
+of the study. Overall, for more than half of the study participants EM represents less than 15% of
+the whole music listened to.
+Moreover, to understand the variety of their listening habits, we compute the Gini index separately
+with the whole set of listening logs, and only with the EM logs. For the latter set, the average Gini
+index (0.43±0.20) is smaller than the one computed with the whole set of logs (0.62±0.09). This
+indicates that participants seem to have on average more varied habits in terms of EM in comparison
+to the whole music they listened to. Figure 3 (bottom) shows the relationship between the Gini
+index and log-playcount. We observe that they are positively correlated (𝜌 = .62, 𝑝 < .01), with an
+even stronger linear correlation between the two variables in the case of EM logs (𝜌 = .86, 𝑝 < .01).
+This supports the idea that the more a participant listened to EM, the less varied it was. Hence, also
+taking into account the self-declared and estimated not-expertise of participants with respect to EM,
+we hypothesise the presence of two groups of listeners in our study: a) occasional heterogenous
+EM listeners, with a low Gini index (0.0–0.5) and low log-playcount (0–2); b) more-than-occasional
+homogenous EM listeners, with a high Gini index (0.5–1.0) and high log-playcount (2–4).
+What quantitatively shown until now give us an idea of the study participants’ listening habits,
+which however can be further complemented by looking at what kind of Electronic Music was most
+listened to. Figures 20, 21 in Appendix B display the top genres and artists ranked by popularity
+in the participants’ logs, from which we may infer some trends. Indeed, we note that House and
+Electronic Dance Music (EDM) alone constitute 75% of the EM that participants listened to over
+the twelve weeks. Such results do not come as surprise, because as previously commented the
+demographic segmentation of the participants in our study to some extent is similar to the one of
+EDM listeners [98]. The most frequent artists in the logs, David Guetta, Avicii and Alok, among the
+most popular in the scene, confirm the predisposition of the participants to mainstream EM.
+14 We consider as EM log a track listened to by a participant that is composed or performed by an artist associated with one
+
+or more EM genres among the ones retrieved from the Spotify API.
+14
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+Fig. 3. Distribution of the participants’ log-playcount (top), and log-playcount versus Gini index (bottom),
+computed with the whole set of logs (left), and only with EM logs (right).
+
+Based on these observations, we may draw the following picture of the population of our study.
+They are Millenials and Gen Z from Southern Europe, equally divided into binary genders with a
+small fraction of non-binary, mostly without a graduate degree and still studying. Average in terms
+of time spent listening to music and having a self-appearance of having heterogeneous preferences,
+they affirm to not be heavy listeners of EM nor particularly varied in terms of EM listened to. Familiar
+with the mainstream EM artists and genres, but far to be considered experts of the genre, they may
+be grouped into occasional heterogenous EM listeners and more-than-occasional homogenous EM
+listeners, mostly listening to House and EDM.
+5.2
+
+Grouping, Participation and Dropout Rate
+
+After selecting the participants matching our prescreening criteria, we needed to split them into
+two groups, one to be exposed to recommendations with high diversity and one with low diversity.
+During the pilot study we realised that, given the size of the sample, randomly assigning participants
+to groups could result in an unbalanced baseline for the variables we were interested in studying.
+For instance, one group could have been formed by participants much more open to listening to
+EM than the other group. In order to avoid imbalance between characteristics, which may have
+affected the impact of the recommendations, we assigned participants using covariate adaptive
+randomization [91], creating two groups balanced in terms of familiarity with EM (familiarity test
+score), openness in listening to EM (o-score), implicit association with EM (d-score), and the number
+of EM tracks listened to during the PRE stage. At the end of this process, we got a group of 55
+participants assigned to the High Diversity (HD) condition, and a group of 55 participants assigned
+to the Low Diversity (LD) condition, from now on the HD group and the LD group.
+Table 2 summarises the participation of the two groups in the EMF questionnaire and in the
+listening sessions. Not surprisingly, participation decreased over the course of the study, notably
+between the PRE and POST phase in the EMF questionnaire (-19%), and less between the first and
+fourth week of the listening sessions (-4%). Overall, we may notice a small difference between the
+15
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+two groups, with the LD participants being more active during the study than their HD counterparts.
+Some participants have been excluded during the course of the study if a) they never showed up
+after being selected (initial nonresponse), or b) after a certain point they stop participating (attrition).
+The initial nonresponse was quite high for the EMF questionnaire (HD: 7%, LD: 5%), but relatively
+small for the listening sessions (HD: 5%, LD: 0%). Instead, attrition was equal for both tasks (HD:
+7%, LD: 2%). These numbers are in line with retention rates observed in Prolific and generally in
+longitudinal studies [18, 52].
+In conclusion, we excluded from the analysis the responses of the participants who did not
+participate in: a) more than 4 listening sessions, and b) more than 3 EMF questionnaires. With this
+choice, we ended up analysing the responses of 94 over 110 participants (85%), 45 over 55 in the
+HD group (82%) and 49 over 55 in the LD group (89%).
+Table 2. Summary of the participation in the study. LS values are the median participation over each week.
+
+PRE
+
+5.3
+
+COND1
+
+COND2
+
+COND3
+
+COND4
+
+POST
+
+Electronic Music Feedback (EMF)
+HD
+55 (100%)
+47 (85%) 46 (83%)
+LD
+55 (100%)
+50 (90%) 49 (89%)
+All 110 (100%) 97 (88%) 95 (86%)
+
+44 (80%)
+47 (85%)
+91 (82%)
+
+46 (83%)
+50 (90%)
+96 (87%)
+
+44 (80%)
+46 (83%)
+90 (81%)
+
+Listening Sessions (LSs)
+—
+HD
+50 (90%)
+—
+LD
+52 (95%)
+—
+All
+102 (92%)
+
+48 (87%)
+52 (95%)
+100 (90%)
+
+48 (87%)
+49 (89%)
+96 (88%)
+
+—
+—
+—
+
+47 (85%)
+50 (90%)
+97 (88%)
+
+Listening Sessions Analysis
+
+During the 20 listening sessions in the COND stage, we collected four types of data to measure
+the impact that recommendations had on the participants of the High Diversity (HD) and Low
+Diversity (LD) groups:
+– Playlist accesses: assigning 1 to a participant who after a session chose to explore the session’s
+playlist, 0 otherwise.
+– Playlist interactions: YouTube playlist’s view count, aggregated over each group of participants.
+– Like ratings: ranging from -2 if a listening session was totally disliked by a participant, to 2 if
+a session was totally liked.
+– Familiarity ratings: 1 if the tracks in a listening session were familiar to a participant, -1 if
+unfamiliar, 0 if unsure.
+Figure 4 displays the distribution of playlists’ accesses and interactions, where trend lines
+are computed with the linear least squares method. Similarly to the overall decrease in study
+participation, we may note that over the course of the sessions the overall engagement with the
+playlists decreased. Looking at the number of accesses and interactions, the HD participants seem
+to be more interested in discovering the music listened to than the LD ones. Moreover, we notice
+that on several sessions LD participants accessed a playlist but had zero interactions with it (e.g.,
+sessions 10 and 11). This phenomenon never occurred to HD participants, who on the contrary in
+some sessions had much more interactions than accesses (e.g., sessions 5 and 17), meaning that
+16
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+some participants interacted several times with the same playlist. Naturally, in both groups accesses
+and interactions are positively correlated (HD: 𝜌 = .75, LD: 𝜌 = .51).
+Figures 5 and 6 merge the playlists’ data and the like ratings, giving us an alternative view for
+understanding the participants’ reception of the recommendations. In Figure 5, it emerges that the
+HD group disliked more sessions and with more extreme ratings compared to the LD group, who
+on average seem to have appreciated most of the music they have been exposed to. Nevertheless,
+HD participants even when they mostly disliked a session, interact with the playlists on YouTube
+(e.g., sessions 4 and 17).
+Such behaviour is confirmed in Figure 6, where like ratings are split between participants who
+accessed the playlists (light bars) and those who did not (dark bars). We see that some of the HD
+participants choose to access the playlist and discover more about the tracks listened to even in the
+most disliked sessions (negative light bars), a phenomenon not visible for the LD group. On the
+contrary, some of the LD participants even if liking the tracks listened to, choose to not interact
+with the playlists (positive bars with zero interactions, e.g., Figure 5, sessions 10 and 11), or not
+access the playlists (positive dark bars, e.g., Figure 6, sessions 4 and 10).
+The familiarity ratings’ results are shown in Appendix B (Figures 22 and 23) and summarised
+as follows. The sum of ratings is negative for almost every session, indicating that the tracks
+were mostly unfamiliar to the participants.15 This trend was expected because of participants’
+not-familiarity with EM, but also because of the popularity filter applied before creating the
+recommendations. Besides, we observe a positive correlation between like and familiarity ratings
+(HD: 𝜌 = .55, LD: 𝜌 = .72), confirming what previous music psychology scholars have extensively
+proven: the more familiar a track sounds, the more is likely to be liked.
+These few observations led us to formulate and test the following hypothesis:
+H1. The HD group will have more accesses to playlists than the LD group.
+H2. The HD group will have more interactions with playlists than the LD group.
+15 There is one exception in session 4 for the LD group, presenting a positive peak not in line with the rest of the sessions.
+This is due to one of the tracks included in that session “Around The World (La La La La) (Ultra Flirt Hands Up Remix Edit)”,
+a remix of the famous track by A Touch Of Class (ATC).
+
+Fig. 4. Distribution of the playlists’ accesses and interactions.
+17
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+Fig. 5. Distribution of like ratings and playlists’ interactions.
+
+Fig. 6. Distribution of like ratings split among participants who accessed the playlist (light bar) and those
+who did not (dark bar).
+
+H3. The LD group will like the tracks more than the HD group.
+H4. The LD group will like more tracks without accessing the playlist than the HD group.
+H5. The HD and LD groups will have the same level of familiarity with the listened tracks.
+We test the aforementioned hypothesis by performing Mann-Whitney U tests, commonly used to
+compare the differences between two independent samples when the sample distributions are not
+normally distributed and the sample sizes are small. Table 3 reports the outcomes of the tests. H1
+and H2 are confirmed by a significant statistical difference between HD and LD groups in terms of
+playlist accesses and interactions. In terms of like ratings, we see a smaller effect size with only 62%
+of sessions having HD group ratings lower than the LD ones (H3). This proportion increases to 70%
+18
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+if looking only at the ratings of participants who did not access the playlists (H4). This confirms
+that even when LD participants liked the listening sessions, they interacted with the playlists less
+than the HD group. Lastly, looking at the familiarity ratings no significant difference is found (H5),
+confirming the hypothesis and also that the design of the listening session was effective, exposing
+subjects to music they were mostly unfamiliar with.
+Table 3. Summary of the Mann-Whitney U test results. M stands for median value. CLES (Common Language
+Effect Size) is the proportion of pairs where x is higher than y. When the alternative is “greater” x are the
+values of the HD group and y of the LD group. With the value “lower” we have the opposite scenario.
+
+5.4
+
+Hyp.
+
+Data
+
+𝑀𝐻 𝐷
+
+𝑀𝐿𝐷
+
+U
+
+Altern.
+
+p-val
+
+CLES
+
+H1
+H2
+H3
+H4
+H5
+
+Playlist access
+Playlist interaction
+Like ratings
+Like ratings and playlist access
+Familiarity ratings
+
+15.0
+11.5
+9.0
+-1.0
+-21.5
+
+9.0
+3.5
+13.0
+1.0
+-24.0
+
+307 greater
+301 greater
+152
+lower
+120
+lower
+180 two-side
+
+<.01
+<.01
+.10
+.01
+.60
+
+.77
+.75
+.62
+.70
+.45
+
+EMF Questionnaire Analysis
+
+Through the analysis of the listening sessions, we have shown the distinct reactions of the two
+groups of participants when receiving the music recommendations. Hereinafter, we continue by
+focusing on the impact of the exposure to EM recommendations, first, in terms of openness in
+listening and implicit association, and second, in terms of stereotypes that participants associate
+with this music genre.
+5.4.1 d-score and o-score. The d-score measures the implicit association with EM, having negative
+values if a negative association is present and positive values in the opposite case. The o-score
+measures the openness in listening to EM, ranging from 0 if a participant is not open, to 5 if a
+participant is truly open. We collected these scores six times during the longitudinal study, first at
+the beginning (PRE), four times during the conditioning phase (COND 1–4), and lastly at the end of
+the study after twelve weeks from the start (POST ).
+Figure 7 shows the average scores and standard deviations separately for the two groups. In
+terms of d-score, we may observe that HD participants’ scores starting from a positive average
+decrease toward zero. Even if with more fluctuations, similarly the LD participants end up with an
+average score near zero, almost equal to the initial one. Instead, for the o-score both groups present
+a slight increase comparing the PRE and POST averages, with LD presenting a higher response
+variance.
+Table 4 reports the percentages of participants grouped by their scores. For the o-score, we split
+the participants into two groups, the less open in listening to EM having a score between 0 and
+2, and the more open having between 3 and 5. At the beginning (PRE), the proportion for both
+HD and LD groups is around 75–25 (more open–less open), whilst in the POST measurement the
+proportion of open participants slightly increases resulting in approximately 80–20.
+In terms of the d-score, the proportions in the two groups are initially quite different, with the
+HD group having more positive scores than the LD group.16 Notwithstanding, over the course of the
+study the participants’ scores move towards zero, with the neutral group (d-score ∈ [−0.25, 0.25])
+16 Even if the d-score was included as a covariate while assigning participants to groups using covariate adaptive randomiza-
+
+tion, the higher initial nonresponse in the HD group caused such imbalance.
+19
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+Fig. 7. Average and standard deviation of d-score (left) and o-score (right). The dotted lines are the average
+baseline measurements (PRE). The filled area is the standard deviation from the mean value.
+Table 4. Percentage of participants divided according to the scores collected.
+
+PRE
+
+HD
+POST
+
+diff
+
+PRE
+
+LD
+POST
+
+diff
+
+o-score
+
+0-2
+3-5
+
+26.7%
+73.3%
+
+14.3%
+85.7%
+
+–12.4%
++12.4%
+
+24.5%
+75.5%
+
+18.2%
+81.9%
+
+–6.3%
++6.3%
+
+d-score
+
+<–0.25
+±0.25
+>0.25
+
+17.8%
+42.2%
+40.0%
+
+28.6%
+45.2%
+26.2%
+
++10.8%
++3.0%
+–13.8%
+
+28.6%
+38.8%
+32.6%
+
+22.7%
+52.3%
+25.0%
+
+–5.9%
++13.5%
+–7.6%
+
+consisting of almost half of the participants for both HD and LD groups, whilst the positive (d-score
+> 0.25) and negative (d-score < 0.25) scores are equally split.
+This analysis shows few aspects of the average behaviour of the HD and LD groups, without
+however considering individual differences. In order to further confirm what found at the group
+level, we explore the association between the rate of change and the initial scores by using the
+individual slopes obtained from the regression analysis of each participant’s scores. Figure 8 shows
+the slopes describing the trajectory of each participant versus the baseline scores obtained at the
+beginning of the study, separately for the d-score and o-score. Each point in the scatter represents
+a participant, where if the slope is positive indicates that through the twelve weeks her scores
+increased, if negative decreased.
+The slopes of the d-score are mostly clustered around zero, meaning that the implicit association
+towards EM did not extremely change for most of the participants. In the bottom-right quadrant, a
+greater presence of HD participants is visible, who represent the subjects starting with a positive
+attitude and then moving towards more negative ones. On the contrary, in the top-left we see
+mostly LD participants, representing the opposite scenario. The average slope for the LD group is
+20
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+almost zero, whilst for the HD group is negative, confirming that, overall, participants of this last
+group developed less positive implicit association during the study.
+We observe a different situation for the o-score, where no particular differences are observed
+between groups. Only in the case of the two participants who started the experiment declaring
+to be not open to listening to EM neither for one hour a month (baseline score equal to zero),
+we clearly observe different slopes. Indeed, the LD participant over the weeks seems to have not
+changed her openness, instead, the HD participant has a positive slope. This indicates that even if
+at the beginning she was not open to listening to EM at all, eventually she started to be more open
+during the study.
+Starting from these observations, we formulate two hypotheses on the impact of recommendations on the scores. In fact, over the course of the study for the whole group of participants we
+hypothesise that: (H6) the implicit association with EM will tend towards neutral valence, and (H7)
+the openness in listening to EM will increase. We use the Wilcoxon signed-rank test for testing
+this hypothesis. Two comparisons are made, first between the scores in the PRE stage and the ones
+at the end of the fourth week of the COND stage (PRE-COND), and then between PRE and POST
+stage (PRE-POST ). Using the former, we are able to measure the impact of recommendations on
+participants right after being exposed to EM, while with the latter we measure if the impact still
+exists after one month from the exposure.
+Table 5 reports the outcomes of the tests. In the case of the d-score, after the exposure participants’
+scores tendentially decrease, a trend confirmed when looking at the differences between the
+beginning and the end of the study. Instead, by analysing the o-score we observe an opposite
+behaviour, having an increase right after the exposure, which becomes not significant comparing
+the PRE and POST measurements. However, for both scores the effect size was not particularly
+large. As a further step, by means of correlation analysis we measure the temporal stability of the
+two scores considering again the two intervals PRE-COND and PRE-POST. In terms of d-score we
+observe lower stability over time in comparison to the o-score both in the PRE-COND measurements
+
+Fig. 8. Individual d-score (left) and o-score (right) slopes versus baseline (PRE) scores. The horizontal line is
+the mean slope for each group, while the filled area represents the standard deviation.
+21
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+(d-score: 𝜌 = .30, 𝑝 < .01, o-score: 𝜌 = .57, 𝑝 < .01) and in the PRE-POST measurements (d-score:
+𝜌 = .34, 𝑝 < .01, o-score: .53, 𝑝 < .01). These results corroborate the idea that implicit measurement
+may be less resistant to situationally induced changes than explicit measures [29].
+Table 5. Summary of the Wilcoxon signed-rank test results. M stands for median value (1: PRE, 2: COND or
+POST ). CLES (Common Language Effect Size) is the proportion of pairs where x is higher than y.
+
+Hyp.
+
+Data
+
+𝑀1
+
+H6
+–
+H7
+–
+
+d-score (PRE-COND)
+d-score (PRE-POST )
+o-score (PRE-COND)
+o-score (PRE-POST )
+
+.065 .008 2519.5
+.069 .016 2260.0
+4.0 4.0 414.5
+4.0 4.0 434.5
+
+𝑀2
+
+W
+
+Alt.
+
+p-val
+
+CLES
+
+>
+>
+<
+<
+
+.01
+.05
+.05
+.16
+
+.53
+.55
+.54
+.52
+
+After highlighting the overall impact of recommendations on the study participants, we are
+interested in understanding the role of diversity in such change. Therefore, we implement two
+methods to perform a PRE-POST analysis, described as follows. We denote 𝑋𝑖 = 0 if a participant is
+part of the LD group, and 𝑋𝑖 = 1 if part of the HD group. For each participant, 𝑌𝑖0 is the measurement
+in the PRE stage, and 𝑌𝑖1 at the POST stage. We use two regression methods to compare the groups. In
+the follow-up analysis we look at the difference in the mean response at follow-up (POST ) comparing
+the two groups: 𝑌𝑖1 = 𝛽 0 + 𝛽 1𝑋𝑖 + 𝜖𝑖 . Instead, in the change analysis we study the difference between
+the average change (PRE-POST ) comparing the two groups: (𝑌𝑖1 − 𝑌𝑖0 ) = 𝛽 0 + 𝛽 1𝑋𝑖 + 𝜖𝑖 . From the
+follow-up analysis, we have no evidence of a significant difference in the mean responses between
+HD and LD groups at the POST stage, both for the d-score (𝛽 1 = −.04, 𝑆𝐸 = .08, 𝑝 = .66) and the
+o-score (𝛽 1 = −.09, 𝑆𝐸 = .26, 𝑝 = .73). Similarly, the change analysis does not evidence differences
+between groups in the average change between the beginning and the end of the experiment, both
+for the d-score (𝛽 1 = −.09, 𝑆𝐸 = .10, 𝑝 = .38) and the o-score (𝛽 1 = .1, 𝑆𝐸 = .27, 𝑝 = .71).
+In summary, after the exposure to four weeks of music recommendations we found a slight
+change in implicit association (H6) and openness (H7), but we have not evidenced any particular
+influence by the degree of diversity at which participants were exposed.
+5.4.2 Stereotype Analysis. The results of this section of the EMF questionnaire are displayed in
+Figure 24, 25, and 26 (Appendix B) respectively for the listening contexts, the musical properties
+and the artists’ characteristics that participants associated with Electronic Music (EM). Hereafter,
+we summarise the main results. As done for the d-score and the o-score, we compare exclusively
+the measurements taken at the beginning of the study (PRE), at the end of the listening sessions
+(COND), and at the end of the study (POST ).
+Among the eight contexts presented in the survey, participants indicate that they would preferentially listen to EM while doing a dynamic and energetic activity (partying, running, commuting,
+and shopping). On the contrary, they disagree that EM is suitable for being listened to during
+activities that require a higher level of calm or concentration (sleeping, studying, and relaxing or
+working).17 Nevertheless, the exposure to recommendations did not largely affect the opinion of the
+participants. Indeed, performing a Wilcoxon signed-rank test between PRE-COND and PRE-POST,
+for six contexts out of eight no statistically significant difference (𝑝 < 0.05) have been found.
+Likewise, by using the Mann-Whitney U test we have not found significant differences between the
+HD and LD participants’ responses, indicating that the level of diversity did not differently affect
+the participants.
+17 There is some ambiguity about the definition of working which may have influenced the responses. Indeed, depending
+
+upon the type of work, it may be considered an energetic or a calm activity.
+22
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+The only two contexts wherein we found significant differences are running and shopping. In
+the former case, the LD group is strongly convinced about the use of EM for running, with the
+percentage of agreement passing from 62% in PRE to 76% in COND and POST. In the HD group, we
+observe an opposite tendency, passing from an agreement of 73% in PRE to 66% and then 68% in
+COND and POST. These results support the idea that being exposed only to trance music, a highenergy kind of music, may affect the listeners in associating EM with a high-energy kind of activity
+like running. On the contrary, while exploring different facets of EM listeners may have realised
+that some genres are not fitted for being listened to while running. Instead, in the case of shopping
+we see that both groups start disagreeing in the PRE measurement (HD: 52%, LD: 62%), but then
+over the course of the study arrive at a more balanced situation between agreement, disagreement
+and neutral responses. Observing less extreme responses among participants is reasonable being
+shopping an activity not so dynamic, for instance in comparison to running, neither so calm, as for
+instance studying.
+Similarly, the musical properties that participants associate with EM tracks have not been largely
+affected by the recommendations. Among the four selected features, participants changed their
+opinion only on the presence of acoustic instruments, especially the ones in the HD group. Indeed,
+for them we find a significant difference (𝑝 = .01, 𝐶𝐿𝐸𝑆 = .32) both comparing PRE-COND and
+PRE-POST measurements. Moreover, the Mann-Whitney U test confirms the significant difference
+between the HD and the LD groups’ responses both in COND and POST measurements (𝑝 = .04,
+𝐶𝐿𝐸𝑆 = .61). Observing the distribution in Figure 25, we may notice that at the beginning 79% of
+HD participants disagree on the fact that EM had mostly acoustic instruments, while in the COND
+and POST measurements only about 50% disagree. On the contrary, the percentage for the LD
+group remains quite stable over the course of the three months. This is consistent with the fact
+that the LD group has been exposed only to trance music, which rarely has parts with acoustic
+instruments. On the contrary, HD participants listening to genres such as Electroacoustic may have
+changed their idea about the acousticness of EM.
+Lastly, analysing which characteristics participants associate with EM artists (Figure 26), no
+statistically significant differences have been found between HD and LD groups. Only in terms of
+age, we find a difference between PRE-COND and PRE-POST measurements.
+5.5
+
+End-of-Study Survey Analysis
+
+The analysis of the End-of-Study (EoS) survey reveals a few more qualitative insights that complement what is presented in the previous sections. First, we analyse participants’ answers concerning
+the openness and appreciation of EM, before, during and after participating in the study. Then,
+we focus on a set of stereotypes to see how exposure to EM recommendations has affected the
+participants’ opinions. We recall that the survey is formed by three main groups of items, the first
+asking about the experience of participants before the study, the second during, and the third after
+the study.
+The survey contains 16 Likert items to measure the participants’ openness in listening to EM
+and 16 items for measuring appreciation of EM, divided into 6 items asking for participants’ beliefs
+before, 6 during, and 4 after participating in the study. By analysing these three sets separately, we
+may get an idea about how participants perceived a change in their openness and appreciation
+of EM due to their participation in the study. Figure 9 presents the distribution of the responses
+for the whole group of participants. We avoid reporting results separately for the HD and LD
+groups because no significant difference has been found between their responses. Analysing the
+internal consistency of the sets of items computing Cronbach’s alpha (𝛼), we observe an acceptable
+consistency in the three sets. Indeed, for the openness items we have: before 𝛼 = .88, during 𝛼 = .82,
+and after 𝛼 = .72. For the appreciation items: before 𝛼 = .90, during 𝛼 = .86, and after 𝛼 = .77.
+23
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+Therefore, we may assume that the items properly reflect the two concepts that we wanted to
+measure.
+Focusing on the openness in listening to EM, we notice that whilst participants’ responses
+before the study were quite balanced around the neutral response, even if with high variance
+(M=2.94 ± 1.31). When asked about their openness during and after the study, they averagely
+declared to be more open in comparison with the beginning (respectively with 𝑀 = 3.43 ± 0.95,
+and 𝑀 = 3.48 ± 1.08). Therefore, their perceptions are in line with the results of Section 5.4 wherein
+an overall increase in openness was found by looking at the results obtained from the Guttman
+scale. In terms of appreciation, we notice a similar trend with an initial balanced situation at the
+beginning of the study (𝑀 = 3.07 ± 1.27), that increases towards more positive responses over the
+12 weeks (𝑀 = 3.36 ± 0.99 and 𝑀 = 3.67 ± 1.01, respectively during and after the study).
+
+Fig. 9. Distribution of responses for the openness (dark blue) and appreciation (light blue, dashed) 5-point
+Likert scale. Response 1 corresponds to strong disagreement with the items, and 5 to strong agreement.
+
+The second focus of our analysis is on comparing four items describing four stereotypes of EM,
+reported in Figure 10 together with the distribution of the responses. In this case, it displays the
+distribution for the HD and LD groups separately, because the impact of the recommendations on
+these items has been indeed mediated by their diversity.
+For the first item analysed (“I listen to EM only for partying”), we observe that prior to the study
+participants had on average a balanced response towards this stereotype (HD: 2.98 ± 1.06, LD:
+3.17 ± 0.97). However, during the study the two groups realise that may be restrictive to consider
+EM only for partying, with an overall decrease in their average response (HD: 2.47 ± 1.03, LD:
+2.56 ± 1.07). In the case of the second item (“I believe Electronic Music has mostly fast tempo and high
+energy”), we observe a similar behaviour. In the beginning, participants strongly agree with this
+statement (HD: 4.26 ± 0.66, LD: 4.15 ± 0.68), but then after the study they changed their opinion
+(HD: 3.51 ± 1.1, LD: 3.69 ± 0.83), agreeing less strongly to the fact that EM has a mostly fast tempo
+and high energy.
+The next considered item (“I think of Electronic Music as a varied genre with several sub-styles”)
+presents an opposite situation in confront to the former two. Indeed, at the beginning on average
+participants neither agree nor disagree significantly with the statement (HD: 3.02 ± 1.12, LD:
+3.19 ± 1.0). However, participating in the study made them change their opinion about it, agreeing
+much more in percentage than before (HD: 4.21 ± 0.77, LD: 3.85 ± 0.77). Similarly, also in the case
+of the fourth item considered (“I believe that Electronic Music could fit in different contexts”), we
+observe a neutral position of participants at the beginning (HD: 3.37 ± 1.05, LD: 3.35 ± 0.9), which
+later agree more with the fact that EM may fit in different contexts (HD: 4.12 ± 0.73, LD: 3.83 ± 0.72).
+24
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+Fig. 10. Distribution of responses for the High Diversity (HD, top) and Low Diversity (LD, bottom) groups,
+before (clean bar) and after (dashed bar) the participation in the study. Response 1 corresponds to “Totally
+Disagree” with the item, and 5 to “Totally Agree”.
+
+It is interesting to note that the responses in these two latter items are the only ones for which we
+found a significant difference between HD and LD subjects. Indeed, by performing a Mann-Whitney
+U test we obtain a p-value of .01 and .02 and a CLES of .65 and .62. This indicates that, even if
+for both groups the exposure to recommendation affected the beliefs about how varied EM may
+be and how it may fit in different contexts, in the case of the HD group this shift has been more
+pronounced.
+6
+
+DISCUSSION AND LIMITATIONS
+
+In this section, we discuss the results previously presented with the aim of defining, first, to what
+extent listeners’ implicit and explicit attitudes towards an unfamiliar music genre can be affected by
+exposure to music recommendations? (RQ1), and second, what is the relationship between music
+recommendation diversity and the impact on listeners’ attitudes (RQ2). We focus on four main aspects:
+impact on discovery (Section 6.1), implicit association (Section 6.2), openness (Section 6.3), and
+stereotypes (Section 6.4). Moreover, in each section we present the limitations and future work.
+6.1
+
+Impact on Discovery
+
+The most pronounced role that recommendation diversity plays in our study is with respect to
+the curiosity generated in the participants when exposed to music during the listening sessions.
+Indeed, the listeners’ willingness to explore Electronic Music (EM) playlists is significantly higher
+if exposed to highly diverse recommendations. Having in mind that EM was mostly unfamiliar
+to the subjects in our study, we believe that when listeners are not familiar with a music genre, a
+diversified set of recommendations could increase their willingness in exploring such music. A message
+sent to us by a study participant supports this hypothesis: “Hello! It was a pleasure participating, I
+discovered new artists that I really liked! Happy to have contributed to your study :) Thank you!”.
+25
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+This is particularly important for the design of music recommender systems in streaming platforms, the digital places where most people land to discover new music [3, 17, 51]. In offline settings,
+several studies have investigated the role that diversity may play, e.g [24], but to our knowledge this
+is the first longitudinal user study that measures the long-term impact of recommendation diversity
+on music discovery. Recent works by Liang and Willemsen [58, 59] show that it is possible to favour
+exploration of distant music genres both in the short and long term by nudging listeners through
+specific design choices, for instance presenting such genres in the top of the recommendation lists.
+Starting from their findings, we believe that by mixing nudging mechanisms with diversification
+techniques practitioners may design recommendations that notably improve the experience of
+discovering unfamiliar music.
+Nevertheless, the first limitation of this work rises from the definition of discovery itself. Indeed,
+if as Nowak suggests discoveries are “affective responses to music content that occur within
+individuals’ life narratives and mediate their interpretation and definition of music” [73], we argue
+that the responses resulting from the participation in our study cannot be compared to what
+listeners usually experience in less artificial situations wherein they are exposed to music. Under
+a different lens, focusing on discovery strategies and behavioural attitudes Garcia-Gathright and
+colleagues [28] show how explorative goals may vary according to the listeners’ needs. A further
+step could be to link the various overt behaviours to people’s affective responses, to evaluate if the
+discovery mediated by algorithmic recommendations has some shared values with other non-digital
+forms of curation (e.g., a DJ tracklist created for a live event).
+6.2
+
+Impact on Implicit Association
+
+The exposure to music recommendations helped participants in deconstructing part of the preexisting positive or negative association to EM, developing a more neutral attitude during the twelve
+weeks. The role of diversity here seems not significant, having the two groups of participants similarly behaved. In fact, we argue that the tendency of the HD group to decrease more significantly
+in comparison to the LD group is because of the unbalance created by the different dropout rates.
+Based on that, we hypothesise that when listeners are not familiar with a music genre, to receive
+repeated recommendations could mitigate the valence of the implicit association with such music.
+The results obtained deviate from the findings in [99], where positive implicit attitudes towards
+facial images of people from two cultures, namely Indian and West African, are developed by mere
+exposure to music from such cultures. However, the types of association and stimuli that listeners
+experienced in our study are undoubtedly different.
+The following reasons may be at the root of the development of neutral attitudes towards EM in
+the presented study. First and in line with the previous point on the discovery, the experimental
+setting mediated the affective response, also influencing the implicit association. The tendency of
+the participants to associate neutral valence with EM genres could be motivated by the artificiality of
+the events wherein participants listened to the music. Second, given the participants’ unfamiliarity
+with the genre, it is understandable that they did not develop any positive or negative attachment
+to genre labels that they might have never heard of before the study.
+As elegantly discussed by McLeod [64], genre namings are strictly tied to the EM communities
+behind which people identify, also influencing the dynamics of group formation. Therefore, we
+hypothesise that most of the genres shown in the SC-IAT test were only labels to the study
+participants, and remained as such given that no mechanism of bounding was incentivized. Indeed,
+no information about the genre of the tracks listened to was provided during or after the listening
+sessions. Under this lens, receiving neither positive nor negative responses from the participants
+may be seen as the desired result in the long term, which however needs further analysis to be
+understood in depth.
+26
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+6.3
+
+,,
+
+Impact on Openness
+
+Whilst listeners’ implicit association with EM became more moderate throughout the study, their
+openness to listening to EM increased. This indicates that in the long term exposure to unfamiliar
+music could favour listeners in being less reluctant in approaching a genre previously unknown.
+This finding does not come totally anew, partly confirming results from the literature on the impact
+of repeated exposure to music.
+Diversity here seems to motivate in particular participants who started the experiment affirming
+to be not open in listening EM. Indeed, subjects who passed from not being open to being open in
+listening to EM for one hour or more a week are in the HD group twice the size of the LD group.
+Still, the impact of recommendation diversity is apparently not significant. Moreover, contrary
+to the implicit association, participants’ openness was more consistently affected right after the
+conditioning stage than at the end of the study. Connecting this with the impact on discovery, we
+deduce that openness is highly influenced by exposure, but such influence decays rapidly when
+listeners stop to be exposed to recommendations. In light of this, we support the idea that when
+listeners are not familiar with a music genre, repeated exposure to recommendations could increase
+their openness in listening to such music. A message sent by one of the participants of the HD group
+right after the end of the COND stage supports this intuition: “Thank you so much [...] It was very
+interesting and a good opportunity to learn about this musical genre.”.
+Again, the settings of the experiment may have influenced the outcomes responses. In fact,
+participants were requested to be highly focused while listening to the music during the study, a
+condition which is not quite frequent in today’s listening practices where music is often relegated
+to the background while performing other activities [68]. This could have affected the openness
+more consistently in comparison if tracks would have been passively listened to, for instance,
+while walking in a mall or while working. Repeating the experiment in a controlled non-online
+environment may lead to more precise results in this regard.
+Furthermore, the openness measured using the Guttman scale has its own limitations. Indeed,
+listeners’ openness in listening to EM could be determined by an overall curiosity in discovering
+music. For instance, a listener with very heterogeneous musical tastes could be open to listening
+every day to one hour of electronic music, one hour of classical music, one hour of rock music, and
+more. On the contrary, a very homogeneous listener would avoid listening to electronic, classical
+and rock music at the same time if disliked. We foresee the analysis of participants’ openness in
+listening to EM with regard to their overall tendency of listening to varied music.
+6.4
+
+Impact on Stereotypes
+
+What emerges from the analysis of the results is that the participants’ idea of EM is quite stereotypical, and probably based exclusively on mainstream Electronic Dance Music artists.
+Indeed, listeners not familiar with EM may fall into the trap of misinterpreting it as music
+composed only with electronic instruments (e.g., drum machine, sampler, synthesizer). Instead,
+acoustic instruments, even if sampled, filtered, or generally modified, have always been used by
+EM artists. Under this lens, the fact that acousticness is the only feature on which participants’
+changed their idea after the exposure to recommendations does not come as a surprise. Moreover,
+the stereotype that EM is only for parties, and the common belief that it has mostly a fast tempo
+and high energy, have been partly deconstructed by the exposure to music such as ambient,
+electroacoustic or chill out respectively in sessions 2, 4 and 18 of the HD group. Nevertheless, the
+characterization of EM as Energetic and Rhythmic is quite common also in scientific literature, e.g.,
+[81], and participants of the LD group at some level experienced this aspect of EM. Besides, another
+accomplishment of this study is to show that listeners exposed to diversified recommendations
+27
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+may have a better understanding of the variety of EM culture, and realise that this music may fit in
+different contexts, not only for partying. Therefore, we deduce that exposing listeners not familiar
+with a music genre to a set of diversified recommendations, showing the different facets of such genre,
+could deconstruct pre-existing stereotypes. This finding is in line with the music psychology literature
+on the influence of music exposure.
+Likewise, the representation that participants have of EM artists is quite stereotypical, and also
+in this case it was something expected. EM artists are, according to them, mostly men, white, under
+40 years old and coming from developed and high-income countries. In this case, we did not expect
+that recommendations would affect participants’ opinions, mostly for two reasons which however
+are also two limitations of this work. First, participants’ origin has been purposely restricted to a
+small part of the world, normally labelled as Western, Educated, Industrialised, Rich and Democratic
+(WEIRD) societies. Similarly, also the EM part of the study is somehow biased towards Western
+artists. In fact, the semi-automatic method for creating the dataset has produced recommendation
+lists that reflect the variety of EM in terms of different genres, but not its variety as music culture
+played in different parts of the world.
+In conclusion, Figure 11 depicts the rationale behind our study by using an analogy about how
+people create mental models or abstractions of a field, using as an example geometric shapes. If a
+geometric shapes recommender system exposes a user not familiar with shapes only to squares,
+even if she may interact with squares having different colours, her idea of geometric shapes will be
+centred around squares. Instead, a system recommending squares, circles and triangles may help
+her in learning about other geometric shapes, and eventually she will interact also with those, or
+maybe not. In the end, one of the functions of recommendation diversity may be to help users learn
+what different shapes are.
+
+Fig. 11. A visual representation of the rationale of our study.
+
+7
+
+CONCLUSIONS
+
+The impact assessment of music RS with regard to people’s behaviour, attitudes, habits or beliefs,
+is an active and challenging research topic which is attracting more and more practitioners from
+different disciplines. Until now, simulation methods have been the most explored approach by the
+RS community to study the dynamics between users and items, and undoubtedly they have shed a
+light on several behavioural aspects of such interaction. Nevertheless, the fact that behaviourism is
+not enough has already being pointed out by Ekstrand and Willemsen [20]. The focus only on what
+users do, listen or consume is indeed one of the main limitations we find in music RS research,
+which motivated us in designing this longitudinal study.
+We did not target or expect to drastically change the listening habits of the study participants
+because the function of RS is not, and should not be, to manipulate listeners’ towards specific artists
+or genres. Moreover, the socio-cultural background, empathetic and affective response, generational
+differences, music education and many more aspects through life define what people listen to, and
+28
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+with this regard, recommender systems are only one of the many ways thanks to which people
+discover and interact with music [10]. Nevertheless, the extensive use of music streaming services,
+especially by young generations, wherein algorithmic recommendations play a central role, raise
+questions in terms of human agency and autonomy of the next generation of music listeners [16],
+questions that RS practitioners should not neglect.
+Reproducibility. To encourage reproducibility of the results, the code and data used in our
+study are publicly available.18
+ACKNOWLEDGMENTS
+This work is part of the project Musical AI - PID2019-111403GB-I00/AEI/ 10.13039/501100011033
+funded by the Spanish Ministerio de Ciencia, Innovación y Universidades (MCIU) and the Agencia
+Estatal de Investigación (AEI). This work is also partially supported by the HUMAINT programme
+(Human Behaviour and Machine Intelligence), Joint Research Centre, European Commission. The
+project leading to these results received funding “la Caixa” Foundation (ID 100010434), under
+agreement LCF/PR/PR16/51110009, an from EU-funded projects “SoBigData++” (grant agreement
+871042) and “FINDHR” (grant agreement 101070212).
+REFERENCES
+[1] Gediminas Adomavicius, Jesse C. Bockstedt, Shawn P. Curley, and Jingjing Zhang. 2013. Do recommender systems
+manipulate consumer preferences? A study of anchoring effects. Information Systems Research 24, 4 (2013), 956–975.
+https://doi.org/10.1287/isre.2013.0497
+[2] Gediminas Adomavicius, Dietmar Jannach, Stephan Leitner, and Jingjing Zhang. 2021. Understanding Longitudinal
+Dynamics of Recommender Systems with Agent-Based Modeling and Simulation. In SimuRec ’21: Workshop on
+Simulation Methods for Recommender Systems, co-located with ACM RecSys 2021. 21–24.
+[3] Luis Aguiar, Joel Waldfogel, and Sarah Waldfogel. 2018. Playlisting Favorites: Is Spotify Gender-Biased? Technical
+Report JRC Digital Economy Working Paper 2018-07; JRC Technical Reports, JRC113503. https://ec.europa.eu/jrc/
+sites/jrcsh/files/jrc113503.pdf
+[4] AllMusic. 2022. Electronic Artists Highlights. https://www.allmusic.com/genre/electronic-ma0000002572/artists.
+[Accessed: 2022-10-06].
+[5] Pablo Alonso-Jiménez, Dmitry Bogdanov, Jordi Pons, and Xavier Serra. 2020. Tensorflowaudio models in Essentia.
+In ICASSP 2020 - 2020 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). 266–270.
+https://doi.org/10.1109/ICASSP40776.2020.9054688
+[6] Guy Aridor, Duarte Goncalves, and Shan Sikdar. 2020. Deconstructing the Filter Bubble: User Decision-Making and
+Recommender Systems. In Proceedings of the 14th ACM Conference on Recommender Systems (Virtual Event, Brazil)
+(RecSys ’20). Association for Computing Machinery, New York, NY, USA, 82–91. https://doi.org/10.1145/3383313.
+3412246
+[7] Thierry Bertin-Mahieux, Daniel P. W. Ellis, Brian Whitman, and Paul Lamere. 2011. The Million Song Dataset. In
+Proceedings of the 12th International Society for Music Information Retrieval Conference. 591–596. https://doi.org/10.
+7916/D8NZ8J07
+[8] Rachel M. Bittner, Eric J. Humphrey, and Juan Pablo Bello. 2016. pysox: Leveraging the Audio Signal Processing
+Power of SoX in Python. In Proceedings of the 17th International Society for Music Information Retrieval Conference
+Late Breaking and Demo Papers.
+[9] Dmitry Bogdanov, Nicolas Wack, Emilia Gómez, Sankalp Gulati, Perfecto Herrera, Oscar Mayor, Gerard Roma, Justin
+Salamon, José Zapata, and Xavier Serra. 2013. Essentia: An Audio Analysis Library for Music Information Retrieval.
+Proceedings of the 14th International Society for Music Information Retrieval Conference (ISMIR 2013) (2013), 493–498.
+[10] Georgina Born, Jeremy Morris, Fernando Diaz, and Ashton Anderson. 2021. Artificial Intelligence, Music Recommendation, and the Curation of Culture. Technical Report. Schwartz Reisman Institute for Technology and Society.
+[11] Kelly Caine. 2016. Local Standards for Sample Size at CHI. In Proceedings of the 2016 CHI Conference on Human Factors
+in Computing Systems (San Jose, California, USA) (CHI ’16). Association for Computing Machinery, New York, NY,
+USA, 981–992. https://doi.org/10.1145/2858036.2858498
+[12] Allison J. B. Chaney, Brandon M. Stewart, and Barbara E. Engelhardt. 2018. How Algorithmic Confounding in
+Recommendation Systems Increases Homogeneity and Decreases Utility. In Proceedings of the 12th ACM Conference
+18 TO BE READY IN CASE OF ACCEPTANCE: https://github.com/LPorcaro/longterm-musdiv
+
+29
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+on Recommender Systems (Vancouver, British Columbia, Canada) (RecSys ’18). Association for Computing Machinery,
+New York, NY, USA, 224–232. https://doi.org/10.1145/3240323.3240370
+[13] Anthony Chmiel and Emery Schubert. 2017. Back to the inverted-U for music preference: A review of the literature.
+Psychology of Music 45, 6 (2017), 886–909. https://doi.org/10.1177/0305735617697507
+[14] Eric Clarke, Tia DeNora, and Jonna Vuoskoski. 2015. Music, Empathy and Cultural Understanding. Physics of Life
+Reviews 15 (2015), 61–88. https://doi.org/10.1016/j.plrev.2015.09.001
+[15] Jacob Cohen. 1992. A Power Primer. Quantitative Methods in Psychology 112, 1 (1992), 155–159.
+[16] David Crider. 2022. Listening, but Not Being Heard: Young Women, Popular Music, Streaming, and Radio. Popular
+Music and Society 0, 0 (2022), 1–17. https://doi.org/10.1080/03007766.2022.2111513
+[17] Hannes Datta, George Knox, and Bart J. Bronnenberg. 2018. Changing Their Tune: How Consumers’ Adoption
+of Online Streaming Affects Music Consumption and Discovery. Marketing Science 37, 1 (2018), 5–21. https:
+//doi.org/10.1287/mksc.2017.1051
+[18] Edith D. de Leeuw and Peter Lugtig. 2015. Dropouts in Longitudinal Surveys. In Wiley StatsRef: Statistics Reference
+Online. John Wiley & Sons, Ltd, 1–6. https://doi.org/10.1002/9781118445112.stat06661.pub2
+[19] Michael D. Ekstrand, Allison Chaney, Pablo Castells, Robin Burke, David Rohde, and Manel Slokom. 2021. SimuRec:
+Workshop on Synthetic Data and Simulation Methods for Recommender Systems Research. In Proceedings of the
+15th ACM Conference on Recommender Systems (Amsterdam, Netherlands) (RecSys ’21). Association for Computing
+Machinery, New York, NY, USA, 803–805. https://doi.org/10.1145/3460231.3470938
+[20] Michael D. Ekstrand and Martijn C. Willemsen. 2016. Behaviorism is Not Enough: Better Recommendations through
+Listening to Users. In Proceedings of the 10th ACM Conference on Recommender Systems (Boston, Massachusetts, USA)
+(RecSys ’16). Association for Computing Machinery, New York, NY, USA, 221–224. https://doi.org/10.1145/2959100.
+2959179
+[21] Francesco Fabbri, Yanhao Wang, Francesco Bonchi, Carlos Castillo, and Michael Mathioudakis. 2022. Rewiring Whatto-Watch-Next Recommendations to Reduce Radicalization Pathways. In Proceedings of the ACM Web Conference 2022
+(Virtual Event, Lyon, France) (WWW ’22). Association for Computing Machinery, New York, NY, USA, 2719–2728.
+https://doi.org/10.1145/3485447.3512143
+[22] Andrés Ferraro. 2021. Music Recommender Systems: Taking into Account the Artists’ Perspective. Ph. D. Dissertation.
+Universitat Pompeu Fabra.
+[23] Andrés Ferraro, Dietmar Jannach, and Xavier Serra. 2020. Exploring Longitudinal Effects of Session-Based Recommendations. In Proceedings of the 14th ACM Conference on Recommender Systems. 474–479. https://doi.org/10.1145/
+3383313.3412213
+[24] Bruce Ferwerda, Mark P. Graus, Andreu Vall, Marko Tkalčič, and Markus Schedl. 2017. How Item Discovery Enabled
+by Diversity Leads to Increased Recommendation List Attractiveness. In Proceedings of the Symposium on Applied
+Computing (Marrakech, Morocco) (SAC ’17). Association for Computing Machinery, New York, NY, USA, 1693–1696.
+https://doi.org/10.1145/3019612.3019899
+[25] Daniel Fleder and Kartik Hosanagar. 2009. Blockbuster culture’s next rise or fall: The impact of recommender systems
+on sales diversity. Management Science 55, 5 (2009), 697–712. https://doi.org/10.1287/mnsc.1080.0974
+[26] Daniel M. Fleder and Kartik Hosanagar. 2007. Recommender systems and their impact on sales diversity. In EC’07 Proceedings of the Eighth Annual Conference on Electronic Commerce. 192–199. https://doi.org/10.1145/1250910.1250939
+[27] Carina Freitas, Enrica Manzato, Alessandra Burini, Margot J. Taylor, Jason P. Lerch, and Evdokia Anagnostou. 2018.
+Neural correlates of familiarity in music listening: A systematic review and a neuroimaging meta-analysis. Frontiers
+in Neuroscience 12, OCT (2018), 1–14. https://doi.org/10.3389/fnins.2018.00686
+[28] Jean Garcia-Gathright, Brian St. Thomas, Christine Hosey, Zahra Nazari, and Fernando Diaz. 2018. Understanding
+and Evaluating User Satisfaction with Music Discovery. In The 41st International ACM SIGIR Conference on Research
+and Development in Information Retrieval (Ann Arbor, MI, USA) (SIGIR ’18). Association for Computing Machinery,
+New York, NY, USA, 55–64. https://doi.org/10.1145/3209978.3210049
+[29] Bertram Gawronski, Mike Morrison, Curtis E. Phills, and Silvia Galdi. 2017. Temporal Stability of Implicit and
+Explicit Measures: A Longitudinal Analysis. Personality and Social Psychology Bulletin 43, 3 (2017), 300–312. https:
+//doi.org/10.1177/0146167216684131
+[30] Jort F. Gemmeke, Daniel P. W. Ellis, Dylan Freedman, Aren Jansen, Wade Lawrence, R. Channing Moore, Manoj
+Plakal, and Marvin Ritter. 2017. Audio Set: An ontology and human-labeled dataset for audio events. In 2017 IEEE
+International Conference on Acoustics, Speech and Signal Processing (ICASSP). 776–780.
+[31] Anthony G. Greenwald, Debbie E. Mcghee, and Jordan L. K. Schwartz. 1998. Measuring Individual Differences in
+Implicit Cognition: The Implicit Association Test. Journal of Personality and Social Psychology 74, 6 (1998), 1464–1480.
+[32] Tobias Greitemeyer, Jack Hollingdale, and Eva Traut-Mattausch. 2015. Changing the track in music and misogyny:
+Listening to music with pro-equality lyrics improves attitudes and behavior toward women. Psychology of Popular
+Media Culture 4, 1 (2015), 56–67. https://doi.org/10.1037/a0030689
+
+30
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+[33] Tobias Greitemeyer and Anne Schwab. 2014. Employing music exposure to reduce prejudice and discrimination.
+Aggressive Behavior 40, 6 (2014), 542–551. https://doi.org/10.1002/ab.21531
+[34] Louis Guttman. 1944. A Basis for Scaling Qualitative Data. American Sociological Review 9, 2 (1944), 139–150.
+[35] Mario Haim, Andreas Graefe, and Hans Bernd Brosius. 2018. Burst of the Filter Bubble? Effects of personalization on
+the diversity of Google News. Digital Journalism 6, 3 (2018), 330–343. https://doi.org/10.1080/21670811.2017.1338145
+[36] Md Rajibul Hasan, Ashish Kumar Jha, and Yi Liu. 2018. Excessive use of online video streaming services: Impact
+of recommender system use, psychological factors, and motives. Computers in Human Behavior 80 (2018), 220–228.
+https://doi.org/10.1016/j.chb.2017.11.020
+[37] Hanna Hauptmann, Nadja Leipold, Mira Madenach, Monika Wintergerst, Martin Lurz, Georg Groh, Markus Böhm, Kurt
+Gedrich, and Helmut Krcmar. 2021. Effects and challenges of using a nutrition assistance system: results of a long-term
+mixed-method study. User Modeling and User-Adapted Interaction (2021). https://doi.org/10.1007/s11257-021-09301-y
+[38] Naieme Hazrati, Mehdi Elahi, and Francesco Ricci. 2020. Simulating the Impact of Recommender Systems on the
+Evolution of Collective Users’ Choices. In Proceedings ofthe 31st ACM Conference on Hypertext and Social Media
+(HT’20). 207–212. https://doi.org/10.1145/3372923.3404812
+[39] Natali Helberger, Kari Karppinen, and Lucia D’Acunto. 2018. Exposure diversity as a design principle for recommender
+systems. Information, Communication and Society 21, 2 (2018), 191–207. https://doi.org/10.1080/1369118X.2016.1271900
+[40] IAIA, International Association for Impact Assessment. 2009. What Is IA. https://www.iaia.org/uploads/pdf/What_
+is_IA_web.pdf. [Accessed: 2022-10-06].
+[41] Dietmar Jannach and Christine Bauer. 2020. Escaping the McNamara Fallacy: Toward More Impactful Recommender
+Systems Research. AI Magazine 41, 4 (2020), 79–95. https://doi.org/10.1609/aimag.v41i4.5312
+[42] Dietmar Jannach, Lukas Lerche, Iman Kamehkhosh, and Michael Jugovac. 2015. What recommenders recommend: an
+analysis of recommendation biases and possible countermeasures. User Modeling and User-Adapted Interaction 25, 5
+(2015), 427–491. https://doi.org/10.1007/s11257-015-9165-3
+[43] Dietmar Jannach, Oren Sar Shalom, and Joseph A Konstan. 2019. Towards More Impactful Recommender Systems
+Research. In Proceedings of the ImpactRS Workshop, co-located with the 13th ACM Conference on Recommender Systems
+(RecSys 2019). 15–17.
+[44] Ray Jiang, Silvia Chiappa, Tor Lattimore, András György, and Pushmeet Kohli. 2019. Degenerate feedback loops in
+recommender systems. AIES 2019 - Proceedings of the 2019 AAAI/ACM Conference on AI, Ethics, and Society (2019),
+383–390. https://doi.org/10.1145/3306618.3314288
+[45] Rebecca R. Johnston and Gina M. Childers. 2022. Musical pantophagy: Is there an effect on changes in preference
+resulting from repeated exposure? Psychology of Music 50, 1 (2022), 141–158. https://doi.org/10.1177/0305735620987299
+[46] Margot E. Kaminski and Gianclaudio Malgieri. 2021. Algorithmic impact assessments under the GDPR: Producing
+multi-layered explanations. International Data Privacy Law 11, 2 (2021), 125–144. https://doi.org/10.1093/idpl/ipaa020
+[47] Maurits Kaptein and Judy Robertson. 2012. Rethinking Statistical Analysis Methods for CHI. In Proceedings of the
+SIGCHI Conference on Human Factors in Computing Systems (Austin, Texas, USA) (CHI ’12). Association for Computing
+Machinery, New York, NY, USA, 1105–1114. https://doi.org/10.1145/2207676.2208557
+[48] Andrew Karpinski and Ross B. Steinman. 2006. The single category implicit association test as a measure of implicit
+social cognition. Journal of Personality and Social Psychology 91, 1 (2006), 16–32. https://doi.org/10.1037/00223514.91.1.16
+[49] Deanna Kemp and Frank Vanclay. 2013. Human rights and impact assessment: Clarifying the connections in practice.
+Impact Assessment and Project Appraisal 31, 2 (2013), 86–96. https://doi.org/10.1080/14615517.2013.782978
+[50] Jaehun Kim, Julián Urbano, Cynthia C.S. Liem, and Alan Hanjalic. 2019. Are Nearby Neighbors Relatives? Testing
+Deep Music Embeddings. Frontiers in Applied Mathematics and Statistics 5, November (2019), 1–17. https://doi.org/
+10.3389/fams.2019.00053
+[51] Peter Knees, Markus Schedl, Bruce Ferwerda, and Audrey Laplante. 2019. User awareness in music recommender
+systems. In Personalized Human-Computer Interaction, Mirjam Augstein, Eelco Herder, and Wolfgang Wörndl (Eds.).
+De Gruyter Oldenbourg, 223–252. https://doi.org/10.1515/9783110552485-009
+[52] Emily Jane Kothe and Mathew Ling. 2019. Retention of participants recruited to a multi-year longitudinal study via
+Prolific. PsyArXiv Preprints (2019), 1–8.
+[53] Christos Koutlis, Manos Schinas, Symeon Papadopoulos, and Ioannis Kompatsiaris. 2020. GAP: Geometric Aggregation
+of Popularity Metrics. Information 11, 6 (2020). https://doi.org/10.3390/INFO11060323
+[54] Reinhard Kreissl, Florian Fritz, and Lars Ostermeier. 2015. Societal Impact Assessment. In International Encyclopedia
+of the Social & Behavioral Sciences (second ed.), James D Wright (Ed.). Elsevier, Oxford, 873–877. https://doi.org/10.
+1016/B978-0-08-097086-8.10561-6
+[55] Edith Law and Luis von Ahn. 2009. Input-Agreement: A New Mechanism for Collecting Data Using Human
+Computation Games. In Proceedings of the SIGCHI Conference on Human Factors in Computing Systems (Boston, MA,
+USA) (CHI ’09). Association for Computing Machinery, New York, NY, USA, 1197–1206. https://doi.org/10.1145/
+
+31
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+1518701.1518881
+[56] Dokyun Lee and Kartik Hosanagar. 2014. Impact of recommender systems on sales volume and diversity. In 35th
+International Conference on Information Systems (ICIS 2014). 1–15.
+[57] Dokyun Lee and Kartik Hosanagar. 2017. How do recommender systems affect sales diversity? A cross-category
+investigation via randomized field experiment. Information Systems Research 30, 1 (2017), 239–259. https://doi.org/10.
+1287/isre.2018.0800
+[58] Yu Liang and Martijn C. Willemsen. 2022. Exploring the Longitudinal Effects of Nudging on Users’ Music Genre
+Exploration Behavior and Listening Preferences. In Proceedings of the 16th ACM Conference on Recommender Systems
+(Seattle, WA, USA) (RecSys ’22). Association for Computing Machinery, New York, NY, USA, 3–13. https://doi.org/10.
+1145/3523227.3546772
+[59] Yu Liang and Martijn C Willemsen. 2022. Promoting Music Exploration through Personalized Nudging in a Genre
+Exploration Recommender. International Journal of Human-Computer Interaction 0, 0 (2022), 1–24. https://doi.org/10.
+1080/10447318.2022.2108060
+[60] Luminate. 2022. Spotlight On: Electronic/Dance Music. https://luminatedata.com/reports/luminate-releases-newgenre-insights. [Accessed: 2022-10-06].
+[61] Guy Madison and Gunilla Schiölde. 2017. Repeated listening increases the liking for music regardless of its complexity:
+Implications for the appreciation and aesthetics of music. Frontiers in Neuroscience 11, MAR (2017), 1–13. https:
+//doi.org/10.3389/fnins.2017.00147
+[62] Masoud Mansoury, Himan Abdollahpouri, Mykola Pechenizkiy, Bamshad Mobasher, and Robin Burke. 2020. Feedback
+Loop and Bias Amplification in Recommender Systems. In Proceedings of the 29th ACM International Conference on
+Information & Knowledge Management (Virtual Event, Ireland) (CIKM ’20). Association for Computing Machinery,
+New York, NY, USA, 2145–2148. https://doi.org/10.1145/3340531.3412152
+[63] Glenn McDonald. 2013. How We Understand Music Genres. https://everynoise.com/EverynoiseIntro.pdf. [Accessed:
+2022-10-06].
+[64] Kembrew McLeod. 2001. Genres, Subgenres, Sub-Subgenres and More: Musical and Social Differentiation Within
+Electronic/Dance Music Communities. Journal of Popular Music Studies 13, 1 (2001), 59–75. https://doi.org/10.1080/
+152422201317071651
+[65] Jacob Metcalf, Emanuel Moss, Elizabeth Anne Watkins, Ranjit Singh, and Madeleine Clare Elish. 2021. Algorithmic
+Impact Assessments and Accountability: The Co-Construction of Impacts. In Proceedings of the 2021 ACM Conference on
+Fairness, Accountability, and Transparency (Virtual Event, Canada) (FAccT ’21). Association for Computing Machinery,
+New York, NY, USA, 735–746. https://doi.org/10.1145/3442188.3445935
+[66] Judith Möller, Damian Trilling, Natali Helberger, and Bram van Es. 2018. Do not blame it on the algorithm: an empirical
+assessment of multiple recommender systems and their impact on content diversity. Information Communication and
+Society 21, 7 (2018), 959–977. https://doi.org/10.1080/1369118X.2018.1444076
+[67] Richard K. Morgan. 2012. Environmental impact assessment: The state of the art. Impact Assessment and Project
+Appraisal 30, 1 (2012), 5–14. https://doi.org/10.1080/14615517.2012.661557
+[68] Fabio Morreale. 2021. Where Does the Buck Stop? Ethical and Political Issues with AI in Music Creation. Transactions
+of the International Society for Music Information Retrieval 4 (2021), 105–113.
+[69] Emanuel Moss, Elizabeth Anne Watkins, Ranjit Singh, Madeleine Clare Elish, and Jacob Metcalf. 2021. Assembling
+Accountability: Algorithmic Impact Assessment for the Public Interest. Data & Society. https://datasociety.net/wpcontent/uploads/2021/06/Assembling-Accountability.pdf. [Accessed: 2022-10-06].
+[70] Felipe L. Navarro, Perfecto Herrera, and Emilia Gómez. 2014. There are places I remember: Personalized automatic
+creation of music playlists for Alzheimer’s patients. In The Neurosciences and Music V.
+[71] Tien T. Nguyen, Pik-Mai Hui, F. Maxwell Harper, Loren Terveen, and Joseph A. Konstan. 2014. Exploring the Filter
+Bubble: The Effect of Using Recommender Systems on Content Diversity. In Proceedings of the 23rd International
+Conference on World Wide Web. 677–686. https://doi.org/10.1145/2566486.2568012
+[72] Nielsen. 2014. Who is the Electronic Music Listener? https://www.nielsen.com/insights/2014/who-is-the-electronicmusic-listener. [Accessed: 2022-10-06].
+[73] Raphaël Nowak. 2016. When is a discovery? The affective dimensions of discovery in music consumption. Popular
+Communication 14, 3 (2016), 137–145. https://doi.org/10.1080/15405702.2016.1193182
+[74] Adriana Partal and Kim Dunphy. 2016. Cultural impact assessment: a systematic literature review of current methods
+and practice around the world. Impact Assessment and Project Appraisal 34, 1 (2016), 1–13. https://doi.org/10.1080/
+14615517.2015.1077600
+[75] Gourab K. Patro, Lorenzo Porcaro, Laura Mitchell, Qiuyue Zhang, Meike Zehlike, and Nikhil Garg. 2022. Fair
+Ranking: A Critical Review, Challenges, and Future Directions. In 2022 ACM Conference on Fairness, Accountability,
+and Transparency (Seoul, Republic of Korea) (FAccT ’22). Association for Computing Machinery, New York, NY, USA,
+1929–1942. https://doi.org/10.1145/3531146.3533238
+
+32
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+[76] Jordi Pons, Oriol Nieto, Matthew Prockup, Erik M. Schmidt, Andreas F. Ehmann, and Xavier Serra. 2018. End-to-end
+learning for music audio tagging at scale. In 19th International Society for Music Information Retrieval Conference
+(ISMIR2018).
+[77] Lorenzo Porcaro, Carlos Castillo, and Emilia Gómez. 2021. Diversity by Design in Music Recommender Systems.
+Transactions of the International Society for Music Information Retrieval 4, 1 (2021), 114–126. https://doi.org/10.5334/
+tismir.106
+[78] Lorenzo Porcaro, Emilia Gomez, and Carlos Castillo. 2022. Diversity in the Music Listening Experience: Insights
+from Focus Group Interviews. In ACM SIGIR Conference on Human Information Interaction and Retrieval (Regensburg,
+Germany) (CHIIR ’22). Association for Computing Machinery, New York, NY, USA, 272–276. https://doi.org/10.1145/
+3498366.3505778
+[79] Lorenzo Porcaro, Emilia Gómez, and Carlos Castillo. 2022. Perceptions of Diversity in Electronic Music: The Impact
+of Listener, Artist, and Track Characteristics. Proceedings of the ACM on Human-Computer Interaction 6, CSCW1,
+Article 109 (apr 2022), 26 pages. https://doi.org/10.1145/3512956
+[80] Dillon Reisman, Jason Schultz, Kate Crawford, and Meredith Whittaker. 2018. Algorithmic impact assessments: A
+practical framework for public agency accountability. AI Now Institute. https://ainowinstitute.org/aiareport2018.pdf.
+[Accessed: 2022-10-06].
+[81] Peter J. Rentfrow and Samuel D. Gosling. 2007. The content and validity of music-genre stereotypes among college
+students. Psychology of Music 35, 2 (2007), 306–326. https://doi.org/10.1177/0305735607070382
+[82] Peter J. Rousseeuw. 1987. Silhouettes: A graphical aid to the interpretation and validation of cluster analysis. J.
+Comput. Appl. Math. 20 (1987), 53–65. https://doi.org/10.1016/0377-0427(87)90125-7
+[83] Hendrik Schreiber, Julián Urbano, and Meinard Müller. 2020. Music Tempo Estimation: Are We Done Yet? Transactions
+of the International Society for Music Information Retrieval 3, 1 (2020), 111. https://doi.org/10.5334/tismir.43
+[84] Karen Simonyan and Andrew Zisserman. 2015. Very Deep Convolutional Networks for Large-Scale Image Recognition.
+In 3rd International Conference on Learning Representations, ICLR 2015, San Diego, CA, USA, May 7-9, 2015, Conference
+Track Proceedings.
+[85] Maria Do Rosário Sousa, Félix Neto, and Etienne Mullet. 2005. Can Music Change Ethnic Attitudes Among Children?
+Psychology of Music 3, 33 (2005), 304–316. https://doi.org/10.1177/0305735605053735
+[86] Spotify. 2018. How Spotify Discovers the Genres of Tomorrow. https://artists.spotify.com/blog/how-spotify-discoversthe-genres-of-tomorrow. [Accessed: 2022-10-06].
+[87] Spotify. 2022. Lessons Learned from Algorithmic Impact Assessments in Practice. https://engineering.atspotify.com/
+2022/09/lessons-learned-from-algorithmic-impact-assessments-in-practice/. [Accessed: 2022-10-06].
+[88] Alain Starke, Martijn Willemsen, and Chris Snijders. 2021. Promoting Energy-Efficient Behavior by Depicting
+Social Norms in a Recommender Interface. ACM Transactions on Interactive Intelligent Systems 11, 3-4 (2021), 1–32.
+https://doi.org/10.1145/3460005
+[89] Gijsbert Stoet. 2010. PsyToolkit: A software package for programming psychological experiments using Linux.
+Behavior Research Methods 42, 4 (2010), 1096–1104. https://doi.org/10.3758/BRM.42.4.1096
+[90] Gijsbert Stoet. 2017. PsyToolkit: A Novel Web-Based Method for Running Online Questionnaires and Reaction-Time
+Experiments. Teaching of Psychology 44, 1 (2017), 24–31. https://doi.org/10.1177/0098628316677643
+[91] KP Suresh. 2011. An overview of randomization techniques: An unbiased assessment of outcome in clinical research.
+Journal of Human Reproductive Sciences 4, 1 (2011), 8–11. https://doi.org/10.4103/0974-1208.82352
+[92] Karl K. Szpunar, E. Glenn Schellenberg, and Patricia Pliner. 2004. Liking and Memory for Musical Stimuli as a
+Function of Exposure. Journal of Experimental Psychology: Learning Memory and Cognition 30, 2 (2004), 370–381.
+https://doi.org/10.1037/0278-7393.30.2.370
+[93] Mingxing Tan and Quoc Le. 2019. EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks. In
+Proceedings of the 36th International Conference on Machine Learning (Proceedings of Machine Learning Research,
+Vol. 97), Kamalika Chaudhuri and Ruslan Salakhutdinov (Eds.). PMLR, 6105–6114. https://proceedings.mlr.press/v97/
+tan19a.html
+[94] Ming Tu. 2009. The effects of a Chinese music curriculum on cultural attitudes, tonal discrimination, singing accuracy,
+and acquisition of Chinese lyrics for third-, fourth-, and fifth-grade students. Ph. D. Dissertation. University of Miami.
+http://search.proquest.com/docview/304932027?accountid=13155
+[95] Frank Vanclay. 2003. International principles for social impact assessment. Impact Assessment and Project Appraisal
+21, 1 (2003), 5–12. https://doi.org/10.3152/147154603781766491
+[96] Frank Vanclay and Ana Maria Esteves. 2011. Current issues and trends in social impact assessment. New Directions in
+Social Impact Assessment: Conceptual and Methodological Advances (2011), 3–19. https://doi.org/10.4337/9781781001196.
+00012
+[97] Briana Vecchione, Karen Levy, and Solon Barocas. 2021. Algorithmic Auditing and Social Justice: Lessons from the
+History of Audit Studies. In Equity and Access in Algorithms, Mechanisms, and Optimization (EAAMO ’21). Association
+
+33
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+for Computing Machinery, New York, NY, USA, Article 19, 9 pages. https://doi.org/10.1145/3465416.3483294
+[98] Oscar Voigt. 2016. EDM Festival Market Segmentation. https://www.linkedin.com/pulse/edm-festival-marketsegmentation-euphoria-oscar-voigt/. [Accessed: 2022-10-06].
+[99] Jonna K. Vuoskoski, Eric F. Clarke, and Tia Denora. 2017. Music listening evokes implicit affiliation. Psychology of
+Music 45, 4 (2017), 584–599. https://doi.org/10.1177/0305735616680289
+[100] Wikipedia. 2022. List of electronic music genres. https://en.wikipedia.org/wiki/List_of_electronic_music_genres.
+[Accessed: 2022-10-06].
+[101] Martijn C. Willemsen, Mark P. Graus, and Bart P. Knijnenburg. 2016. Understanding the Role of Latent Feature
+Diversification on Choice Difficulty and Satisfaction. User Modeling and User-Adapted Interaction 26, 4 (2016), 347–389.
+https://doi.org/10.1007/s11257-016-9178-6
+[102] Amy A. Winecoff, Matthew Sun, Eli Lucherini, and Arvind Narayanan. 2021. Simulation as Experiment: An Empirical
+Critique of Simulation Research on Recommender Systems. ArXiv (2021). arXiv:2107.14333 http://arxiv.org/abs/2107.
+14333
+[103] Minz Won. 2022. Representation Learning for Music Classification and Retrieval: Bridging the Gap between Natural
+Language and Music Semantics. Ph. D. Dissertation. Universitat Pompeu Fabra.
+[104] YouTube. 2022. How engagement metrics are counted. https://support.google.com/youtube/answer/2991785. [Accessed: 2022-10-06].
+[105] Jingjing Zhang, Gediminas Adomavicius, Alok Gupta, and Wolfgang Ketter. 2020. Consumption and performance:
+Understanding longitudinal dynamics of recommender systems via an agent-based simulation framework. Information
+Systems Research 31, 1 (2020), 76–101. https://doi.org/10.1287/ISRE.2019.0876
+[106] Meizi Zhou, Jingjng Zhang, and Gediminas Adomavicius. 2021. Longitudinal Impact of Preference Biases on
+Recommender Systems’ Performance. SSRN Electronic Journal (2021). https://doi.org/10.2139/ssrn.3799525
+
+34
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+A
+
+,,
+
+DIVERSIFICATION DESIGN
+
+This appendix outlines the diversification method designed to create the music recommendations for
+this study. Section A.1 describes the creation of the dataset, containing different kinds of Electronic
+Music (EM). After selecting a pool of approximately 1.5 thousand tracks from the dataset, several
+audio models were explored to understand what type of tracks’ representation better served the
+purpose of diversifying the recommendations, as described in Section A.2. Lastly, we describe in
+Section A.3 how starting from the tracks’ embeddings we built the diversified recommendation
+lists to which study participants were exposed.
+A.1
+
+Dataset
+
+One of the goals of the study was to expose people not familiar with the EM culture to different
+genres which could fit under this label. Therefore, our aim was to select as many as possible
+varied tracks to represent the richness of this culture, even if we did not aim to create a dataset
+representing its entirety. In order to do that, we designed a semi-automatic method based on two
+sources: Wikipedia and Every Noise at Once.19
+The initial step consisted in retrieving the list of EM genres from the Wikipedia page “List
+of electronic music genres” [100]. Whilst several taxonomies and hierarchies of EM genres and
+subgenres have been published, we believe that the information on Wikipedia properly represents
+the variety of EM, enough precisely for our purposes. From that source, we obtained a set of 20
+genres and 320 subgenres.20 The second step was to map these subgenres to the ones part of the
+Every Noise at Once (ENO) website. ENO is described by its creator Glenn Mcdonald as “an ongoing
+attempt at an algorithmically-generated, readability-adjusted scatter-plot of the musical genrespace, based on data tracked and analysed for several genre-shaped distinctions by Spotify”[86].
+Born as a debugging tool, in its current form the website presents for each genre label a playlist
+formed by approximately one hundred tracks, considered representative of the genre by Spotify
+algorithms. Mapping Wikipedia to ENO, we linked to the 20 genres only 181 subgenres, for
+which we retrieved the corresponding playlists.
+It should be noted a few aspects of the aforementioned approach. First, even if we are aware
+of the dynamical, intrinsic, ambiguous, and context-dependent nature of concepts such as genre
+and style [77], approaching music cultures as broad as Electronic Music is quite natural to identify
+different aesthetic and social characteristics in its several subgenres [64]. For instance, even without
+knowing anything about EM genres, it is possible to recognize the differences between the fast
+breakbeats of the Drum and Bass and the slow-tempo beats of Downtempo. As a matter of fact,
+in a previous study we showed how familiarity with styles and subgenres highly influence the
+perceived diversity of people exposed to EM tracks [78]. Even if it could have left out some genres,
+pursuing a bottom-down approach to find representative Electronic Music, starting from genre
+labels arriving at tracks, seems to us the most obvious approach to creating a varied EM dataset.
+Second, the choice of using ENO playlists to select candidate tracks could be criticised because of
+the opaqueness of the Spotify algorithms. Indeed, it is not possible to find the exact description of
+the procedure which assigns a genre label to artists and albums. Even having in mind this limitation,
+after exploring in depth the ENO website we believe that it provides a good representation of the
+genres on its map, sharing the idea of ENO creator that “the point of the map, as with the genres, is
+not to resolve disputes but to invite you to explore music” [63]. Under this lens, we do not argue
+19 https://everynoise.com
+20 We refer to genre when indicating the top-level genre labels in the Wikipedia hierarchy, highlighted in bold. Instead, we
+
+refer to the others as subgenres.
+35
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+that the classification in this study is the ultimate one, but one of the possible classifications which
+may help listeners navigate the EM culture.
+After a preliminary exploration of the dataset, we performed a manual cleaning of some of the
+music selected to be sure that crossover genres would not enter into the final listening sessions.
+We do not argue if Electronic Rock may be considered Electronic music, Rock music, or both, but
+we believe that crossover music did not fit the purpose of our study. In the end, we restricted the
+dataset to 20 genres (ambient, bass music, breakbeat, chill out, disco, drum and bass, electroacoustic,
+electronica, garage, hardcore, hardstyle, hauntology, house, IDM, jungle, noise, plunderphonics, techno,
+trance, videogame), and 165 subgenres listed in Appedix B (Table 7). At that point, we had a pool
+of around 16 thousand tracks (∼100 tracks for subgenre) listenable on Spotify.
+Further filtering was applied by looking at the popularity of the tracks. Indeed, several studies
+have proven the influence of familiarity on music preferences [13]. In order to avoid creating a
+popularity effect in our study, i.e. participants’ ratings influenced by the popularity of a track, we
+filtered the dataset by using two indicators: 1) Spotify track’ popularity; 2) YouTube view count. In
+detail, we implement the following procedure. From the 16 thousand tracks for which we already
+had the Spotify ID, we filtered out the ones with popularity less than the first quartile Q1 and major
+than the third quartile Q3 computed on the Spotify popularity indicator. For the remaining ones, we
+made use of a Python wrapper to search with the YouTube API for the corresponding video by using
+the track names. As a result, we obtain a total of approximately 8 thousand tracks with Spotify ID
+and YouTube ID, already filtered by Spotify popularity. The last step was to further filter out tracks
+according to the YouTube view count applying the same logic of Spotify popularity, including
+only tracks with views between Q1 and Q3. After the second filtering, we randomly choose ten
+tracks for each subgenre obtaining 1444 candidate tracks, for which finally we extracted the
+audio embedding, as reported in the next section.
+A.2
+
+Audio Models
+
+The use of deep representation models in MIR research is widespread and applied in several
+retrieval and classification tasks, e.g., auto-tagging, instrument recognition, genre classification, and
+ultimately music recommendations [103]. Nevertheless, the trustworthiness of such representations
+is still under the scrutiny of the research community, partly because of the still low interpretability
+in comparison to traditional hand-crafted music representations, usually informed by human music
+domain knowledge [50]. Even if the goal of this study was not to perform a rigorous comparative
+analysis of different music representation models, we were nevertheless interested in creating
+diversity-aware content-based music recommendations, on the one hand, based on state-of-the-art
+deep learning models, on the other hand enough interpretable to make us aware of the characteristics
+underlying the diversification outcomes. Consequently, we first started exploring several deep
+representation models, and then we attempted to interpret those by using a set of hand-crafted
+features.
+A.2.1 Deep Representation Models. We experimented with four audio representation models
+available in Essentia [9], an open-source library for audio and music analysis. Notably, Essentia
+provides Tensorflow deep learning models built on different architectures and trained with different
+datasets, open sources and publicly available [5]. Among those available, we tested the following
+models:
+• EffNet–Discogs: EfficientNet [93] trained with the Discogs-Effnet Dataset (DED).
+• MusicNN–MSD / MusicNN–MTT: MusicNN [76] trained with the Million Song Dataset
+(MSD) [7] and the MagnaTagATune (MTT) dataset [55].
+• VGGish–AudioSet: VGG [84] trained with the AudioSet dataset [30].
+36
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+A detailed description of the models, datasets and implementations can be found online,21 but
+here we discuss a few aspects relevant to our study. First, we employed these models as feature
+extractors, i.e. to obtain an embedded representation of each audio in our dataset. However, their
+intended purposes are quite different. For instance, VGG was proposed to tackle the task of image
+recognition, while MusicNN primarily focuses on auto-tagging. Therefore, our final choice was
+based not on the architecture which better performs according to its original scope, but on the
+feature extractor that better worked according to our objectives. Second, we intentionally selected
+a quite heterogeneous set of models, especially in terms of datasets used in the training stage.
+Indeed, AudioSet is formed by almost two million clips annotated using sound labels not always
+specific to music (e.g. footstep, bark, cutlery). Instead, MSD and MTT datasets are annotated with 50
+tags describing the genre, instrumentation or also mood of the tracks. Lastly, DED contains tracks
+annotated with 400 music styles according to the taxonomy of the crowdsourced database Discogs.
+Once selected the models (EffNet–Discogs, MusicNN–MSD, MusicNN–MTT, VGGish–AudioSet),
+we extracted the audio embeddings for the 1444 candidate tracks part of our dataset. In the former
+three cases, we obtained 200-dimensional embeddings while from the VGGish-AudioSet we get
+1024-dimensional embeddings. At that point, we were interested in a model which could coherently
+represent Electronic Music according to the genre labels that we already got. Indeed, assuming
+that the tracks representative of one genre, i.e. coming from the same Every Noise at Once playlist,
+should be more similar to one another in comparison to the tracks of another genre, our problem
+was translated into measuring how good the embeddings placed tracks from the same genre near
+in the embedded space. Therefore, we used the tracks’ genre labels to create 20 clusters, and then
+we measured the consistency of each cluster by performing a Silhouette analysis [82].
+In brief, Silhouette analysis measures how much an item of a cluster is similar to other items
+of its own cluster compared to the ones of other clusters. It ranges from -1 to 1, where negative
+values indicate that an item has been poorly clustered, while positive values mean that an item has
+been properly matched. Given the high dimensionality of the embeddings, we chose to use cosine
+similarity to measure the distance between items. An example of silhouette scores for the 20 genre
+clusters is reported in Figure 12, computed using the cosine distance between the EffNet-Discogs
+embeddings. The score of each genre is computed by averaging the scores of its corresponding
+tracks. Among the others, we see that Jungle tracks are well-clustered together (.28), while on
+the contrary Hardcore tracks seem not (–.29). Other genres such as House have almost half tracks
+well-clustered while the other half poorly, obtaining an average score around zero (–.08).
+Silhouette analysis is commonly performed to validate the output of clustering algorithms,
+however, in our case we employed it as a tool to validate which of the four models provides us
+with more consistent embeddings according to our “ground-truth” labels. Averaging the silhouette
+scores over all the twenty genres, we obtained the best score using the EffNet-Discogs model (–
+.09), followed by VGGish-AudioSet (–.11) and then MusicNN (MSD: –.16, MTT : –.17). Whilst the
+difference between models seems not significant, we believe that the use of the Discogs dataset may
+have boosted the performance of the EfficientNet architecture in creating audio representations
+which better reflect differences between Electronic Music tracks. Indeed, born originally as an EM
+database, Discogs is a huge source of knowledge of such culture. In order to properly compare
+the different models, each architecture should have been trained with the Discogs database, a task
+left to practitioners interested in understanding better how deep representations behave with EM
+tracks. From now on, when mentioning embeddings we implicitly refer to the ones generated by
+the EffNet-Discogs model.
+21 https://essentia.upf.edu/models.html
+
+37
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+Fig. 12. Silhouette scores for the tracks clustered by genre. The dashed line indicates the average Silhouette
+score over all the genres. In the legend, the values in the parenthesis indicate the average genre score.
+
+Figure 13 displays a two-dimensional representation of the embedded space obtained with this
+model. In the centre of the circle, we notice a quite messy situation with tracks from different
+genres placed near each other. However, going near the border we see a few clusters more defined,
+for instance the Trance tracks on the right or Drum and Bass on the bottom. We see also how genres
+which shared music properties are clustered near each other, such as Drum and Bass–Jungle, or
+Hardcore–Hardstyle. From the scatter plot, we may also have an intuition about the logic behind the
+placing of the points in the space according to characteristics such as the BPM or the softness of
+the sounds. However, to interpret in depth the nature of the embeddings, we continue our analysis
+focusing on a series of hand-crafted features as explained in the next section.
+A.2.2 Hand-crafted Music Features. Following a first exploration of the embeddings, we scrutinised
+in depth their relationship with four music features: tempo, danceability, acousticness and instrumentalness. The reason why we selected these features is twofold. First, the embeddings seemed
+to be in some way informative of the distribution of those. For instance, the tempo apparently
+decreased going from bottom to top, while the danceability in the opposite way. Second, by using
+these features we had the opportunity to verify the reliability of Essentia’s feature extractor22
+and the Spotify API. Both present advantages and disadvantages, and according to the available
+resources one could prefer one method rather than the other.
+Indeed, a main drawback of Essentia is the need for the audio track file to extract the features,
+while using the Spotify API just with the track ID it is possible to access several audio features.
+However, Spotify algorithms are proprietary, while being Essentia open source it is possible to verify
+the exact functioning of the extraction process. Eventually, we checked the Pearson correlation
+coefficient (𝜌) between the features extracted with Essentia and Spotify, and using the tracks in
+our dataset we found a positive correlation: tempo (𝜌 = .29, 𝑝 < .01), instrumentalness (𝜌 = .42,
+𝑝 < .01), danceability (𝜌 = .50, 𝑝 < .01), and acousticness (𝜌 = .61, 𝑝 < .01). Therefore, in terms of
+22 https://essentia.upf.edu/streaming_extractor_music.html
+
+38
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+Fig. 13. Two-dimensional t-SNE projection of candidate tracks’ embedding.
+
+analysis no particular difference should emerge if using one method rather than the other. From
+now on, when referring to features we implicitly refer to the ones extracted with Essentia.
+The track features’ distribution (Figure 14) highlight some characteristics of Electronic Music
+in the dataset. First, most of the tracks have a tempo of between 120 and 150 BPM, with some
+outliers over 160 and under 90 BPM. It is worth noting that tempo estimation algorithms suffer
+from the problem of the so-called octave errors i.e. assigning 80 instead of 160 BPM, or vice versa
+[83], hence some of these outliers could be a result of these errors. In terms of danceability, the
+extractor returns values between 0 and 3, where higher values mean more danceable. We have the
+majority of tracks with values between 1 and 2, with 20% scoring less than 1 and a little percentage
+scoring more than 2. Acousticness and instrumentalness are computed as probabilities ranging
+from 0 to 1. In the case of the former, 0 means almost certainly no presence of acoustic instruments
+while 1 is the opposite scenario. For the latter, 0 means almost certainly the presence of a singing
+voice, while 1 the absence of singing voice parts. In our dataset, it is not surprising to observe that
+the majority of the tracks are classified as non-acoustic, while we see that the presence of singing
+voices is less skewed in comparison with the acousticness. Computing the correlation between
+the four features, we found that danceability is negatively correlated with both acousticness and
+instrumentalness (𝜌 = −.44, 𝑝 < .01 and 𝜌 = −.66, 𝑝 < .01), meaning that the more danceable
+39
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+Fig. 14. Histograms of candidate tracks’ feature distributions.
+
+tracks in the dataset are the ones without acoustic instrumentation but with singing parts. Instead,
+these two latter features were positively correlated among them (𝜌 = .31, 𝑝 < .01).
+As the last step before defining the diversification strategy, we explored the link between the
+embeddings and the hand-crafted features. In order to do that, we first divided into equally-sized
+blocks the 2-dimensional projection of the embedded space created (see Figure 13). Then, we
+assigned each track to a block according to its position in the space. Finally, in each block we
+averaged the feature values of its tracks. Because of the non-uniform density of the embedded space,
+tracks were not equally distributed among blocks. Figure 15 displays the four block-heatmaps
+linking the features to the embedding distribution.
+We may observe how the embeddings coherently clustered the tracks with regard to the selected
+features. For instance, tracks with extreme tempos (more than 130 BPM and less than 110 BPM)
+are distributed in the bottom and bottom-left of the embedded space. On the contrary, tracks
+with high danceability are mostly in the left and top-left parts of the heatmap. Acousticness and
+instrumentalness instead have higher values in the top-right corner. Further validation can be
+obtained by looking at the relationship between the heatmaps and the genre clusters. For instance,
+
+Fig. 15. Embeddings-features block distribution. The asterisk indicates correlation coefficients with 𝑝 < .001.
+40
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+the Drum and Bass, Hardcore and Hardstyle clusters located at the bottom of the plot correspond to
+the blocks where the tempo is higher. The Techno, Trance and part of the House clusters on the left
+instead are located where the danceability is higher. Instrumentalness goes up in correspondence
+with Disco and Hauntology clusters, where also the acousticness is quite high.
+This explorative analysis gives an intuition about how the embeddings may have incorporated
+musical properties of the tracks, and the correlation coefficients between the x- and y-axis and four
+features confirm some of our hypotheses. A positive correlation of the x-axis means that values
+increase while going from left to right, while in the y-axis from down to top.
+A.3
+
+Diversity-aware Recommendations
+
+The diversification process for creating the recommendation to which participants were exposed
+during the study was based on two main criteria. First, we aimed at controlling the inter-list diversity
+to present to one group of participants a varied selection of Electronic Music (EM) throughout the
+20 listening sessions, while to the other group only a tiny fraction of EM. Second, we limit the
+intra-list diversity for both groups, to avoid creating listening sessions too diverse and fragmented
+to become potentially annoying. Especially having study participants not familiar with EM, to ask
+them to listen in sequence, e.g. to a glitchy IDM track and then a soft Minimal Techno track could
+have negatively impacted their listening experience, consequently affecting the drop-out rate.
+Other design choices of the recommendations were the following. First, each list had to be formed
+by four tracks to limit the length of the listening session. Second, each list had to contain tracks
+with no more than three different genres. Indeed, even if in the previous sections we have shown
+how the tracks’ embedding preserves some musical characteristics of EM genres, it is also true that
+two tracks could be very near in the embedded space even if labelled differently.
+Having in mind these aspects, we implemented the following strategies. In order to minimise the
+intra-list diversity, we found for every track in the dataset the three nearest tracks, according to
+the pairwise cosine distance between embeddings. These quadruples of tracks were the candidate
+recommendation lists. Afterwards, to minimise the inter-list diversity, we selected 20 quadruples
+from a single genre, while to maximise it we selected one quadruple for each of the 20 genres of
+the dataset. Figure 16 shows the resulting recommendation lists obtained using these two different
+diversification processes.
+
+Fig. 16. Diversification outcomes represented in the 2-dimensional embedded space. Each point represents
+the average position of a list’s tracks. (A) displays the lists with low inter-list diversity (LD), while (B) lists
+with high inter-list diversity (HD).
+41
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+We selected Trance as a seed genre of recommendation lists with low inter-list diversity (from
+now on simply low diversity or LD) for the following reasons. First, it has a number of subgenres
+which ensure some variability between lists, without exceeding like in the case of House (see Table
+7). With regard to this aspect, further valid choices could have been Techno, Ambient or Hardcore.
+However, Trance tracks have on average a higher silhouette score (Figure 12), meaning that in the
+embedded space tracks were better clustered than the other genres. This aspect was important
+to ensure to have enough candidates for creating coherent listening sessions with low intra-list
+diversity. Lastly, Trance music reflects some stereotypes typical of electronic music: quite danceable,
+with almost no use of acoustic instruments and a small presence of vocal parts. Hence, participants
+exposed to LD recommendations interacted with a stereotypical idea of the EM culture, with few
+variations in terms of musical properties. Even if differences between sessions existed because of
+different characteristics of the Trance subgenres, a certain level of homogeneity was ensured by
+having selected a single genre to create the recommendations.
+On the contrary, to obtain high inter-list diversity (from now on simply high diversity or HD), we
+picked a quadruple of tracks for each different genre, which was enough to ensure that participants
+exposed to such recommendations would explore different facets of EM. These two diversification
+strategies effectively led to statistically significant differences between recommendation lists. In
+detail, we tested these design objectives:
+– The average inter-list diversity should be higher for the HD recommendations in comparison
+to the LD recommendations.
+– The average intra-list diversity should be equal for the recommendations created using the
+two diversification strategies.
+– The average difference between median values of the hand-crafted features should be higher
+in the HD recommendations than in the LD ones.
+According to the statistics presented in Table 6, the aforementioned design objectives were satisfied.
+The objectives are further validated by the boxplot presented in Figure 19 (Appendix B) which
+shows the features’ distribution.
+Table 6. T-test results comparing high diversity (HD) and low diversity (LD) recommendation lists.
+
+T-stat
+Inter-list Div
+Intra-list Div
+Tempo
+Danceability
+Acousticness
+Instrumentalness
+
+df
+
+p-val
+
+CI 95%
+
+cohen-d
+
+power
+
+22.52 378
+2.25 38
+9.92 378
+10.56 378
+9.99 378
+6.05 378
+
+<0.01
+0.03
+<0.01
+<0.01
+<0.01
+<0.01
+
+[0.27, 0.33]
+[0.0, 0.07]
+[7.83, 11.7]
+[0.16, 0.23]
+[0.06, 0.09]
+[0.12, 0.23]
+
+2.31
+0.71
+1.02
+1.08
+1.02
+0.62
+
+1.00
+0.59
+1.00
+1.00
+1.00
+1.00
+
+Thanks to the aforementioned procedure, we created recommendation lists formed by 4 tracks, 20
+with high and 20 with low diversity. In every list, tracks were selected to minimise their differences
+according to the distance between their embeddings. The final step was to mix the four tracks
+in each recommendation list to create a single audio file to be included in a listening session. To
+accomplish that, we implemented the following procedure using Pysox, a Python wrapper around
+Sox [8]. First, we randomly selected a 45-second excerpt for each track in the list. The sample rate
+of each excerpt was converted to 48000Hz and the volume normalised to -3db. Then, we joined the
+excerpts together including a 1-second fade-in and fade-out, to help the listeners recognize the
+42
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+start and the end of each track in the mix. At the end of this process, we obtained a 3-minutes mp3
+audio for each recommendation list.
+A final manual check of each audio was done to ensure that each listening session was properly
+mixed. W also verified that the content in each audio was appropriate for the purpose of the study.
+Indeed, it is not uncommon that lyrics in EM could contain references to sex, use of drugs, or
+blasphemy. Whilst we do not want to advocate for a moral judgement of the artists’ forms of
+expression, still we agreed that it was necessary to remove some tracks to respect every subjectivity
+that might eventually participate in the study.
+
+43
+
+,,
+
+B
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+ADDITIONAL TABLES AND FIGURES
+
+Fig. 17. List of artists and corresponding GAP0 score for assessing the participants’ familiarity with EM.
+
+Fig. 18. List of genres and corresponding GAP0 score for assessing the participants’ familiarity with EM.
+
+Received —; revised —; accepted —
+44
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+Table 7. List of genres and subgenres included in the dataset
+
+Genre
+
+Subgenre(s)
+
+ambient
+
+ambient dub techno, ambient industrial, dark ambient, drone, dungeon synth,
+illbient, lowercase, new age, new isolationism, space ambient.
+bass music
+footwork, future bass, kawaii future bass, wave.
+breakbeat
+big beat, broken beat, hardcore breaks, jersey club, nu skool breaks,
+progressive breaks.
+chill out
+downtempo, psydub, trip hop.
+boogie, city pop, eurobeat, eurodance, hi-nrg, italo dance, nu disco, post-disco.
+disco
+drum and bass atmospheric dnb, darkstep, drumfunk, jump up, liquid funk, neurofunk,
+sambass.
+electroacoustic acousmatic, electroacoustic composition, electroacoustic improvisation,
+musique concrete.
+electronica
+berlin school, folktronica, jazztronica, livetronica.
+garage
+bassline, brostep, chillstep, dubstep, future garage, grime, speed garage, uk
+funky, uk garage, wonky.
+hardcore
+acidcore, breakcore, digital hardcore, doomcore, frenchcore, happy hardcore,
+industrial hardcore, j-core, makina, speedcore, terrorcore.
+hardstyle
+euphoric hardstyle, jumpstyle, rawstyle.
+hauntology
+chillwave, darksynth, future funk, hardvapour, sovietwave, synthwave,
+vaporwave.
+house
+acid house, afro house, amapiano, ambient house, bass house, brazilian bass,
+chicago house, complextro, deep euro house, deep house, disco house, diva
+house, dutch house, electro swing, fidget house, funky house, future house,
+garage house, ghettotech, gqom, hard bass, italo house, jazz house, kwaito,
+latin house, melbourne bounce, microhouse, moombahton, outsider house,
+progressive house, slap house, soulful house, tech house, tribal house.
+IDM
+drill and bass, glitch, glitch hop.
+jungle
+ragga jungle.
+noise
+death industrial, japanoise, power electronics, power noise.
+plunderphonics —
+techno
+acid techno, ambient techno, berlin minimal techno, bleep techno, detroit
+techno, dub techno, hard techno, industrial techno, minimal techno, raggatek,
+schranz.
+acid trance, dark psytrance, dream trance, full on, goa trance, hands up, hard
+trance
+trance, nitzhonot, progressive psytrance, progressive trance, psychedelic
+trance, suomisaundi, tech trance, uplifting trance, vocal trance.
+videogame
+bitpop, chiptune, nintendocore, skweee.
+
+45
+
+,,
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+Fig. 19. Boxplots of the features’ distribution for the high diversity (HD) and low diversity (LD) recommendation lists.
+
+Fig. 20. Genres ranked by popularity in the study participants’ listening logs.
+
+46
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+Fig. 21. Top artists ranked by popularity in the study participants’ listening logs.
+
+Fig. 22. Distribution of familiarity ratings.
+
+47
+
+,,
+
+,,
+
+Lorenzo Porcaro, Emilia Gómez, & Carlos Castillo
+
+Fig. 23. Distribution of familiarity ratings split among participants who liked the session (light bar) and
+participants who disliked (dark bar).
+
+Fig. 24. Distribution of participants’ ratings of the characteristics associated with listening contexts, at the
+beginning of the experiment (PRE), after the exposure (COND), and at the end (right), separately for the HD
+group (top) and the LD group (bottom). In the legend the values of the Likert-item selected are reported (1:
+Totally Disagree, 5: Totally agree).
+
+48
+
+Assessing the Impact of Music Recommendation Diversity on Listeners: A Longitudinal Study
+
+,,
+
+Fig. 25. Distribution of participants’ ratings of the musical characteristics associated with EM tracks, at the
+beginning of the experiment (PRE), after the exposure (COND), and at the end (right), separately for the HD
+group (top) and the LD group (bottom). The values for the Likert items are: acousticness (1: mostly low, 5:
+mostly high), instrumentalness (1: mostly low, 5: mostly high), danceability (1: mostly low, 5: mostly high),
+tempo (1: mostly slow, 5: mostly fast).
+
+Fig. 26. Distribution of participants’ ratings of the characteristics associated with EM artists, at the beginning
+of the experiment (PRE), after the exposure (COND), and at the end (right), separately for the HD group (top)
+and the LD group (bottom). The values for the Likert items are: age (0: mostly under 40, 5: mostly over 40),
+skin (0: mostly white skinned, 5: mostly dark skinned), gender (0: mostly women or other gender minorities, 5:
+mostly men); origin (0: mostly low income / developing countries, 5: mostly high income / developed countries).
+
+49
+
+

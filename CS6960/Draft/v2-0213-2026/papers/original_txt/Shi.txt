@@ -1,0 +1,1487 @@
+Received 16 December 2024, accepted 20 January 2025, date of publication 27 January 2025, date of current version 31 January 2025.
+Digital Object Identifier 10.1109/ACCESS.2025.3535411
+
+A CNN-Based Approach for Classical Music
+Recognition and Style Emotion Classification
+YAWEN SHI
+School of Art and Design, Henan University of Science and Technology, Luoyang, Henan 471000, China
+
+e-mail: 9906450@haust.edu.cn
+
+ABSTRACT Music recognition refers to the process of automatically recognizing and classifying the musical
+content in audio signals using computer technology and algorithms. Music recognition technology can
+help people recognize information such as the music title, artist, musical style, rhythm, and the emotions
+conveyed by the music in the audio, thus enabling applications like automated music information retrieval
+and recommendation systems. Classical music, due to its vast quantity, diverse types, and time span
+covering several centuries, presents challenges that existing music recognition software and traditional music
+recognition algorithms cannot effectively address. In this study, The model based on convolutional neural
+networks (CNNs) is proposed, allowing people to recognize the classical music title, style, and emotions
+contained in a piece of music. The proposed model is particularly beneficial for individuals who are interested
+in classical music but lack extensive knowledge about it, as it provides essential information about the
+pieces. By extracting multidimensional features from classical music, the model can recognize the title,
+style, and emotions expressed. To improve the model’s recognition accuracy, various noises are introduced
+to the dataset. Meanwhile, in this study, a novel loss function has been devised to more effectively assess the
+model’s performance. For searching for optimal performance of the model, a novel optimization algorithm
+also be proposed to find optimal hyperparameters of loss function. The experiment results show average title
+recognition accuracy is 0.98, average style recognition accuracy is 0.89 and average emotion recognition
+accuracy is 0.93. These results adequately demonstrate that the proposal model significantly enhances the
+model’s ability to accurately recognize the titles, styles, and emotions of classical music, achieving high
+recognition rates even in noisy environments.
+INDEX TERMS CNN, deep learning, music recognition, music retrieval, optimization algorithm.
+
+I. INTRODUCTION
+
+Music recognition technology has revolutionized how people
+interact with and understand music [1]. It can help us
+better understand unknown music, especially when people
+try to find the kind to enjoy. By leveraging computer
+technology and sophisticated algorithms, it is possible to
+recognize and classify musical content with music audio
+signals automatically, including identifying details such as
+the music title, artist, musical style, rhythm, and even the
+emotions conveyed by the music. Such advancements have
+
+The associate editor coordinating the review of this manuscript and
+approving it for publication was Jiankang Zhang
+VOLUME 13, 2025
+
+.
+
+significant meaning for applications like automated music
+information retrieval and recommendation systems [2].
+Common music recognition algorithms can generally be
+divided into two types: feature extraction-based algorithms
+and pattern matching-based algorithms [3]. These two
+types of algorithms often work together to achieve music
+recognition functions. Feature extraction-based algorithms
+first extract many features from the music. These features
+include frequency domain features (such as Mel-frequency
+cepstral coefficients, spectral envelope, etc.), time domain
+features (such as zero-crossing rate, energy, etc.), and
+time-frequency domain features (such as short-time Fourier
+transform coefficients, etc.). Then, these features are used
+to classify the music, thus recognizing different music [4].
+
+2025 The Authors. This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 License.
+For more information, see https://creativecommons.org/licenses/by-nc-nd/4.0/
+
+20647
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+In contrast, pattern matching-based algorithms recognize
+music by comparing the similarity between input music
+and known patterns, such as the correlation between audio
+signals, distance metrics (Euclidean distance or Manhattan
+distance), mutual information and so on [5]. The algorithm
+determines whether a match is successful by comparing
+these similarities to a set threshold. However, common music
+recognition algorithms typically require elaborate designing
+and selecting features, which demands considerable trial,
+error, and expertise. Furthermore, the chosen features may not
+fully capture all the important information in the music.
+Despite the aforementioned algorithms, classical music
+poses unique challenges to existing music recognition
+algorithms. The vast amount of compositions, the diversity of
+types, and the extensive time span covering several centuries
+contribute to the complexity of accurately recognizing
+classical music. Classical music encompasses a wide range
+of forms, including symphonies, sonatas, concertos, and
+operas, each with its own structural nuances and stylistic
+variations [6]. Furthermore, the evolution of musical styles
+from the Baroque, Classical, and Romantic, to the modern
+era introduces additional layers of complexity, as each period
+has distinct characteristics in terms of harmony, rhythm,
+and instrumentation. Common music recognition algorithms
+often fall short in addressing these complexities due to
+their reliance on feature extraction and pattern-matching
+techniques that may not fully capture the intricate details and
+tiny differences inherent in classical music. A large amount of
+works, with thousands of pieces by composers such as Bach,
+Mozart, Beethoven, and many others, makes it challenging to
+propose algorithms that can accurately recognize and classify
+each composition [7]. Additionally, classical music often
+involves variations in performance interpretation, tempo,
+and dynamics, which can further complicate recognition
+efforts. Performers bring their own expressive styles to
+each composition, leading to differences that common
+algorithms might not account for. This variability requires
+more advanced approaches that can adapt and understand
+the nuances of classical music performance. This creates an
+important issue: for people unfamiliar with classical music,
+common music recognition algorithms are often inadequate
+for accurately recognizing a specific piece of classical
+music. Moreover, these algorithms are typically incapable of
+providing insights into the genre or the emotional nuances
+embedded within the composition. Therefore, the goal of
+this study is to design a more intelligent music recognition
+model that not only accurately recognizes classical music
+but also offers a comprehensive analysis of its style and
+emotional characteristics. The proposal model leverages deep
+learning techniques and musicological principles to extract
+features from audio signals and model them across multiple
+dimensions, achieving the following goals.
+1) Accurate recognition of classical music title: By
+using deep learning techniques, the model aims to
+improve the accuracy of recognizing complex classical
+music compositions.
+20648
+
+2) Accurate recognition of classical music style: By
+analyzing notes, rhythm, and harmony, the model
+automatically recognizes the style of the music, such
+as symphony, sonata, or opera.
+3) Accurate recognition of classical music emotion: By
+learning the emotional features of music, the model recognizes the emotions conveyed by the classical music
+composition, such as sadness, happiness, or solemnity,
+thus helping people better understand its expressive
+essence.
+The final goal of the proposal model is to facilitate an
+effortless exploration of the knowledge of classical music,
+providing valuable insights for both ordinary people and
+professional music researchers.
+In order to achieve the above objectives, this study
+utilizes deep learning technology based on convolutional
+neural networks (CNNs) to build a model [8]. This model
+is meticulously designed to recognize various attributes
+of a piece of music, including its title, style, and the
+emotions it conveys. By leveraging the powerful feature
+extraction capabilities of CNNs, the model aims to address
+the recognition issue of classical music, which spans
+an extensive array of compositions, styles, and historical
+periods. The proposal model excels in this domain by
+analyzing the intricate patterns within the audio data.
+It can recognize tiny differences in musical styles, from
+baroque to romantic to modern classical, and recognize the
+distinct emotional undertones, whether they are melancholic,
+joyful, suspenseful, etc. This comprehensive analysis not
+only enhances recognition accuracy but also enriches the
+listening experience by providing deeper insights into the
+music. To further improve the model’s recognition accuracy,
+various noise elements are introduced into the training
+data, and new loss functions and evaluation metrics are
+designed. These enhancements are aimed at boosting both
+the training accuracy and the overall recognition accuracy
+of the model. In music classification and retrieval, several
+key techniques are widely applied, including Mel-frequency
+cepstral coefficients (MFCC), Chroma Matrix, Short-Time
+Root Mean Square Energy (ST-RMS), and CNNs. MFCC
+is effective in capturing the spectral envelope of audio
+signals, which is crucial for music classification and retrieval
+tasks, as demonstrated in previous studies [9]. Chroma
+Matrix, which represents harmonic content, is closely tied
+to music genre classification, as evidenced in research
+combining chroma features with deep learning networks
+(e.g., Visual Geometry Group 16-layer network) for genre
+classification [10]. ST-RMS Energy, which measures the
+energy distribution of audio signals, plays a vital role in the
+music structure of emotion analysis [11]. Finally, CNNs are
+used to learn deep representations from audio features for
+music genre classification, as shown in studies employing
+chroma features and deep learning for genre classification [12]. The combination of these methods enhances the
+performance and accuracy of music information retrieval
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+systems, highlighting the relevance and importance of music
+research and application.
+The rest of this paper is organized as follows. Section II
+introduces related work in literature. Section III introduces
+necessary knowledge about this study. Section IV presents
+how to implement the proposal model. Section V presents
+the experiment process and results and discusses the results.
+Section VI concludes this study.
+II. RELATED WORK
+
+In [13], Amatov et al. introduce a semi-supervised deep
+learning approach for collecting datasets for the Query-byHumming (QbH) task, which aims to retrieve a specific
+song based on a user’s hummed or sung fragment. The
+paper presents a novel dataset called ‘‘Covers and Hummings
+Aligned Dataset (CHAD)’’ with 18 hours of short music
+fragments paired with their hummed versions. By employing
+a semi-supervised model training pipeline, the authors
+expanded the dataset and retrained the model on over
+308 hours of additional music fragments. The final model
+achieved competitive results on the QbH task, demonstrating
+the effectiveness of the proposed dataset and training pipeline
+in facilitating the implementation of QbH systems. However,
+The number of cover versions is limited, as there are typically
+fewer cover versions available for less popular songs.
+In [14], Triastanto and Mandala discuss the development
+and evaluation of a QbH music information retrieval system
+using Deep Neural Network and Long Short-Term Memory
+(DNN-LSTM) based melody extraction and noise filtration
+techniques. The authors aim to improve the performance of
+QbH systems by implementing advanced melody extraction
+and noise reduction methods. The system incorporates
+Fourier series decomposition and spectral subtraction for
+noise filtration and compares its performance with a baseline
+QbH system that uses the Phonetic Analysis Tool (PRAAT)
+for melody extraction without noise filtration. The results
+indicate that the baseline system, which uses PRAAT for
+melody extraction and lacks noise filtration, performs better
+in terms of mean reciprocal rank value, top 1/3/5/10 hit ratio,
+and processing time. However, there is a significant increase
+in time required for melody extraction using DNN-LSTM
+compared to PRAAT, which could impact the system’s
+efficiency.
+In [15], Furner et al. present a novel framework called
+ZeitMetric for knowledge discovery and visualization from
+broadcast radio data using machine learning and music
+information retrieval techniques. The framework aims to
+address the underutilization of music radio data in radio
+program management and provides a cost-effective solution
+for radio stations to monitor and analyze their media
+landscape. The system incorporates MusiGrab, a dataset
+collection technique from online music services for groundtruth data, and ZeitViz, a visualization technique based on
+self-organizing maps. The authors acknowledge that while
+the ZeitMetric framework offers improvements over existing
+systems, it is not without limitations. For instance, the
+VOLUME 13, 2025
+
+reliance on online music services for dataset collection
+may be subject to licensing terms and data availability.
+Additionally, the framework’s effectiveness may depend on
+the quality of the data and the classifiers used for feature
+extraction and record classification.
+In [16], Jin discuss a method for computer music retrieval
+by humming, which is a crucial research area for improving
+content-based music data indexing and retrieval speed. The
+proposed method addresses the challenge of users potentially
+humming multiple sentences of a song during a query,
+requiring the generation of features for multiple sentences.
+The solution involves a subsequence matching algorithm that
+is applied to the retrieval system, yielding excellent results.
+The method also includes a feature generation algorithm for
+candidate music fragments and the use of the dynamic time
+warping (DTW) algorithm for matching melody features with
+tolerance for user humming errors. The paper concludes that
+the proposed method is effective for detecting target music
+when users hum multiple sentences and that the findings
+are applicable to other retrieval systems with structured time
+series data. However, the DTW algorithm is computationally
+expensive, especially with large datasets.
+In [17], Miao et al. introduce a novel approach for
+personalized music recommendation called Humming-Query
+and Reinforcement-Learning based Recommender Systems
+(HRRS). The HRRS framework integrates static and dynamic
+music recommendation methods to adapt to users’ current
+preferences in real-time by collecting interactive data. The
+system considers song characteristics, personal dynamic preferences, and interaction to enhance the listening experience.
+The HRRS uses reinforcement learning to update the user’s
+reward model based on feedback such as scores, opinions,
+or humming, and employs a Monte Carlo tree search for
+planning the next song to play that is expected to maximize
+user enjoyment. The potential shortcomings of the HRRS
+framework mentioned in the article include the need for
+further exploration of the song space structure to improve the
+efficiency of the search and planning process.
+In [18], Liang et al. present a Query By Singing and
+Humming system (QBSH) that utilizes a combination of
+DTW and Linear Scaling (LS). The system is designed to
+enhance the retrieval of music information by estimating
+the fundamental frequency of a query and adjusting the
+results using DTW. Linear Scaling is applied to reduce
+the pitch sequence, thereby decreasing computation time.
+The system is divided into three main components: a
+preprocessing module, a matching module, and a refinement
+module. The preprocessing module includes pitch tracking
+and smoothing methods. The matching module employs
+DTW and LS to find the best match in the database, and
+the refinement module further improves the accuracy of the
+match. Experimental results indicate that the system achieves
+a Mean Reciprocal Rank (MRR) of 0.958, outperforming
+other studies and demonstrating effectiveness in handling
+large datasets. However, this paper primary focus is on
+the trade-off between complexity and accuracy, and the
+20649
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+system’s performance may be affected by the quality of the
+initial pitch estimation. Additionally, the refinement module,
+while improving accuracy, could potentially introduce more
+computational overhead.
+In [19], Ghosh et al. investigated the performance of
+various machine learning models in the task of music genre
+classification, discovering that the Convolutional-Recurrent
+Neural Network (CRNN) model achieved the highest classification accuracy of 90% on a small sample of the FMA
+dataset. While the use of the AdaBoost ensemble technique
+also improved accuracy, however, it still did not over the
+performance of the CRNN model.
+In [20], Prabhakar and Lee present five novel approaches
+for music genre classification, including the Weighted
+Visibility Graph-based Elastic Net Sparse Classifier (WVGELNSC), sequential machine learning analysis using Stacked
+Denoising Autoencoder (SDA), Riemannian Alliance based
+Tangent Space Mapping (RA-TSM) transfer learning technique, Transfer Support Vector Machine (TSVM) algorithm,
+and a deep learning model combining Bidirectional Long
+Short-Term Memory (BiLSTM) with Attention mechanism
+and Graph Convolution Network (GCN), referred to as the
+BAG model. Experimental results on three music datasets—
+GTZAN, ISMIR 2004, and MagnaTagATune—show that the
+BAG model achieved the best classification accuracy of
+93.51%.
+In [21], Ashraf et al. introduce a hybrid model that
+combines CNN and variants of Recurrent Neural Networks (RNN) for music classification tasks, utilizing
+Mel-spectrograms and MFCC as features. The study compares four combinations of CNN with LSTM, Bi-LSTM,
+Gated Recurrent Unit (GRU), and Bi-GRU, and finds
+that the combination of CNN and Bi-GRU with Melspectrograms achieves the optimal accuracy of 89.30%, while
+the combination of CNN and LSTM with MFCC features
+reaches an optimal accuracy of 76.40%. This paper presents
+a deep learning approach for Raga recognition in Indian
+Classical Music (ICM), focusing on the use of LSTM-based
+RNN for sequence classification and ranking.
+In [22], Madhusudhan and Chowdhary propose a method
+that preprocesses audio data to extract melodic sequences and
+trains the model on smaller audio segments, achieving an
+accuracy of 88.1% on the Comp Music Carnatic dataset and
+97% on a subset of 10 Ragas, marking it as state-of-the-art
+in this domain. Additionally, the study introduces sequence
+ranking as a new sub-task, enabling the retrieval of similar
+melodic patterns from a music database based on a given
+query sequence, which can enhance music recommendation
+systems.
+In [23], Liu proposes a deep-learning-based algorithm to
+enhance the classification effectiveness of music genres in
+the digital music era. The study constructs an auxiliary model
+to estimate the amount of unmeasured data in the dual-rate
+system, enhancing the recognition effect of music features.
+Additionally, a dual-rate output error model is proposed to
+identify and eliminate the impact of corrupted data caused by
+20650
+
+estimation. The study employs linear time-varying forgetting
+factors to improve system stability, advances the recognition
+effect of music features through enhancement processing,
+and combines a deep-learning algorithm to construct a
+classification system for music genres. The results show that
+the music genre system based on a deep-learning algorithm
+has a good classification effect.
+In [24], Zhang explores the use of machine learning
+algorithms for music genre classification, proposing a
+novel feature extraction strategy called Discrete Wavelet
+Transform-based Histograms (DWCHs), which significantly
+enhances the precision of the classification phase by mimicking music sounds through constructing histograms on
+Daubechies wavelet coefficients across various frequency
+bands. The study also delves into the application of decision
+trees, random forests, and deep neural networks, including
+CNN and Recurrent Neural Networks RNN in music genre
+classification, finding that models combining CNNs and
+RNNs outperform those using CNNs or RNNs alone. The
+study emphasizes that future research will focus on supervised multilinear subspace analysis using a variety of coupled
+models, such as CNN+RNN or CNN+RNN+another model
+to enhance the performance of automatic music genre
+classification.
+In [25], Anuraj et al. present a holistic approach to
+music genre classification using various features and artificial
+intelligence models. The study utilizes the GTZAN dataset
+to compare features based on Mel-spectrograms, MFCC,
+and Wave2Vec. Meanwhile, this study applies a range of
+Artificial Intelligence (AI) techniques, including both deep
+learning and traditional machine learning models for classification. Experimental results indicate that the combination
+of Wave2Vec features with a 1D CNN achieved the optimal
+accuracy of 82% in music genre classification, while MFCC
+features also demonstrated notable classification accuracy
+when using LSTM and GRU models. This research highlights
+the potential of using Wave2Vec and deep learning classifiers
+in music genre recognition and suggests their applicability
+in future music information retrieval and recommendation
+systems.
+III. BACKGROUND
+A. AUDIO FEATURES
+1) MEL-FREQUENCY CEPSTRAL COEFFICIENTS
+
+MFCC are widely used features in audio signal processing,
+designed to mimic the human auditory system’s perception
+of sound [26]. They capture short-term spectral information
+of sound by converting the audio signal into a Mel-frequency
+spectrum. The whole process is shown in Figure 1 and
+detailed steps to compute MFCCs are as follows:
+1) Pre-emphasis: Enhance the high-frequency components of the audio signal using a high-pass filter to
+balance the high and low-frequency components [27].
+2) Framing: Divide the audio signal into small overlapping time windows, typically 20-40 milliseconds long.
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+FIGURE 1. MFCC extract process.
+
+3) Windowing: Apply a window function (such as a
+Hamming window) to each frame to minimize spectral
+leakage.
+4) Short-Time Fourier Transform (STFT): Perform a
+Fourier transform on each framed audio segment to
+obtain its spectral representation [28].
+5) Mel Filter Bank: Map the obtained spectrum to the
+Mel scale using a set of triangular filters that sum the
+energy in each frequency band.
+6) Logarithm: Apply a logarithmic function to the output
+of each filter to simulate the human ear’s perception of
+loudness.
+7) Discrete Cosine Transform (DCT): Perform a DCT
+on the logarithmically scaled Mel-spectrum coefficients to decorrelate them, resulting in a set of
+MFCCs [29].
+These feature coefficients effectively represent pitch and
+timbre information as perceived by human hearing, making
+them highly useful in applications such as speech recognition,
+music classification, and emotion analysis.
+2) CHROMA MATRIX
+
+The chromagram in audio processing is a tool used to
+represent the distribution of pitch and tone in an audio
+signal [30]. It is primarily used in music information retrieval,
+audio signal processing, and music analysis. By mapping
+audio signals into the chroma (pitch class) space, the
+chromagram can effectively represent the chords, melodies,
+and tonality of music.
+1) Spectral Conversion: To compute the chromagram,
+the audio signal first needs to be converted into a
+spectral representation. This is typically achieved using
+the STFT, which converts the time-domain signal into
+the frequency-domain signal.
+2) Frequency to Chroma Mapping: Once the spectral
+representation is obtained, the next step is to map
+the frequency information to the chroma space. The
+chroma space typically consists of 12 chroma bins
+(corresponding to the 12 semitones in music), with each
+chroma bin representing a pitch class.
+3) Chroma Feature Calculation: For each time frame,
+the energy value of each chroma bin is calculated.
+VOLUME 13, 2025
+
+These energy values form the columns of the chroma
+feature matrix, with each column corresponding to a
+time frame and each row corresponding to a chroma
+bin.
+4) Application Scenarios: The chroma feature matrix
+is widely used in various tasks in music and audio
+analysis, such as chord recognition, key detection,
+music matching, and music classification. By using
+the chroma feature matrix, researchers and engineers
+can more intuitively analyze and process the musical
+content in audio signals, enabling more advanced audio
+processing and analysis functions.
+3) SHORT-TIME ROOT MEAN SQUARE ENERGY
+
+ST-RMS is a commonly used feature in audio signal
+processing [31]. It reflects the energy variation of an audio
+signal within a short time window and effectively describes
+the instantaneous amplitude characteristics of the audio
+signal.
+1) Framing: Divide the audio signal into several short
+time frames, each containing a number of sampling
+points, and the frames can overlap.
+2) Windowing: Apply a window function (e.g., Hamming
+window or Hanning window) to each frame to reduce
+spectral leakage effects.
+3) Calculate ST-RMS Energy: Compute the mean
+square value of the sampling points within each frame,
+and then take the square root to obtain the ST-RMS
+energy. The calculation approach of ST-RMS is shown
+as follows:
+v
+u N −1
+u1 X
+[x(n + i)]2
+(1)
+E(n) = t
+N
+i=0
+
+where E(n) is the RMS energy of the n-th frame, x(n+i)
+is the i-th sampling point within the n-th frame, and N
+is the number of sampling points per frame.
+B. NOISE
+
+In the fields of audio and signal processing, ‘‘noise’’ typically
+refers to unwanted, random signals with a certain amount of
+energy [32]. This type of signal may be introduced during
+the acquisition, transmission, processing, or storage of the
+original signal and is unrelated to it. Noise can negatively
+impact signal quality and processing results. Sources of noise
+include, but are not limited to, environmental noise, electronic
+equipment noise, and sensor noise. However, in music
+recognition research, adding noise to the training dataset can
+be beneficial. This practice helps the model better adapt to
+the noisy environments encountered in real-world scenarios,
+thereby improving its robustness and generalization ability in
+practical applications.
+By introducing noise similar to that found in real
+environments into the training data, the model can learn more
+robust feature representations, thereby enhancing its ability
+to adapt to noise. This training approach enables the model
+20651
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+to better distinguish between music signals and background
+noise and to perform music recognition more reliably in noisy
+environments. Additionally, adding noise helps reduce the
+model’s overfitting to the training data, focusing it more
+on learning the key features in the data rather than merely
+memorizing the details of the training set. For instance, when
+exposed to Gaussian noise during training, the model learns
+to extract key musical features amidst random disturbances
+present in real environments [33]. Similarly, the introduction
+of uniform noise can simulate background hums in certain
+settings, allowing the model to better differentiate between
+music signals and noise. On the other hand, impulse noise
+and colored noise provide broader adaptability to different
+types of noise [34]. By simulating these types of noise during
+training, the model not only recognizes music more reliably
+in noisy environments but also mitigates the risk of overfitting
+to clean datasets. Therefore, incorporating diverse noise types
+into training can enable the model to more comprehensively
+address the challenges of music recognition in real-world
+environments.
+
+C. CONVOLUTIONAL NEURAL NETWORKS
+
+CNN is a deep learning architecture that emulates the
+functioning of the human visual system [35]. CNN is
+composed of multiple convolutional and pooling layers
+stacked on top of each other, which are responsible for
+extracting features from input data. Unlike traditional fully
+connected neural networks, CNN utilizes a spatial hierarchy
+to reduce the number of parameters in the fully connected
+layers, which not only reduces computational load but also
+enhances the model’s generalization capability to new data.
+The core of CNN is the convolutional layer, which uses
+a set of learnable filters (also known as kernels) to scan
+the input image to extract local features. Each filter is
+responsible for detecting a specific feature in the image, such
+as edges, corners, or more complex texture patterns. As the
+filter slides over the image, it generates a feature map that
+represents the strength of the features detected by the filter
+at different locations. Pooling layers follow the convolutional
+layers, further reducing the spatial dimensions of the features
+while increasing invariance to shifts and deformations in
+the image [36]. This helps to reduce the computational
+burden of the model and makes feature detection more robust.
+Activation layers, such as ReLU (Rectified Linear Unit),
+introduce nonlinearity, enabling the network to learn complex
+function mappings [37]. This allows CNN to handle more
+complex data patterns. Finally, CNN includes fully connected
+layers that transform the features extracted by the previous
+layers into the final output, such as classification labels or
+regression values.
+CNN has excelled in many tasks, including but not limited
+to image classification, object detection, image segmentation,
+style transfer, speech recognition, and natural language
+processing. They are capable of automatically learning
+features from data, reducing the reliance on manual feature
+20652
+
+engineering, and have greatly advanced the field of artificial
+intelligence.
+IV. MODEL IMPLEMENTATION
+A. DATASET
+
+The dataset selection aims to encompass a diverse range of
+classical music pieces. Taking piano music as an example,
+pieces can be categorized by type into sonatas, rhapsodies,
+variations, and so on. Additionally, classical music can be
+classified by emotional types, such as lyrical, joyful, and
+cheerful. To satisfy these criteria, this study selected the
+Maestro dataset for training. The Maestro dataset contains
+approximately 200 hours of piano performance recordings,
+with note labels aligned to audio waveforms with a precision
+of about 3 milliseconds [38]. From this vast collection,
+20 pieces by 10 composers from different eras and countries
+were selected as the training dataset. The specific information
+of these 20 pieces is shown in Table 1. These pieces cover
+various types, including sonatas, overtures, waltzes, and
+more.
+TABLE 1. Dataset.
+
+B. PREPROCESSING
+1) DATA SPLIT
+
+Due to the different intentions and compositional styles of
+composers, the performance lengths of different pieces vary
+significantly. Some pieces might only be a few minutes long,
+such as short etudes or miniatures, while others can last
+up to several tens of minutes, such as large-scale sonatas
+or concertos. However, for recognition purposes, the model
+should be able to identify the piece by listening to a short
+segment of it. Additionally, using entire pieces that range
+from a few minutes to tens of minutes as training data would
+not only result in long training times but also could lead
+to inefficiencies in training due to varying data dimensions,
+potentially causing poor generalization of the model.
+In this study, each piece is first segmented into equal-length
+time intervals, with each segment being 60 seconds long.
+Subsequently, MFCC features are extracted from all the
+segmented music clips and saved. Since the length of each
+piece cannot always be perfectly divisible by 60 seconds, the
+last segment of each piece needs to be padded with features.
+Here, a constant value of 0 is used for padding.
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+2) ADD NOISE
+
+To achieve the ability to recognize pieces in more realistic
+environments, each music segment is augmented with four
+different types of noise mentioned in Section III: Gaussian
+noise, uniform noise, impulse noise, and colored noise. These
+noises are added to the music segments at different noise
+levels. By adjusting the noise levels, various environmental
+conditions ranging from very quiet to very noisy can be
+simulated. Through this method, the proposed classical music
+recognition model will be trained to identify music features
+under various noisy backgrounds, thereby improving its
+recognition accuracy and robustness in real-world noisy
+environments. These noise-processed music segments will be
+used to train and validate the music recognition model to
+evaluate its performance in practical applications.
+
+C. MODEL STRUCTURE
+
+The core function of the proposal model is to recognize
+classical music titles, styles, and emotions. All of them are
+achieved through CNN models which are proposed in this
+study. The key point is to analyze musical compositions’
+intricate patterns and features. The proposal model structure
+is shown in Figure 2. The proposal model is comprised of
+three sub-models. Each sub-model has the same structure.
+First, the input sizes of MFCC, Chroma, and ST-RMS
+are represented by (NMFCC , NTF ), (NChroma , NTF ), and
+(NST −RMS , NTF ), respectively, where the first value represents
+the number of feature dimensions and the second value
+represents the time frame. To input data into a CNN,
+an additional dimension is required to represent the number of
+channels, with the input data having a 1 channel. The model
+includes two CNN layers, the first with 32 filters of size
+3x3 and the second with 64 filters of size 3x3. These filters
+slide over the input features to capture local patterns through
+feature extraction. The main change after processing by these
+two CNNs is the number of channels, which will be increased
+to 32 and 64, respectively. Each CNN layer is followed by
+a ReLU activation function, which introduces non-linearity
+to the network, enhancing the model’s expressive power.
+Following each CNN layer is a MaxPooling2D layer, which
+uses a 2x2 pooling window with a stride of 2. This reduces
+the spatial resolution of the feature maps while increasing
+the receptive field, aiding in the extraction of higher-level
+features, reducing computational complexity, and mitigating
+overfitting. After the CNN and pooling layers, a Flatten
+layer converts the multi-dimensional feature maps into a onedimensional array, making them suitable for processing by
+fully connected layers. Before the fully connected layers, the
+model introduces two Dropout layers with a dropout rate of
+0.5. Dropout randomly sets a portion of the neurons’ outputs
+to zero during training, forcing the network to learn more
+robust feature representations, which helps reduce overfitting
+and improve the model’s generalization ability. The model
+includes two fully connected layers: the first fully connected
+layer has 64 neurons and also uses the ReLU activation
+VOLUME 13, 2025
+
+function. The second fully connected layer is the output
+layer, with different neurons corresponding to the output of
+title recognition, style recognition, and emotion recognition.
+The output layer uses the softmax activation function, which
+converts the linear outputs into a probability distribution,
+ensuring that for each input sample, the sum of probabilities
+across the different categories is 1. Among them, Ntitle ,
+Nstyle , and Nemotion respectively represent how many different
+categories of titles, styles, and emotions will be output.
+D. LOSS FUNCTION
+
+The loss function measures the discrepancy between the
+model’s predictions and the actual results. A smaller loss
+value indicates that the model’s predictions are closer to the
+actual results, thereby providing a quantitative measure of
+the model’s performance. For a more precise evaluation of
+our proposed model, which can simultaneously recognize
+classical music titles, styles, and emotions, we introduce a
+novel loss function. This new loss function is robust and
+capable of evaluating the model’s performance across these
+three dimensions: music title loss, music style loss, and music
+emotion loss. The equations of the loss function are shown as
+follows.
+X
+Lclassification = −
+yi log(ŷi )
+(2)
+i
+
+X
+
+|ŷi |
+
+(3)
+
+Lcustom = α · Lclassification + λ · L1
+
+(4)
+
+L1 =
+
+i
+
+Equation 2 is sparse categorical crossentropy loss, this
+equation represents the degree of mismatch between the
+model’s predicted results and the actual class labels [39]. It is
+used to measure the performance of the model in classification tasks. Specifically, it is the average of the negative
+log-likelihoods of the predicted probability distributions for
+each sample and the actual class labels. The yi is the true label
+and ŷi is the predicted probability distribution. The equation 3
+is L1 regularization loss, it represents the sum of the absolute
+values of the model parameters and is used to prevent
+overfitting [40]. By incorporating the L1 regularization term
+into the loss function, the model is encouraged to produce
+sparse parameters, meaning that more parameters are driven
+toward zero. This simplifies the model and improves its
+generalization ability. The Equation 4 is a novel Equation that
+is proposed in this study. In this equation, we combine the
+Equation 2 and Equation 3, at the same time, we introduce the
+weight value at front of the 2 and 3. This innovative approach
+has the following benefits.
+1) Performance Improvement: Sparse Categorical
+Crossentropy Loss ensures the model’s basic performance in classification tasks, accurately predicting
+class labels.
+2) Prevention of Overfitting: L1 Regularization reduces
+model complexity by sparsifying weights, thereby
+lowering the risk of overfitting.
+20653
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+FIGURE 2. Model architecture.
+
+3) Balancing Classification and Regularization: By
+weighted combining Sparse Categorical Crossentropy
+Loss and L1 Regularization Loss, it ensures classification performance while effectively controlling model
+complexity, achieving a balance between performance
+and simplicity.
+In order to select the optimal weight value that can make
+the loss function value minimum, we also use an optimization
+algorithm to search the optimal weight value.
+E. HYPERPARAMETER OPTIMIZATION ALGORITHM
+
+In order to obtain the optimal performance of the proposal
+model, a novel hyperparameter optimization algorithm to
+minimize loss value of the model is proposed. The goal is
+to minimize the value of the loss function by finding the
+optimal combination of α and λ. In this study, based on
+Grid Search(GS) and Simulated Annealing(SA), a novel
+optimization algorithm called GSSA [41], [42] is proposed.
+GS is a hyperparameter optimization technique that exhaustively searches through a specified parameter space to find the
+optimal hyperparameter configuration. GS is commonly used
+to tune the parameters of machine learning models, especially
+when there are multiple hyperparameters to adjust. Its main
+advantage is guaranteeing finding the global optimal solution,
+but it is computationally expensive because it requires
+evaluating all possible parameter combinations. SA algorithm
+is a probabilistic optimization technique used for finding
+the global optimum of a problem, inspired by the annealing
+process in metallurgy. The algorithm gradually reduces the
+‘‘temperature’’ parameter, allowing worse solutions to be
+accepted in the early stages to escape local optima. As the
+temperature decreases, the probability of accepting worse
+20654
+
+solutions reduces, ultimately focusing on local search to
+achieve the global optimum. SA is particularly effective for
+solving combinatorial optimization problems and nonlinear
+optimization problems. The procedure of the proposed
+algorithm is shown in Algorithm 1.
+
+Algorithm 1 GSSA Algotithm
+1: Initialize α and λ randomly
+2: Calculate initial performance: Lcurrent = L(α, λ)
+3: Set initial temperature T , number of iterations i
+4: while i > 0 do
+5:
+Generate new hyperparameters αnew = α + 1α,
+λnew = λ + 1λ
+6:
+Calculate new loss function value: Lnew
+=
+L(αnew , λnew )
+7:
+if Lnew < Lcurrent then
+8:
+Lcurrent = Lnew
+9:
+α = αnew
+10:
+λ = λnew
+11:
+else
+12:
+Calculateacceptance probability:
+P = exp LcurrentT−Lnew
+13:
+if random number r < P then
+14:
+Lcurrent = Lnew
+15:
+α = αnew
+16:
+λ = λnew
+17:
+end if
+18:
+end if
+19:
+Update temperature: T = cooling schedule(T )
+20: end while
+21: Output optimal α and λ
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+Firstly, several necessary symbols should be denoted.
+α: coefficient for sparse categorical crossentropy loss.
+αnew : The lastest coefficient for sparse categorical
+crossentropy loss.
+• 1α: Change step for α.
+• λ: coefficient for L1 regularization loss.
+• λnew : The lastest coefficient for L1 regularization loss.
+• 1λ: Change step for λ.
+• Lcurrent : Current loss function value.
+• Lnew : The latest loss function value.
+• T : Temperature.
+• P: Acceptance probability.
+• i: Number of iterations.
+
+TABLE 2. The number of composers and corresponding input data
+segments.
+
+•
+•
+
+From line 1 to line 3, the proposed algorithm firstly
+initializes α and λ randomly, then calculate the Lcurrent , sets
+the initial temperature T and number of iterations i. These
+steps are mainly for initializing necessary parameters in the
+initial stage. In line 4, the algorithm enters the iteration
+phase and executes the core logic of GSSA until i reduces
+to 0. From line 5 to line 6, based on the change steps 1α
+and 1λ, the algorithm generates new values αnew and λnew .
+Then calculate the new loss function value Lnew . From line
+7 to line 10, the algorithm compares Lcurrent with Lnew ,
+if Lnew is less than Lcurrent , it updates Lcurrent to the value
+of Lnew and replace α and λ with αnew and λnew . From
+line 11 to line 18, if Lnew greater than Lcurrent , algorithm
+calculate acceptance probability P. The main function of
+the acceptance probability calculation is to decide whether
+to accept a new state that has worse performance. This is
+done by calculating an acceptance probability, which is based
+on the performance difference between the current state and
+the new state, as well as the current temperature. It allows
+the algorithm to escape local optima, thereby increasing the
+chances of finding the global optimum. Early in the search,
+the temperature is high, and the probability of accepting
+worse solutions is higher, allowing the algorithm to explore
+the solution space broadly. From line 18 to line 19, according
+to cooling schedule update temperature T . In line 20, ends
+up iteration phase. In line 21, output optimal α and λ.
+Meanwhile, terminate the algorithm.
+V. EXPERIMENT
+A. PREPARATION
+
+To thoroughly analyze the characteristics of musical works
+by different composers under noise interference, this study
+first conducted detailed segmentation processing on 20 representative works by 10 renowned composers, as provided
+in Table 1. Each piece was uniformly divided into multiple
+60-second short segments. Next, all features were extracted
+from each segment. After successfully extracting the MFCC,
+Chroma, and ST-RMS features, different types of noise,
+including Gaussian noise, mean noise, impulse noise, and
+colored noise, were added to each 60-second music segment.
+This process aims to simulate various noise pollution
+scenarios that may occur when playing different pieces
+VOLUME 13, 2025
+
+in real-world situations. Table 2 presents the number of
+input data segments corresponding to each composition after
+adding noise to the segmented pieces of each composition.
+That means the column of ‘‘number of segments’’ in Table 2
+represents the total number of segments including no noise
+data, MFCC, Chroma, and ST-RMS after introducing four
+types of noise. In order to present the changes in data
+before and after introducing noise more clearly, the noise is
+visualized. In Figure 3, taking MFCC as an example, original
+MFCC and MFCC with different noises are shown. I choose
+one segment of a piece by Alban Berg as an example. This
+figure contains 5 sub-figures, with the first row representing
+the original MFCC, MFCC with Gaussian noise, and MFCC
+with mean noise. The second line shows MFCC with impulse
+noise and MFCC with colored noise. It can be clearly seen
+from these 5 sub-figures that the introduction of noise has a
+significant impact on the value of MFCC, these 5 sub-figures
+show that noises cause a significant change in the value of
+MFCC. The same effect applies to Chroma and ST-RMS as
+well. This method can enhance the variety of the data and
+improve the robustness of the proposal model.
+B. HYPERPARAMETER OPTIMIZATION RESULTS
+
+In order to acquire the optimal performance of the model,
+we utilize Algorithm 1 GSSA to optimize hyperparameters α
+and λ of the loss function with Equation 4. The initial value
+and other necessary configurations are shown in Table 3.
+In this Table, we enumerate the necessary values that need
+to be configured at the initial step. By using Table 3, final
+optimization results are α is 0.1, λ is 0.01.
+TABLE 3. Configurations for GSSA.
+
+C. EXPERIMENT RESULTS
+1) TITLE RECOGNITION RESULTS
+
+Figure 4 shows the accuracy of title recognition during
+the training and validation processes. The horizontal axis
+20655
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+FIGURE 3. Noise visualization of MFCC.
+
+FIGURE 4. Title recognition accuracy results.
+
+FIGURE 5. Title recognition loss results.
+
+represents the training epochs, and the vertical axis represents
+the accuracy. There are two curves in this figure, a blue
+one for training accuracy and an orange one for validation
+accuracy. The training accuracy of title recognition starts
+nearly at 0.4 and gradually rises to 1.0. The maximum
+recognition accuracy is 0.98 for the training data and
+0.93 for validation data, the average recognition accuracy for
+training data is 0.94 and 0.88 for validation data. Figure 5
+illustrates the loss values during the training and validation
+processes. The horizontal axis also represents the training
+epochs, and the vertical axis represents the loss values. There
+are two curves in this figure, a blue one for training loss and
+the other for validation loss. The minimum loss is 0.08 for the
+training data and 0.33 for validation data, the average loss for
+training data is 0.30 and 0.51 for validation data.
+
+The confusion matrices for classical music title recognition, based on the training and validation data, are shown
+in Figures 6 and 7. The confusion matrix of training
+data, demonstrates the model’s classification performance
+on the training data. The majority of classes have a high
+prediction accuracy rate. This indicates that the model
+performs exceptionally well in these classes, effectively
+distinguishing samples within these categories. However,
+class 1 has a relatively lower prediction accuracy, with
+0.86 correctly classified but 0.14 misclassified as class 0,
+11, and 19 in total, refer to Table 1, this suggests that the
+proposal model is confusing the music of Alexander Scriabin
+with works by Alban Berg, Edvard Grieg, and Nikolai
+Medtner. Similarly, class 16 also shows lower accuracy, with
+0.86 correctly classified and 0.14 misclassified as class 10,
+
+20656
+
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+FIGURE 6. Confusion matrix of training data for title.
+
+FIGURE 7. Confusion matrix of validation data for title.
+
+VOLUME 13, 2025
+
+20657
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+indicating that the proposal model misclassified the music
+of Modest Mussorgsky as that of Domenico Scarlatti. The
+confusion matrix of validation data, it demonstrates the
+model’s classification performance on the validation data.
+The majority of classes have a high prediction accuracy rate.
+However, class 7 has a relatively lower prediction accuracy,
+with only 0.5 correctly classified and 0.5 misclassified as
+class 4, refer to Table 1, this suggests that the proposal
+model is confusing the music of Claude Debussy with
+works by Alexander Scriabin. Similarly, class 17 also
+shows lower accuracy, with 0.5 correctly classified and
+0.5 misclassified as class 13 and 18 in total, indicating that
+the model misclassified the music of Nikolai Medtner as that
+of Johannes Brahms and other music of Nikolai Medtner
+himself. Next, Table 4 and 5 present the precision, recall, and
+F1-score for both training and validation data in the context
+of classical music title recognition. Overall, the performance
+across all classes is strong. However, classes 7 and 17 exhibit
+poor recall and F1-score, suggesting that the features learned
+by the model may not be sufficiently representative for these
+particular classes.
+
+FIGURE 8. Style recognition accuracy results.
+
+2) STYLE RECOGNITION RESULTS
+
+We show style recognition results in Figure 8 and Figure 9.
+In Figure 8, the training accuracy gradually improves as the
+number of epochs increases, approaching 1.0, indicating that
+the proposal model’s performance on the training data is
+getting better. The maximum recognition accuracy is 0.94 for
+the training data and 1.00 for validation data, the average
+recognition accuracy for training data is 0.89 and 0.99 for
+validation data. Compared to training accuracy, the increase
+in validation accuracy is slower and stabilizes after about
+the 20th epoch, which indicates it has slight overfitting.
+Overall, the proposal model performs well during the training
+process. In Figure 9, the training loss decreases as the number
+of epochs increases, indicating that the proposal model’s
+performance on the training data is improving. The difference
+between training and validation loss is relatively small and the
+loss values stabilize after about the 20th epoch, suggesting
+that the model has converged. The minimum loss is 0.17 for
+the training data and 0.16 for validation data, the average loss
+for training data is 0.19 and 0.16 for validation data. From
+the results of Figure 8 and Figure 9 results, we can obtain
+our proposal model which possesses remarkable performance
+with recognition of classical music style.
+In Figures 10 and 11, the confusion matrix of training
+and validation data, it demonstrates the model’s classification
+performance of classical music style on the training and
+validation data. The majority of classes have a high
+prediction accuracy rate. However, class 1 has a relatively
+lower prediction accuracy, with 0.72 correctly classified but
+0.28 misclassified as class 6, this suggests that the model
+is confusing the music style of etudes with works by piano
+pieces. Similarly, class 5 also shows lower accuracy, with
+0.76 correctly classified and 0.24 misclassified as class
+4, indicating that the model misclassified the style of the
+20658
+
+FIGURE 9. Style recognition loss results.
+
+waltz as a piano cycle. The confusion matrix of validation
+data, demonstrates the model’s classification performance
+on the validation data. The majority of classes have a high
+prediction accuracy rate. However, class 6 has a relatively
+lower prediction accuracy, with only 0.81 correctly classified
+and 0.19 misclassified as class 4, this suggests that the model
+a little bit confused piano pieces with the piano cycle. Table 6
+and 7 present the precision, recall, and F1-score for both
+training and validation data in the context of classical music
+style recognition. Overall, the performance across all classes
+is great. However, classes 5 and 6 show a little low recall
+for training and validation data, suggesting that the proposal
+model needs to extract more features and avoid overfitting.
+3) EMOTION RECOGNITION RESULTS
+
+We also show emotion recognition results in Figure 12 and
+Figure 13. In Figure 12, the training accuracy gradually
+improves as the number of epochs increases, approaching
+1.0, indicating that the proposal model’s performance on
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+TABLE 4. Performance metrics of classical music title using training data.
+
+TABLE 5. Performance metrics of classical music title using validation data.
+
+TABLE 6. Performance metrics of classical music style using training data.
+
+the training data is getting better. The maximum recognition
+accuracy is 0.99 for the training data and 0.76 for validation
+data, the average recognition accuracy for training data is
+VOLUME 13, 2025
+
+0.93 and 0.69 for validation data. Compared to training
+accuracy, the accuracy on the validation set initially increases
+with the increase of Epochs, but after a certain point (after
+20659
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+FIGURE 10. Confusion matrix of training data for style.
+
+FIGURE 11. Confusion matrix of validation data for style.
+
+about the 20th Epoch), it begins to fluctuate slightly, the
+accuracy of validation maintains nearly 0.7 indicating that the
+proposal model is a little bit overfit. In Figure 13, the training
+loss decreases as the number of epochs increases, indicating
+that the proposal model’s performance on the training data is
+improving. The minimum loss is 0.16 for the training data
+and 0.31 for validation data, the average loss for training
+data is 0.18 and 0.47 for validation data. The validation loss
+20660
+
+shows large fluctuations within entire epochs, and the trend
+of validation loss has no convergence, the potential reason is
+the training data of classical music includes a variety of cases
+and features, and the proposal model learns different patterns
+of data in different epochs, causing fluctuations in loss values.
+In Figures 14 and 15. The confusion matrix of training
+and validation data demonstrates the model’s classification
+performance of classical music emotion on the training and
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+TABLE 7. Performance metrics of classical music style using validation data.
+
+FIGURE 12. Emotion recognition accuracy results.
+
+validation data. The majority of classes have a high prediction
+accuracy rate for training data. Except for class 7, class 7 has a
+relatively lower prediction accuracy, with only 0.64 correctly
+classified and 0.18 misclassified as class 4, 0.09 misclassified
+as class 3, and class 9. This suggests that the model is a
+little bit confused with grace, passion, and humor with the
+relaxed. The confusion matrix of validation data demonstrates
+the model’s classification performance on the validation data.
+However, the overall performance of the validation data is
+not so great, and even class 6 and class 7 are not correctly
+recognized. The optimal recognition accuracy is 0.87 for
+class 9. This result shows that the model has a lower ability
+to recognize classical music with soft and relaxed emotions
+and has a great ability to recognize classical music with
+humor emotions. Table 8 and 9 present the precision, recall,
+and F1-score for both training and validation data in the
+context of classical music emotion recognition. Overall, the
+performance across several classes is not so great. Like results
+in the confusion matrix of emotion, class 6 and 7 cannot be
+correctly recognized, indicating that the proposal model has
+overfitting in emotion recognition, which is a key issue to be
+addressed in future work.
+D. COMPARATIVE EXPERIMENT WITH MUSIC EXPERTS
+FEEDBACK
+
+To validate the effectiveness of the proposed model, three
+music experts in the School of Art and Design of the
+VOLUME 13, 2025
+
+FIGURE 13. Emotion recognition loss results.
+
+Henan University of Science are selected to help evaluate
+the proposed model’s performance. To reduce experimental
+errors and ensure the reproducibility of the experiment,
+five experiments will be conducted. In each experiment,
+a different song will be randomly selected from the song
+collection as input to the model. Once the song is input
+into the model, it will output the corresponding title, style,
+and emotion type. Only when the model’s output matches
+the judgment of the music expert will the result be marked
+with a correct, otherwise, it will be marked with a cross.
+The effectiveness of the proposal model will be evaluated
+based on the number of check marks and cross marks.
+In Table 10, the results of the experiments are presented.
+The findings from five random trials demonstrate a high
+overall recognition accuracy for titles, with all being correctly
+identified. Similarly, the recognition of styles was also
+accurate. This consistency with music experts’ judgments
+confirms that the model’s recognition results are aligned
+with music expert feedback. However, there were differences
+in emotion recognition, specifically for Image Series I
+and Fairy Tale in D Minor Op. 54, where the model’s
+results did not match the music experts’ assessments. This
+highlights that improving the model’s accuracy in emotion
+recognition remains a key area for future research. Overall,
+the randomized trials show that the model performs well in
+title, style, and emotion recognition, with 87% recognition
+20661
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+FIGURE 14. Confusion matrix of training data for emotion.
+
+FIGURE 15. Confusion matrix of validation data for emotion.
+
+20662
+
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+TABLE 8. Performance metrics of classical music emotion using training data.
+
+TABLE 9. Performance metrics of classical music emotion using validation data.
+
+TABLE 10. Comparative experiment results with music experts feedback.
+
+accuracy of the proposal model if compared to music expert
+feedback.
+E. COMPARATIVE EXPERIMENTS
+
+This study focuses on recognizing the title, style, and
+emotion of classical music using a CNN-based approach.
+To thoroughly evaluate the effectiveness of the proposal
+approach, comparisons have been made with two other
+models from the current literature.
+Firstly, the proposal model compared to the combination
+of convolutional neural network and recurrent neural network
+model(CRNN), the architecture of the CRNN model is shown
+in Figure 16.
+In this figure, the input is processed by a CNN layer
+to extract features. Next, it passes through a series of
+ReLU activations, Batch Normalization (BatchNorm), and
+VOLUME 13, 2025
+
+MaxPooling operations for further feature extraction. Subsequently, the feature sequence is fed into the LSTM network
+to model temporal dependencies. Finally, a Dense layer
+maps the features, and the output layer predicts the final
+result.
+In the second comparative experiment, the proposal
+approach compared to the combination of CNN and RNN in
+the parallel model(PCRNN), the architecture of the PCRNN
+model is shown in Figure 17.
+The model of this figure is a structure of PCRNN. The
+input data is processed by a CNN to extract features, followed
+by two parallel branches: the first branch includes ReLU
+activation, BatchNorm, and MaxPooling for further feature
+extraction. The second branch processes sequential features
+using a Bidirectional Long Short-BiLSTM and MaxPooling.
+The outputs of the two branches are fused via a concatenation
+layer (Concatenate), followed by a Dense layer to map the
+features into a new space, and finally, the output layer predicts
+the results. While this design may be more powerful in
+feature extraction, especially for music style classification
+tasks.
+In Tables 11 and 12, the results are mainly focused on
+two key metrics: recognition accuracy and loss, as these are
+critical indicators of model performance. The comparative
+experiment results for both training and validation data are
+presented for the proposal model, CRNN, and PCRNN.
+20663
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+FIGURE 16. CRNN model architecture.
+
+FIGURE 17. PCRNN model architecture.
+
+TABLE 11. Comparative experimental results of training data.
+
+First, in the classical music title recognition task, the
+proposal model achieves optimal performance in terms of
+both accuracy and loss of training and validation data.
+Second, in the classical music style recognition task, the
+CRNN model slightly outperforms the proposal model in
+terms of accuracy on the training data, with an accuracy
+of 0.97. However, the proposal model shows a lower loss
+compared to both the CRNN and PCRNN models. In terms
+of validation data, the proposal model achieves optimal
+results, with an accuracy of 1.00 and a loss of 0.16. Lastly,
+in the classical music emotion recognition task, the proposal
+model achieves the highest accuracy, with a value of 0.99.
+Although the PCRNN model matches the proposal model’s
+accuracy, it performs better in terms of loss on the training
+20664
+
+data. However, on the validation data, the proposal model
+again outperforms both CRNN and PCRNN models, with an
+accuracy of 0.76 and a loss of 0.31.
+In summary, the proposal model demonstrates a highly
+balanced performance across different tasks. While the
+CRNN and PCRNN models show comparable or slightly
+superior results in some metrics for the training data, the
+proposal model consistently outperforms them in terms of
+both accuracy and loss on the validation data. This suggests
+that the proposal model exhibits superior generalization
+and robustness. Furthermore, without changing the model
+structure to recognize titles, styles, and emotions, the
+proposal model shows greater comprehensive performance
+than the CRNN and PCRNN models.
+VOLUME 13, 2025
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+TABLE 12. Comparative experimental results of validation data.
+
+VI. CONCLUSION
+
+In this study, the proposal focuses on recognizing the title,
+style, and emotion of classical music. Due to its vast quantity, diverse types, and history spanning several centuries,
+These reasons cause existing music recognition software
+and traditional algorithms to fall short in addressing this
+challenge. To address these issues, an innovative approach
+utilizing a CNN model to achieve these diverse recognition is
+proposed. To ensure diversity in our classical music dataset,
+20 songs from 10 different composers in different eras are
+selected. Additionally, a novel loss function to evaluate the
+performance for the proposal model is proposed. This loss
+function incorporates two hyperparameters, α and λ, which
+enhance the evaluation process and improve the overall
+performance of the model. Furthermore, to find the optimal
+value of α and λ, a novel optimization algorithm is also
+proposed. This proposal optimization algorithm based on
+Grid Search and Simulated Annealing called GSSA, it can
+find optimal values of α and λ within a certain range.
+In our experiment results, the average of title recognition
+accuracy can achieve 0.94 for training data and 0.88 for
+validation data. The average of style recognition accuracy can
+achieve 0.89 for training data and 0.99 for validation data.
+The average of emotion recognition accuracy can achieve
+0.93 for training data and 0.69 for validation data. Moreover,
+the effectiveness of the proposal model was further confirmed
+by comparing it with other models. These experiment results
+prove our proposal model possesses great performance.
+In future work, more complex model architecture to
+improve recognition accuracy especially for style and emotion recognition of classical music will be explored. The
+overfitting issue in these two types of recognition still needs a
+novel approach to solve. On the other hand, I will also devote
+to explore the proposed model can recognize other types of
+music, such as pop music, folk music, and so on.
+REFERENCES
+[1] T. Priyanka, V, Y. R. Reddy, D. Vajja, G. Ramesh, and S. Gomathy,
+‘‘A novel emotion based music recommendation system using CNN,’’ in
+Proc. 7th Int. Conf. Intell. Comput. Control Syst. (ICICCS), May 2023,
+pp. 592–596, doi: 10.1109/ICICCS56967.2023.10142330.
+[2] L. Carvalho, T. Washüttl, and G. Widmer, ‘‘Self-supervised contrastive learning for robust audio-sheet music retrieval systems,’’ in
+Proc. 14th ACM Multimedia Syst. Conf., Jun. 2023, pp. 239–248, doi:
+10.1145/3587819.3590968.
+VOLUME 13, 2025
+
+[3] H. Lu, ‘‘Personalized music teaching service recommendation based on
+sensor and information retrieval technology,’’ Meas., Sensors, vol. 33,
+Jun. 2024, Art. no. 101207, doi: 10.1016/j.measen.2024.101207.
+[4] J. Min, Z. Gao, L. Wang, and A. Zhang, ‘‘Application research of shorttime Fourier transform in music generation based on the parallel WaveGan
+system,’’ IEEE Trans. Ind. Informat., vol. 20, no. 9, pp. 10770–10778,
+Sep. 2024, doi: 10.1109/TII.2024.3397344.
+[5] M. Faisal, E. M. Zamzami, and Sutarman, ‘‘Comparative analysis of
+inter-centroid K-means performance using Euclidean distance, Canberra
+distance and Manhattan distance,’’ J. Phys., Conf. Ser., vol. 1566, no. 1,
+Jun. 2020, Art. no. 012112, doi: 10.1088/1742-6596/1566/1/012112.
+[6] I. Mencke, C. Seibert, E. Brattico, and M. Wald-Fuhrmann, ‘‘Comparing
+the aesthetic experience of classic–romantic and contemporary classical
+music: An interview study,’’ Psychol. Music, vol. 51, no. 1, pp. 274–294,
+Jun. 2022, doi: 10.1177/03057356221091312.
+[7] M. Shi, ‘‘The development of piano and its impact on composers,’’ J.
+Theory and Pract. Social Sci., vol. 4, no. 6, pp. 7–24, Jul. 2024.
+[8] M. M. Taye, ‘‘Theoretical understanding of convolutional neural network:
+Concepts, architectures, applications, future directions,’’ Computation,
+vol. 11, no. 3, p. 52, Mar. 2023, doi: 10.3390/computation11030052.
+[9] Z. Qin, W. Liu, and T. Wan, ‘‘A bag-of-tones model with MFCC features for
+musical genre classification,’’ in Proc. Int. Conf. Adv. Data Mining Appl.,
+Jan. 2013, pp. 564–575, doi: 10.1007/978-3-642-53914-5_48.
+[10] L. Shi, C. Li, and L. Tian, ‘‘Music genre classification based on
+chroma features and deep learning,’’ in Proc. 10th Int. Conf. Intell.
+Control Inf. Process. (ICICIP), Dec. 2019, pp. 81–86, doi: 10.1109/ICICIP47338.2019.9012215.
+[11] S. Alimi and O. Awodele, ‘‘Voice activity detection: Fusion of time
+and frequency domain features with a SVM classifier,’’ in Computer
+Engineering and Intelligent Systems. New York, NY, USA: International
+Institutefor Science, Technology and Education (IISTE), May 2022, doi:
+10.7176/ceis/13-3-03.
+[12] Y. Singh and A. Biswas, ‘‘Robustness of musical features on deep learning
+models for music genre classification,’’ Expert Syst. Appl., vol. 199,
+Aug. 2022, Art. no. 116879, doi: 10.1016/j.eswa.2022.116879.
+[13] A. Amatov, D. Lamanov, M. Titov, I. Vovk, I. Makarov, and M. Kudinov,
+‘‘A semi-supervised deep learning approach to dataset collection for queryby-humming task,’’ 2023, arXiv:2312.01092.
+[14] A. N. D. Triastanto and R. Mandala, ‘‘Query by humming music
+information retrieval using DNN-LSTM based melody extraction and noise
+filtration,’’ in Proc. 5th Int. Conf. Inf. Commun. Technol. (ICOIACT),
+Aug. 2022, pp. 503–508, doi: 10.1109/ICOIACT55506.2022.9972121.
+[15] M. Furner, M. Z. Islam, and C.-T. Li, ‘‘Knowledge discovery and
+visualisation framework using machine learning for music information
+retrieval from broadcast radio data,’’ Expert Syst. Appl., vol. 182,
+Nov. 2021, Art. no. 115236, doi: 10.1016/j.eswa.2021.115236.
+[16] X. Jin, ‘‘Computer music query by humming considering subsequence
+matching algorithm,’’ J. Phys., Conf. Ser., vol. 2037, no. 1, Sep. 2021,
+Art. no. 012028, doi: 10.1088/1742-6596/2037/1/012028.
+[17] D. Miao, X. Lu, Q. Dong, and D. Hong, ‘‘Humming-query and
+reinforcement-learning based modeling approach for personalized music
+recommendation,’’ Proc. Comput. Sci., vol. 176, pp. 2154–2163, Jan. 2020,
+doi: 10.1016/j.procs.2020.09.252.
+[18] K.-W. Liang, H.-C. Lee, Y.-T. Lai, and P.-C. Chang, ‘‘Query by singing
+and humming system based on combined DTW and linear scaling,’’ in
+Proc. IEEE Int. Conf. Consum. Electron.-Taiwan (ICCE-TW), Sep. 2021,
+pp. 1–2, doi: 10.1109/ICCE-TW52618.2021.9603043.
+20665
+
+Y. Shi: CNN-Based Approach for Classical Music Recognition and Style Emotion Classification
+
+[19] P. Ghosh, S. Mahapatra, S. Jana, and R. Kr. Jha, ‘‘A study on music genre
+classification using machine learning,’’ Int. J. Eng. Bus. Social Sci., vol. 1,
+no. 4, pp. 308–320, Apr. 2023, doi: 10.58451/ijebss.v1i04.55.
+[20] S. K. Prabhakar and S.-W. Lee, ‘‘Holistic approaches to music
+genre classification using efficient transfer and deep learning techniques,’’ Expert Syst. Appl., vol. 211, Jan. 2023, Art. no. 118636, doi:
+10.1016/j.eswa.2022.118636.
+[21] M. Ashraf, F. Abid, I. U. Din, J. Rasheed, M. Yesiltepe, S. F. Yeo,
+and M. T. Ersoy, ‘‘A hybrid CNN and RNN variant model for music
+classification,’’ Appl. Sci., vol. 13, no. 3, p. 1476, Jan. 2023, doi:
+10.3390/app13031476.
+[22] S. T. Madhusudhan and G. Chowdhary, ‘‘DeepSRGM—Sequence classification and ranking in Indian classical music with deep learning,’’ 2024,
+arXiv:2402.10168.
+[23] L. Liu, ‘‘The implementation of a proposed deep-learning algorithm to
+classify music genres,’’ Open Comput. Sci., vol. 14, no. 1, pp. 101–114,
+Jul. 2024, doi: 10.1515/comp-2023-0106.
+[24] X. Zhang, ‘‘Music genre classification by machine learning algorithms,’’
+Highlights Sci., Eng. Technol., vol. 38, pp. 215–219, Mar. 2023, doi:
+10.54097/hset.v38i.5808.
+[25] K. Anuraj, S. S. Poorna, and S. Renjith, ‘‘Music genre classification—A
+holistic approach employing multiple features,’’ in Proc. 15th Int. Conf.
+Comput. Commun. Netw. Technol. (ICCCNT), Jun. 2024, pp. 1–5, doi:
+10.1109/icccnt61001.2024.10725629.
+[26] Y.-L. Chen, N.-C. Wang, J.-F. Ciou, and R.-Q. Lin, ‘‘Combined bidirectional long short-term memory with mel-frequency cepstral coefficients
+using autoencoder for speaker recognition,’’ Appl. Sci., vol. 13, no. 12,
+p. 7008, Jun. 2023, doi: 10.3390/app13127008.
+[27] I. López-Espejo, A. Joglekar, A. M. Peinado, and J. Jensen, ‘‘On
+speech pre-emphasis as a simple and inexpensive method to boost
+speech enhancement,’’ in Proc. IberSPEECH, Nov. 2024, pp. 96–100, doi:
+10.21437/iberspeech.2024-20.
+[28] M. Leiber, Y. Marnissi, A. Barrau, and M. E. Badaoui, ‘‘Differentiable
+adaptive short-time Fourier transform with respect to the window length,’’
+in Proc. IEEE Int. Conf. Acoust., Speech Signal Process. (ICASSP),
+Jun. 2023, pp. 1–5, doi: 10.1109/ICASSP49357.2023.10095245.
+[29] C. Scribano, G. Franchini, M. Prato, and M. Bertogna, ‘‘DCT-former:
+Efficient self-attention with discrete cosine transform,’’ J. Sci. Comput.,
+vol. 94, no. 3, pp. 11–36, Feb. 2023, doi: 10.1007/s10915-023-02125-5.
+[30] A. J. Aristorenas, ‘‘Machine learning framework for audio-based content
+evaluation using MFCC, Chroma, spectral contrast, and temporal feature
+engineering,’’ 2024, arXiv:2411.00195.
+[31] P.-H. Kuo and C.-J. Huang, ‘‘A high precision artificial neural networks
+model for short-term energy load forecasting,’’ Energies, vol. 11, no. 1,
+p. 213, Jan. 2018, doi: 10.3390/en11010213.
+[32] A. Kanev, M. Nazarov, D. Uskov, and V. Terentyev, ‘‘Research of
+different neural network architectures for audio and video denoising,’’
+in Proc. 5th Int. Youth Conf. Radio Electron., Electr. Power Eng.
+(REEPE), vol. 5, Mar. 2023, pp. 1–5, doi: 10.1109/REEPE57272.2023.
+10086862.
+
+20666
+
+[33] GeeksforGeeks Gaussian Noise. Accessed: Dec. 10, 2024. [Online].
+Available: https://www.geeksforgeeks.org/gaussian-noise/
+[34] GeeksforGeeks Impulse Noise. Accessed: Dec. 11, 2024. [Online].
+Available: https://www.geeksforgeeks.org/impulse-noise/
+[35] L. Alzubaidi, J. Zhang, A. J. Humaidi, A. Al-Dujaili, Y. Duan,
+O. Al-Shamma, J. Santamaría, M. A. Fadhel, M. Al-Amidie, and L. Farhan,
+‘‘Review of deep learning: Concepts, CNN architectures, challenges,
+applications, future directions,’’ J. Big Data, vol. 8, no. 1, pp. 54–128,
+Mar. 2021, doi: 10.1186/s40537-021-00444-8.
+[36] W. AlKendi, F. Gechter, L. Heyberger, and C. Guyeux, ‘‘Advancements
+and challenges in handwritten text recognition: A comprehensive survey,’’
+J. Imag., vol. 10, no. 1, p. 18, Jan. 2024, doi: 10.3390/jimaging10010018.
+[37] A. Krizhevsky, I. Sutskever, and G. E. Hinton, ‘‘ImageNet classification with deep convolutional neural networks,’’ in Proc. Neural
+Inf. Process. Syst., vol. 60, May 2017, pp. 84–90. [Online]. Available:
+http://books.nips.cc/papers/files/nips25/NIPS2012_0534.pdf
+[38] The MAESTRO Dataset. Accessed: Dec. 13, 2024. [Online]. Available:
+https://magenta.tensorflow.org/datasets/maestro
+[39] J. R. Palaniappan, ‘‘A wide analysis of loss functions for image
+classification using convolution neural network,’’ in Proc. 3rd Int. Conf.
+Innov. Sustain. Comput. Technol. (CISCT), Sep. 2023, pp. 1–6, doi:
+10.1109/cisct57197.2023.10351209.
+[40] Y. Shi, Y. Zhang, P. Zhang, Y. Xiao, and L. Niu, ‘‘Federated learning with
+ℓ1 regularization,’’ Pattern Recognit. Lett., vol. 172, pp. 15–21, Aug. 2023,
+doi: 10.1016/j.patrec.2023.05.030.
+[41] J. Bergstra and Y. Bengio, ‘‘Random search for hyper-parameter optimization,’’ J. Mach. Learn. Res., vol. 13, no. 1, pp. 281–305, Mar. 2012.
+[42] P. M. Pardalos and T. D. Mavridou, ‘‘Simulated annealing,’’ in Springer
+EBooks. New York, NY, USA: Springer, 2024, pp. 1–3, doi: 10.1007/9783-030-54621-2_617-1.
+
+YAWEN SHI was born in 1992. She received
+the Ph.D. degree from Russian National Normal
+University. She is currently a Lecturer. A total of
+eleven articles have been published in the highest
+academic journals in Russia, four of which are
+included in Russian Science Citation Index RSCI,
+and one of which is also included in European
+Citation Index ‘‘ERIH PLUS’’ international publication. Her research interests include artificial
+intelligence, algorithms, and musicology.
+
+VOLUME 13, 2025
+
+

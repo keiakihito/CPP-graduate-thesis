@@ -1,0 +1,614 @@
+Alexandria Engineering Journal 125 (2025) 232–244
+
+Contents lists available at ScienceDirect
+
+Alexandria Engineering Journal journal homepage: www.elsevier.com/locate/aej
+
+Original article
+
+Deep neural network-based music user preference modeling, accurate recommendation, and IoT-enabled personalization Jing Lin a , Siyang Huang b
+
+,∗, Yujun Zhang c
+
+a
+
+College of Music and Dance, Quanzhou Normal University, 362000, Quanzhou, China College of Art and Design, Quanzhou Normal University, 362000, Quanzhou, China c Columbia University, 94539, Fremont, United States b
+
+ARTICLE
+
+INFO
+
+Keywords:
+Emotion-driven recommendation Personalized recommendation Hybrid recommendation system Deep neural networks Emotion matching accuracy Music recommendation
+
+ABSTRACT With the popularity of personalized recommendation systems, how to better satisfy users’ emotional needs has become a key issue in the recommendation field, especially in the Internet of Things environment,
+where real-time access to users’ emotional data brings new challenges to recommendation systems. Existing recommendation methods primarily depend on users’ historical behavior or content-based features. However,
+they often overlook the impact of emotional states on recommendation effectiveness, which limits the adaptability and personalization of traditional systems. To solve this problem, this study proposes an emotional music recommendation system based on deep neural networks, which combines emotion modeling and hybrid recommendation strategies to provide more accurate recommendations. By combining user emotion data and music emotion features acquired by IoT devices in real time, our model can adjust the recommended content in real time, which significantly improves the emotion matching and recommendation accuracy.
+Experimental results demonstrate that the hybrid recommendation model significantly outperforms traditional content-based filtering (CBF) and collaborative filtering (CF) methods across multiple evaluation metrics,
+particularly in emotion matching (0.82) and recommendation accuracy (0.83). This study provides new ideas for emotion-driven personalized recommendation and technical support for future implementation of emotional recommendation systems in IoT environments.
+
+1. Introduction Driven by modern Internet technology, personalized recommendation systems have been widely used in various fields, especially in music, movies, e-commerce and other industries. As an important part of it [1], music recommendation systems are committed to providing personalized music selections based on users’ interests and preferences [2,3]. However, traditional recommendation methods, primarily including collaborative filtering (CF) and content-based filtering (CBF),
+rely heavily on either user behavior patterns or item attributes, often ignoring the emotional dimension of music and the dynamic changes of user emotions [4]. With the rapid development of emotional computing and deep learning technology, music recommendation systems have gradually begun to focus on incorporating emotional factors into the recommendation process to improve accuracy and personalization.
+However, existing approaches often treat emotional responses as universal, neglecting individual differences in emotional perception and cultural influences. Addressing these variations could lead to a more inclusive and user-adaptive recommendation system [5,6].
+
+As an art form, music has a strong ability to express emotions and can cause emotional fluctuations in listeners. Different types of music can trigger different emotional experiences in people, and users’
+music preferences in different emotional states also show dynamic changes [7]. Therefore, music recommendation systems not only need to consider users’ past historical behavior data, but also should fully explore users’ emotional needs and current emotional states [8]. This demand has prompted researchers to explore emotion-based music recommendation methods. By analyzing the emotional characteristics of music and users’ emotional needs [9,10], emotional recommendation systems can more accurately predict users’ preferences and provide more personalized recommendations. Driven by modern Internet technology and the growing influence of the Internet of Things
+(IoT), personalized recommendation systems have been widely used in various fields, especially in music, movies, e-commerce, and other industries. As an important part of it [1], music recommendation systems are committed to providing personalized music selections based on users’ interests and preferences [2,3]. However, traditional recommendation methods are mostly based on collaborative filtering and
+
+∗ Corresponding author.
+
+E-mail addresses: 97032@qztc.edu.cn (J. Lin), 93014@qztc.edu.cn (S. Huang), hello.yujunzhang@gmail.com (Y. Zhang).
+https://doi.org/10.1016/j.aej.2025.03.057 Received 6 February 2025; Received in revised form 5 March 2025; Accepted 14 March 2025 Available online 16 April 2025 1110-0168/© 2025 The Authors. Published by Elsevier B.V. on behalf of Faculty of Engineering, Alexandria University. This is an open access article under the CC BY-NC-ND license (http://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+(GRU) are widely used for sequential data modeling, DCNN is particularly effective for processing spectrogram-based representations of music, as it can capture both local and hierarchical spatial–temporal patterns in frequency and time domains. Unlike LSTM/GRU, which process information sequentially and may suffer from vanishing gradient issues over long-term dependencies, DCNN allows for parallel computation, significantly improving training efficiency. Second, the Self-Attention mechanism is used to model the temporal changes of user emotional states to dynamically capture users’ emotional preferences.
+Finally, Collaborative Filtering technology is combined to integrate user historical behavior data and emotional characteristics to achieve personalized music recommendation. Through the effective combination of these three, the music recommendation system constructed in this paper can adjust the recommendation strategy in real time under different emotional scenarios, ensuring both emotion alignment and user personalization.
+The structure of this paper is arranged as follows: the second part reviews the existing music recommendation systems, especially the music recommendation research based on emotion analysis; the third part elaborates on the hybrid recommendation method based on DCNN,
+Self-Attention mechanism and collaborative filtering proposed in this paper; the fourth part introduces the experimental design, data set,
+evaluation indicators, and analyzes the experimental results; the fifth part summarizes the full text and proposes future research directions.
+Through this work, we hope to provide new ideas for music user preference modeling and precise recommendation based on deep neural networks, promote the development of emotional recommendation systems, and contribute to the research in the field of personalized recommendation.
+
+Fig. 1. The Valence–Arousal–Dominance model of emotions.
+
+content recommendation, ignoring the emotional dimension of music and the dynamic changes of user emotions [4]. With the rapid development of emotional computing, deep learning technology, and IoT devices capable of collecting real-time data on users’ emotional states,
+music recommendation systems have gradually begun to focus on how to incorporate emotional factors into the recommendation process to improve the accuracy and personalization of recommendations [5].
+In music recommendation systems, understanding the emotional characteristics of music plays a critical role in improving personalized recommendations [11,12]. One commonly used approach to model music emotions is the use of multidimensional emotion spaces. A popular model to describe emotions is the Valence–Arousal–Dominance
+(VAD) model [13], which represents emotions along three dimensions:
+Valence (pleasantness vs. unpleasantness), Arousal (calm vs. excited),
+and Dominance (submissive vs. dominant). These three dimensions together provide a comprehensive representation of emotional states,
+which are crucial for building emotion-aware music recommendation systems [14].
+The Fig. 1 illustrates this three-dimensional emotion space, where various emotions are placed in relation to each other. For example,
+emotions such as ‘‘Angry’’ and ‘‘Excited’’ are placed in the high arousal zone, while ‘‘Relax’’ and ‘‘Calm’’ are positioned in the low arousal zone.
+This model serves as the foundation for understanding how emotional attributes of music can be mapped to user emotional preferences,
+helping us design more personalized and emotionally relevant music recommendations.
+However, current emotional music recommendation systems still face some challenges. On the one hand, the modeling of music emotion is still a complex problem. Traditional emotion recognition methods mostly rely on low-level features of music (such as pitch, rhythm, etc.)
+for emotion prediction, which makes it difficult to fully capture the rich emotional connotations in music. On the other hand, the modeling of user emotion is also an urgent problem to be solved. Most existing models are based on static user data, ignoring the temporal changes of user emotions and the influence of external factors. Therefore, how to effectively combine the emotional characteristics of music with the emotional state of users in the recommendation system is the key to improving the performance of the music recommendation system.
+Based on this, this paper proposes a music user preference modeling and precise recommendation method based on deep neural networks,
+aiming to more accurately understand and predict users’ music preferences by introducing emotion modeling technology. Specifically, this paper adopts three advanced deep learning technologies: first, the deep convolutional neural network (DCNN) is used to extract emotional features from the audio signal of music. While recurrent architectures such as Long Short-Term Memory (LSTM) and Gated Recurrent Units
+
+2. Related work 2.1. Basic research on music recommendation systems The development of music recommendation systems can be traced back to early content-based recommendation methods, which provide personalized recommendations to users by analyzing the static features of music (such as style, genre, artist, etc.) [15,16]. Content-based methods calculate the similarity between music and select music that matches the user’s historical preferences for recommendation [17].
+Although this method is easy to implement and can provide users with music related to their interests [18], it relies on the explicit features of music and fails to deeply explore the user’s potential interests and emotional needs, thus limiting the degree of personalization of the recommendation system.
+As user behavior data has become more abundant, collaborative filtering (CF) methods have emerged. These methods identify users’
+potential interests by analyzing either user similarity or item similarity [19,20]. Collaborative filtering recommends based on the user’s historical behavior and can provide more personalized recommendations without explicit labels. However, collaborative filtering methods have data sparsity and cold start problems, that is, in the absence of sufficient user behavior data, the quality of recommendations will significantly decrease [21]. In order to solve these problems, hybrid recommendation methods have gradually become a research hotspot,
+aiming to combine the advantages of content-based recommendation and collaborative filtering to make up for the shortcomings of a single method.
+Although collaborative filtering (CF) and content-based filtering
+(CBF) methods have improved recommendation accuracy to some extent, they primarily focus on modeling user historical behavior data.
+Even hybrid recommendation approaches, which combine these methods, often fail to incorporate the emotional dimension of music, limiting their ability to provide emotionally relevant recommendations [22].
+Music itself has a strong ability to express emotions and can trigger emotional resonance in users, but existing recommendation methods 233
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+often fail to effectively capture this emotional influence [23]. Therefore, in recent years, emotion-based recommendation systems have become a new research trend. They not only focus on the emotional characteristics of music, but also try to match users’ emotional needs with music emotions. This issue is one of the core issues of this paper [24]. We hope to improve the emotional modeling ability of the recommendation system through deep learning methods and further improve the accuracy of personalized recommendations.
+
+and the influence of external events. Therefore, researchers have begun to focus on deep learning-based temporal models, especially the SelfAttention Mechanism and Transformers, which can better capture the temporal dynamics of user emotions and long-term dependencies [39].
+The application of Self-Attention Mechanism and Transformers enables the modeling of user emotions to not only capture short-term emotional fluctuations, but also flexibly handle long-term emotional dependencies [40]. For example, through users’ social media data, historical behaviors, and real-time feedback, the system can dynamically adjust its attention to users’ emotional states, thereby generating more accurate predictions of emotional preferences [26]. In addition, the model based on the self-attention mechanism can focus on the factors that have the greatest impact on the change of the user’s emotional state during the modeling process, thereby avoiding the problem of information loss in the traditional model [41]. However, most of the current research still focuses on the short-term modeling of the user’s emotional state, and the dynamic modeling of long-term emotional changes is still insufficient.
+Therefore, future research directions will focus on how to combine external social events, user interaction history, and user real-time emotional data to conduct comprehensive emotional state modeling.
+At the same time, how to integrate multimodal data (such as user physiological signals [42], social media activities, etc.) and reflect the fluctuation of user emotions in real time will also become an important topic in this field. This development trend in academia provides a new research perspective for emotional recommendation systems, and also provides a theoretical basis for the dynamic emotional modeling based on deep neural networks proposed in this paper.
+
+2.2. Emotion analysis and emotional recommendation system Emotion analysis technology has been widely used in various fields,
+especially in movie recommendations, social media analysis, product reviews and other fields. Through emotion analysis, the system can predict the emotional tendency of users’ text comments [25], social media feedback and other content, so as to understand users’ emotional needs and provide personalized recommendations. In the field of music recommendation, the introduction of emotion analysis provides a new way for the system to improve the accuracy and personalization of recommendations [26,27]. In this process, the application of emotion analysis technology can be roughly divided into three ways: rule-based emotion analysis, machine learning-based emotion analysis and deep learning-based emotion analysis.
+Recent studies have shown that emotional responses to music can vary significantly based on personal psychological traits, cultural background, and prior musical experiences [28,29]. In addition, research in the Social Internet of Things (SIoT) domain has highlighted the potential of social-relationships-based service recommendation systems in improving recommendation efficiency and adaptability. For example, Khelloufi et al. (2024) proposed a multimodal latent-featuresbased recommendation system for SIoT devices [30], which leverages contextual and relationship-based information to enhance service recommendations. Similarly, Dhelim et al. (2023) explored the role of hybrid personality-aware recommendation systems that integrate personality traits and type models to improve recommendation personalization. These approaches demonstrate the importance of contextaware, personality-driven, and social relationship-enhanced recommendation strategies, aligning with our study’s goal of improving music recommendations through emotion modeling and user preference learning [31].
+In recent years, emotion analysis methods based on deep learning have gradually become mainstream. Deep learning models, especially convolutional neural networks (CNNs) and long short-term memory networks (LSTMs) [32], have shown superior performance in emotion analysis. Compared with traditional emotion analysis methods, deep learning methods can autonomously learn sentiment features and perform efficient sentiment prediction by training on a large amount of data [33]. In music recommendation, this means that the system can directly extract emotional information from the audio features of music through deep learning models, and then recommend music that meets users’ emotional needs [34,35]. However, existing emotion analysis methods still face some limitations, mainly reflected in the fact that the division of sentiment categories is too simple and cannot fully express the complexity of music emotions. In addition, emotion analysis is usually based on static sentiment labels and fails to effectively model the dynamic process of emotion changing over time [36].
+
+2.4. Summary Through a review of relevant literature, we can see that although the current music recommendation system has made some progress in emotion analysis and personalized recommendation, there are still problems such as insufficient detail in emotion modeling and ineffective capture of sentiment dynamics. Future research will focus more on modeling the individual and cultural differences in emotional responses, enabling recommendation systems to be more adaptive to diverse user preferences. We aim to further refine our user-specific emotional profile module by integrating psychological and cultural variables into deep learning models. This will ensure that emotion-driven recommendations are not only dynamic but also highly personalized to accommodate different user groups. In response to these problems, this paper will comprehensively consider the emotional characteristics of music and the dynamic changes of user emotions in a music recommendation framework based on deep neural networks, aiming to promote the development of emotional music recommendation.
+3. Methodology 3.1. Overall model architecture The music recommendation system proposed in this paper is based on deep neural networks. It aims to provide personalized and emotiondriven music recommendations by integrating the emotional characteristics of music with the emotional needs of users [43]. The overall model architecture consists of three main modules: music emotion modeling module, user emotion modeling module and hybrid recommendation module [44]. These three modules independently process different types of data and interact with each other through linkage mechanisms to achieve efficient and accurate music recommendations.
+The music emotion modeling module is designed to extract the emotional characteristics of each piece of music. Musical emotions are shaped not only by the audio signal but also by factors such as artistic style [45,46], lyrics, and performance techniques. In order to fully capture these emotional characteristics, this paper uses deep convolutional
+
+2.3. User emotion modeling and temporal dynamic analysis In emotional recommendation systems, how to accurately model user emotional states is an important topic. Users’ emotional states are not only affected by their individual psychological characteristics [37],
+but also by external events, social media feedback, and environmental changes. Traditional emotion modeling methods mostly rely on static data, such as users’ historical behaviors and personal profiles [38],
+which are difficult to capture the immediate changes in user emotions 234
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+neural network (DCNN) to process the audio signal of music. Through DCNN, the system can extract low-level spectral features from the audio signal, and further obtain high-level features that can represent the emotion of music through multi-layer convolution and pooling operations. In addition, this paper also combines music metadata (such as artist, album, label, etc.) and lyrics content for emotion analysis to comprehensively construct an emotional portrait of each piece of music.
+Based on the extraction of music emotional features, the user emotion modeling module is responsible for dynamically capturing changes in the user’s emotional state. In addition to modeling real-time emotional fluctuations, we introduce a user-specific emotional profile module, which considers long-term emotional tendencies, personality traits,
+and cultural background. This module is designed to learn user-specific emotional responses to different music genres and styles, ensuring that recommendations are not only emotionally aligned but also personalized to individual differences. The user’s emotional state is not only a reflection of his past behavior, but also affected by the current situation and external factors. Therefore, how to accurately model the changes in the user’s emotional state is the key to improving the personalized effect of the recommendation system. To achieve this goal, this paper adopts the Self-Attention mechanism to process the user’s historical behavior data. Compared to recurrent models such as Long ShortTerm Memory (LSTM) and Gated Recurrent Units (GRU), which process sequences step by step, Self-Attention enables direct access to all past states simultaneously. This significantly improves its ability to capture long-term dependencies and makes it more efficient for large-scale recommendation tasks. By modeling the time series of the user’s historical behavior, the Self-Attention mechanism can effectively capture the changes in the user’s emotional state according to the fluctuation of emotional preferences and dynamically adjust the response to the user’s current emotional needs.
+Specifically, we employ a Scaled Dot-Product Attention mechanism, which is the core component of the Transformer architecture.
+Given a user’s historical interaction sequence represented as a set of feature embeddings 𝑋 = {𝑥1 , 𝑥2 , … , 𝑥𝑛 }, Self-Attention computes a weighted sum of all input embeddings to determine the emotional importance of each past interaction. The attention mechanism follows the formulation:
+𝑄 = 𝑋𝑊𝑞 ,
+
+𝐾 = 𝑋𝑊𝑘 ,
+
+Attention(𝑄, 𝐾, 𝑉 ) = softmax
+
+𝑄𝐾 𝑇
+√
+𝑑𝑘
+
+3.2. Music emotion modeling module The music emotion modeling module is one of the core components of the recommendation system in this paper. It aims to extract accurate emotional features from the audio signal of music and its metadata. The goal of this module is to model music emotions through deep learning technology, especially deep convolutional neural network (DCNN), capture the emotional dimensions of music (such as pleasure, activation,
+etc.) [47], and provide emotional labels for subsequent personalized recommendations. Music itself has a strong ability to express emotions and can trigger different emotional reactions in listeners [48,49].
+Therefore, accurate emotion modeling is the key to improving the personalization effect of the recommendation system.
+Deep Convolutional Neural Networks (DCNNs) are a commonly used deep learning architecture, particularly in tasks like image recognition and classification. DCNNs operate by extracting image features through multiple layers of convolution and pooling, followed by classification predictions made via fully connected layers. The following Fig. 2 illustrates the core structure and workflow of DCNNs. It includes stages such as input image processing, feature extraction, global pooling, flattening,
+fully connected layers, and finally, the prediction process.
+To begin the emotion modeling process, the first step is to extract the low-level features from the raw audio signal. These features typically include frequency spectrum, rhythm, pitch, and tone, which are essential for understanding the emotional qualities of the music. However, these raw audio features are complex and not directly usable for emotion modeling. Therefore, we employ a convolutional neural network to process these audio features and extract higher-level representations that capture the emotional essence of the music. The processing of audio features is done as follows:
+
+(1)
+
+𝑉 = 𝑋𝑊𝑣
+(
+
+user’s historical behavior and the preferences of similar users. At the same time, the hybrid recommendation module will perform weighted fusion based on the user’s emotional preferences and the emotional characteristics of the music, so as to obtain music recommendations that are more in line with the user’s current emotional needs. In this way, the recommendation system can not only provide users with datadriven recommendations based on historical behavior, but also make corresponding adjustments based on the user’s real-time emotional state, further improving the accuracy of the recommendation.
+The three modules collaborate effectively through a linkage mechanism. The music emotion modeling module provides music emotion feature data for the user emotion modeling module, helping the model to accurately understand the emotional dimension of music. The user emotion modeling module adjusts the recommendation strategy by capturing the changes in user emotions in real time to ensure the personalization of the recommendation system. As the final output module,
+the hybrid recommendation module integrates multi-dimensional information from music emotions and user emotions to generate a personalized recommendation list for users that meets their current emotional needs. This linkage mechanism between modules not only improves the real-time response capability of the recommendation system, but also optimizes the emotional matching degree of the recommendation.
+This paper overcomes the shortcomings of traditional music recommendation systems by incorporating deep learning technology and emotion modeling methods into the overall model architecture. Precise design for every module and synergy among modules make it possible for the system to effectively handle the dynamic changes in user emotions and make personalized recommendations based on the emotional characteristics of music. This architecture provides new ideas for emotion-driven music recommendations and lays the foundation for more efficient and accurate personalized recommendations.
+
+)
+𝑉
+
+(2)
+
+where 𝐐, 𝐊, and 𝐕 are the query, key, and value matrices obtained by linear transformations with learnable weight matrices 𝑊𝑞 , 𝑊𝑘 , 𝑊𝑣 ,
+and 𝑑𝑘 is the scaling factor for numerical stability. This mechanism allows the model to dynamically reweight past interactions based on their relevance to the current emotional state.
+To further enhance modeling capacity, we employ Multi-Head Attention, where multiple independent attention heads learn different aspects of the emotional transition patterns:
+MultiHead(𝑄, 𝐾, 𝑉 ) = Concat(head1 , … , headℎ )𝑊𝑜
+
+(3)
+
+where each attention head independently computes attention scores and projects the output to a common feature space. The final output is an emotion representation vector that encapsulates both short-term fluctuations and long-term dependencies in user emotional states,
+which is subsequently fed into the hybrid recommendation module to refine music recommendations.
+Finally, the hybrid recommendation module combines the emotional characteristics of music with the user’s emotional preferences to generate a personalized recommendation list. This module optimizes the recommendation effect through collaborative filtering. Collaborative filtering can infer the music that the user may like based on the
+
+𝑋𝑎𝑢𝑑𝑖𝑜 = CNN(𝑋𝑟𝑎𝑤 )
+
+(4)
+
+where 𝑋𝑎𝑢𝑑𝑖𝑜 represents the extracted audio features from the raw input 𝑋𝑟𝑎𝑤 using a convolutional neural network (CNN). This step 235
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+Fig. 2. Schematic structure of a deep convolutional neural network (DCNN).
+
+allows the model to identify emotional cues from the music’s audio signals, providing a foundation for understanding the music’s emotional content.
+Based on the emotional feature extraction of audio signals, we further combine music metadata (such as artist, album, label, etc.) to enhance the multi-dimensional characteristics of emotional modeling.
+Artist style, song labels, album categories, etc. are often closely related to specific emotional experiences, so these metadata also play an important role in emotional analysis. We process the metadata of music,
+especially the emotional analysis of lyrics, to generate a comprehensive emotional feature vector to represent the strength of music in different emotional dimensions. This process can be expressed by the following formula:
+𝑋𝑚𝑒𝑡𝑎 = 𝑓 (𝑋𝑡𝑎𝑔𝑠 , 𝑋𝑎𝑟𝑡𝑖𝑠𝑡 , 𝑋𝑙𝑦𝑟𝑖𝑐𝑠 )
+
+Through this module, the system can extract emotion-related features from massive music data, helping the recommendation system to better understand and predict users’ emotional needs, thereby improving the accuracy and personalization of recommendations. The music emotion modeling module not only provides an emotional basis for the recommendation system, but also provides key data support for subsequent user behavior modeling and emotion matching.
+3.3. User emotion modeling module The User Emotion Modeling Module is a key component of our recommendation system, designed to capture and predict the user’s emotional state at any given moment. Since user preferences and emotional states are dynamic [50,51], often fluctuating due to various internal and external factors, understanding these changes is essential for delivering accurate and personalized music recommendations. This module leverages the Self-Attention Mechanism, an advanced deep learning technique [52], to analyze the user’s emotional preferences over time while accounting for temporal variations in their emotional state. By utilizing self-attention, the system can effectively capture longterm dependencies in the user’s behavior and emotions, allowing it to adapt seamlessly to changes in their emotional needs.
+The process begins by examining the user’s historical behavior, such as interactions with the music system [53], including listened tracks,
+liked songs, and ratings. These interactions reveal the user’s preferences at specific moments in time. However, because preferences are not fixed and evolve due to factors like mood shifts, external events, or social interactions [54–56], it is crucial to model this dynamic nature effectively.
+First, we take the user’s historical behavior data as input, which usually includes the user’s music listening records, rating behaviors,
+and feedback on social media. In order to accurately model the time series changes of user emotions, this paper uses the self-attention mechanism to process these time series data. The self-attention mechanism has a strong ability to capture long-term dependencies. It can adjust the degree of attention to historical data according to the emotional state at the current moment, thereby effectively extracting the dynamic changes of user emotions. The model generates a user emotion vector containing multiple emotional dimensions by calculating the user’s emotional preferences at different time points.
+The calculation method of the model is:
+
+(5)
+
+where 𝑋𝑚𝑒𝑡𝑎 is the emotional feature vector derived from music metadata, including tags, artist, and lyrics, and 𝑓 () is a function that processes and combines these different metadata features.
+In order to further improve the accuracy of emotional modeling,
+this paper adopts a supervised learning method to train a music dataset with emotional labels. These emotional labels include users’ emotional evaluation of music (such as happiness, sadness, excitement, etc.).
+Through these emotional labels, the model can learn and accurately identify the emotional characteristics of different music clips. The loss function of emotion modeling is calculated as follows:
+∑(
+)2
+𝐿𝑒𝑚𝑜𝑡𝑖𝑜𝑛 =
+𝑦𝑖 − 𝑦̂𝑖
+(6)
+𝑖
+
+where 𝐿𝑒𝑚𝑜𝑡𝑖𝑜𝑛 is the loss function representing the mean squared error between the true emotion labels 𝑦𝑖 and the predicted emotion labels 𝑦̂𝑖
+for each music segment.
+Finally, the output of the music emotion modeling module is the emotion feature vector of each piece of music, which contains the performance of the music in multiple emotion dimensions (such as pleasure, activation, etc.). These emotion features will be passed as input to subsequent modules, such as the user emotion modeling module and the hybrid recommendation module, to achieve personalized recommendation based on emotion. The calculation formula is:
+𝐸𝑚𝑢𝑠𝑖𝑐 = combine(𝑋𝑎𝑢𝑑𝑖𝑜 , 𝑋𝑚𝑒𝑡𝑎 )
+
+(7)
+
+where 𝐸𝑚𝑢𝑠𝑖𝑐 is the final emotional feature vector of the music, which is a combination of the audio features 𝑋𝑎𝑢𝑑𝑖𝑜 and the metadata features
+𝑋𝑚𝑒𝑡𝑎 , and combine() is the function that merges the two types of features into a comprehensive emotional representation.
+
+𝑈𝑒𝑚𝑜𝑡𝑖𝑜𝑛 = Attention(𝑋ℎ𝑖𝑠𝑡𝑜𝑟𝑦 )
+236
+
+(8)
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+where 𝑈𝑒𝑚𝑜𝑡𝑖𝑜𝑛 represents the user’s emotional preference vector, and
+𝑋ℎ𝑖𝑠𝑡𝑜𝑟𝑦 is the sequence of historical behavior data (e.g., music listening history, ratings, etc.) that the model uses to capture the user’s emotional state.
+Through the self-attention mechanism, the model can dynamically weight the user’s historical behavior and make corresponding adjustments based on the changes in the user’s emotions. The output of the self-attention mechanism is a comprehensive emotional preference vector, which not only reflects the user’s emotional state in the past period of time, but also provides predictions for future emotional needs.
+This mechanism can adapt to the fluctuations of user emotions and ensure that the system’s personalized recommendations can respond to the user’s emotional needs in real time.
+𝑆𝑢𝑠𝑒𝑟 = Softmax(𝑄𝐾 𝑇 )
+
+the preferences of users with similar emotional states, thus increasing the degree of personalization of music recommendations.
+Collaborative Filtering (CF) is a widely used method in recommender systems, relying on user–item interaction data to find similarities between users or items. Traditional CF, such as user–item similarity-based CF, calculates explicit similarity scores using methods like cosine similarity or Pearson correlation, but suffers from data sparsity and cold-start limitations. To overcome these challenges,
+Neural Collaborative Filtering (NCF) replaces similarity computations with a neural network that learns latent user–item representations,
+allowing for non-linear preference modeling and better generalization.
+Our system integrates both SVD++ and NCF to balance interpretability and performance, ensuring robust and adaptive music recommendations [53,60]. Collaborative filtering methods can be divided into two categories: user-based collaborative filtering and item-based collaborative filtering. User-based collaborative filtering provides recommendations by identifying users with similar preferences and recommending items preferred by these similar users.
+To further improve recommendation accuracy, our model integrates matrix factorization techniques, specifically Singular Value Decomposition++ (SVD++), which extends traditional SVD by incorporating implicit feedback from user interactions. This allows the system to model latent factors that represent user preferences and item characteristics more effectively [61]. Additionally, we employ Neural Collaborative Filtering (NCF), a deep learning-based extension of collaborative filtering that replaces traditional similarity calculations with a neural network framework, capturing more complex and nonlinear interactions between users and items. By combining these advanced methods,
+our hybrid recommendation system enhances both the personalization and adaptability of recommendations, ensuring that user emotional states are effectively aligned with the suggested music choices.
+Project-based collaborative filtering, on the other hand [62,63],
+focuses on identifying similarities between projects and recommends projects that are similar to those that the user has interacted with. The collaborative filtering part of this study involves three main classification tasks: node classification, graph classification and edge classification. Each task performs specific processing based on the structure of the input graph data for personalized recommendation. In the following Fig. 3, we show the structural framework of these three tasks.
+In the hybrid recommendation module, first, the music emotion modeling module provides an emotional feature vector for each piece of music, which contains information such as the pleasure, activation,
+and emotional color of the music. These emotional features reflect the performance of each piece of music in different emotional dimensions and are an important basis for personalized recommendations. At the same time, the user emotion modeling module provides a preference vector representing the user’s current emotional state, which integrates the user’s historical behavior data and instant emotional feedback, and can accurately reflect the user’s emotional needs at a specific moment.
+The working principle of the hybrid recommendation module is to generate a recommendation list that meets the user’s emotional needs by weighted fusion of information from two sources (music emotion features and user emotion preferences). In this process, the system not only selects music that matches the user’s emotional preferences, but also considers the emotional characteristics of the music itself to ensure that the recommended music can not only meet the user’s emotional needs, but also has a high degree of emotional fit. Specifically, the system selects the music that best meets the user’s needs for recommendation by calculating the similarity between the user’s emotional vector and the music’s emotional characteristics.
+In order to further improve the quality of recommendations, the hybrid recommendation module also combines collaborative filtering algorithms. Collaborative filtering methods can mine users’ potential interests by analyzing user behavior data, thereby recommending music that is similar to the user’s interests. Combined with emotional matching, collaborative filtering can not only find music that matches
+
+(9)
+
+where 𝑆𝑢𝑠𝑒𝑟 is the attention score matrix, 𝑄 represents the query vector
+(user’s past emotional states), and 𝐾 represents the key vector (user’s historical emotional states), and the Softmax function is applied to compute the attention weights.
+In addition, the modeling of user emotions not only depends on historical behaviors, but also should consider the user’s immediate emotional state at the current moment. In order to update the user’s emotional state in real time, this paper also considers the user’s immediate feedback, such as the user’s current emotional expression or recent social media dynamics. By combining this immediate emotional information with historical behavior data, the model can more accurately capture the user’s current emotional needs. Based on this dynamic update process, the emotional preference vector output by the model can timely reflect the user’s emotional changes and provide accurate emotional predictions for the subsequent recommendation module.
+𝑈𝑑𝑦𝑛𝑎𝑚𝑖𝑐 = combine(𝑈𝑒𝑚𝑜𝑡𝑖𝑜𝑛 , 𝑋𝑐𝑢𝑟𝑟𝑒𝑛𝑡 )
+
+(10)
+
+where 𝑈𝑑𝑦𝑛𝑎𝑚𝑖𝑐 is the final dynamic emotional vector representing the user’s current emotional state, 𝑈𝑒𝑚𝑜𝑡𝑖𝑜𝑛 is the output of the attention mechanism (user’s past emotional state), and 𝑋𝑐𝑢𝑟𝑟𝑒𝑛𝑡 represents the real-time emotional feedback from the user (e.g., social media posts or recent interactions).
+Finally, the emotion vector 𝑈𝑑𝑦𝑛𝑎𝑚𝑖𝑐 output by the user emotion modeling module will be passed as input to the hybrid recommendation module. By combining this vector with the emotional feature vector of the music, the recommendation system can generate more accurate and personalized recommendation results based on the user’s current emotional state and needs. In this way, the user’s emotional state is not only a reflection of historical behavior, but can also be fed back to the recommendation system in real time, thereby improving the system’s response speed and personalized recommendation effect.
+The innovation of this module is to dynamically model the temporal changes of user emotions through the self-attention mechanism, solving the problem of neglecting the changes in emotional states in traditional methods. By combining historical data with immediate emotional feedback, the model can capture user emotional needs in real time,
+providing a more accurate emotional modeling method for emotional recommendation systems.
+3.4. Hybrid recommendation module The hybrid recommendation module generates personalized and emotion-driven music recommendations by integrating the outputs of music emotion modeling and user emotion modeling. The music emotion modeling module captures the emotional characteristics of the music [57,58], while the user emotion modeling module identifies the current emotional state of the user, and the hybrid recommendation module combines this information to generate the final recommendation list [59]. This module further optimizes the recommendation process by using collaborative filtering techniques to take into account 237
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+Fig. 3. An architectural framework for collaborative filtering in different classification tasks: (a) Node classification (b) Graph classification (c) Edge classification.
+
+Table 1 Summary of the million song dataset.
+Feature
+
+Description
+
+Songs Attributes User data Music features
+
+Over 1 million songs Artist, title, genre, album, year User ratings, listening history, playlist data Audio features such as MFCCs, spectral data
+
+emotional characteristics, user emotional preferences and collaborative filtering. It fully considers the user’s emotional state and the emotional attributes of music, enabling the recommendation system to understand and meet the user’s emotional needs at a higher level, thereby significantly improving the accuracy of recommendations and user experience.
+4. Experiment
+
+the user’s historical preferences, but also dynamically adjust according to the user’s emotional state and the emotional characteristics of the music. In this way, the recommendation system can more accurately capture the user’s emotional needs, and improve the diversity and novelty of recommendations while ensuring personalization.
+However, traditional collaborative filtering approaches primarily rely on static user interaction data, which may not reflect a user’s real-time mood fluctuations. To improve adaptability, we incorporate real-time IoT emotion data into the recommendation pipeline. By leveraging sensor-based physiological signals and contextual emotion cues, the system can dynamically adjust collaborative filtering weight distributions, ensuring that real-time emotional needs are effectively integrated into the recommendation process. This approach enhances user satisfaction by bridging the gap between long-term preferences and momentary emotional experiences.
+Specifically, for new users with limited historical interaction data,
+the system utilizes demographic features such as age, gender, and music genre preferences collected from initial user registration or surveys. These features serve as an alternative signal for generating preliminary recommendations before sufficient behavioral data is available. Additionally, we leverage music metadata features, including artist popularity, album characteristics, and lyrical sentiment analysis, to supplement the collaborative filtering process. By combining these auxiliary data sources, our model ensures that users receive relevant recommendations even in the absence of extensive historical interactions.
+In the implementation of hybrid recommendations, the system combines two different information sources through a weighted strategy.
+Specifically, the music emotional characteristics and user emotional preferences are weighted separately, and then integrated into the final recommendation results through a fusion function. The weighted strategy can be dynamically adjusted according to the specific emotional needs of users. For example, when the user’s emotional state changes, the system can automatically increase the attention to the user’s emotional needs, thereby optimizing the recommendation list.
+The hybrid recommendation module provides an efficient personalized recommendation strategy by integrating the advantages of music
+
+4.1. Datasets In this study, we used two datasets to train and evaluate our proposed music recommendation system. These datasets provide the necessary information to build music sentiment features and user sentiment preferences. The selection of these datasets is crucial to the success of the recommendation system because they cover a variety of music styles, user interactions, and sentiment data, enabling the construction of comprehensive and effective models. Below, we will introduce the two datasets used in this paper and briefly explain their characteristics and applicability.
+Million Song Dataset. Million Song Dataset [64] is a large public music dataset containing more than one million songs. The dataset contains various music attributes such as artist name, song title, genre,
+release year, etc. In addition, it also provides information such as user ratings and listening history, which is very important for training user behavior models.
+A major advantage of using Million Song Dataset is its large scale,
+covering a variety of different music styles and genres. This diversity is crucial for capturing the emotional dimension of music in different emotional contexts. In addition, the user behavior data in the dataset,
+such as song ratings and user playlists, also makes it very suitable for content recommendation and collaborative filtering, which is the core component of our recommendation system.
+The dataset summary is shown in Table 1:
+Last.fm Dataset. The Last.fm Dataset [65] contains user listening data from the Last.fm music streaming service. The dataset contains detailed information about users’ interactions with music, such as songs listened to, playlists, tags, and user ratings. It also provides social tags and sentiment tags, which are very valuable for understanding how users emotionally engage with music. Sentiment tags allow us to directly associate songs with specific emotional states, which makes this dataset particularly suitable for emotion-driven recommendation systems.
+Another advantage of the Last.fm dataset is its rich user behavior data, including users’ listening history and social interactions. This allows us to model not only users’ music preferences, but also their 238
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+Table 2 Summary of the Last.fm dataset.
+Feature
+
+Description
+
+Users Tracks Tags User data Emotion labels
+
+Over 1 million users More than 20 million tracks Social tags and emotional labels User listening history, playlists, ratings Emotion tags (e.g., happy, sad, energetic)
+
+designed a series of experiments to compare the performance of different recommendation models in emotion matching, personalized recommendation and emotion-driven recommendation. Through comparison and ablation experiments, we analyze the performance of the models on several performance metrics and demonstrate the advantages of emotion-driven recommendation systems.
+4.3.1. Comparison experiment First, we compare our proposed emotion-driven recommendation model with several commonly used recommender systems to evaluate their performance on several dimensions. The following Table 4 shows the results of the comparison experiments, which include multiple metrics such as RMSE, sentiment matching, Precision@10, Recall@10,
+F1-Score, MAP@10, NDCG@10, and recommendation timeliness.
+We compare eight different recommender systems covering traditional approaches (content-based recommendation and collaborative filtering), deep learning-based approaches (e.g., neural collaborative filtering and Emotion-driven recommendation), and hybrid recommendation strategies (Model F). As can be seen from the table, the hybrid recommendation model (Model F) performs well on all metrics, especially in terms of RMSE (0.62) and sentiment matching (0.82), which are significantly better than the other models. In contrast, the contentbased recommendation model (Model A) and collaborative filtering
+(Model B) lagged behind in several metrics, especially in sentiment matching and recommendation accuracy.
+In addition, Model F (hybrid recommendation) also has significant advantages in the metrics of F1-Score (0.74), MAP@10 (0.79), and NDCG@10 (0.85), which proves the contribution of emotion modeling and hybrid recommendation strategies to enhance the effectiveness of recommendation systems. It is worth noting that although the recommendation timeliness of model F (0.33 s) is slightly higher than the other models, this performance improvement is worthwhile for the optimization of user experience.
+
+Table 3 Experimental setup and hyperparameters.
+Setting
+
+Value
+
+Hardware configuration
+
+Intel i7 Processor, 16 GB RAM,
+Nvidia GTX 1080 GPU Ubuntu 20.04 TensorFlow 2.4, Keras 32 50 0.001 Adam Mean Squared Error (MSE)
+0.3 3 128 ReLU Enabled (patience = 5 epochs)
+RMSE, Precision, Recall Normalization, One-Hot Encoding,
+Text Tokenization
+
+Operating system Deep learning framework Batch size Epochs Learning rate Optimizer Loss function Dropout rate Number of hidden layers Hidden layer units (per layer)
+Activation function Early stopping Evaluation metric Data preprocessing
+
+emotional preferences over time, which is crucial for the user emotion modeling module of this article.
+The summary of the dataset is as follows Table 2:
+The two datasets complement each other and provide extensive data support for building a robust and effective music recommendation system. The Million Song Dataset provides rich music features and user behavior data, which is very suitable for content recommendation and collaborative filtering methods. The Last.fm dataset helps us capture changes in user emotions through emotional tags and user interaction data, providing valuable resources for emotion-based recommendation systems.
+By combining these two datasets, we can simultaneously model the emotional characteristics of music and the emotional preferences of users, thereby achieving more accurate and personalized recommendations. These two datasets provide a solid data foundation for our research, ensuring that the system can consider the emotional needs of users and make corresponding recommendations based on the emotional content of music.
+
+4.3.2. Ablation experiment To further validate the impact of emotion modeling and hybrid recommendation strategies on model performance, we conducted a series of ablation experiments. In each setting, we systematically removed a specific module to assess its contribution to the overall effectiveness of the model. The results are summarized in Table 5.
+Table 5 presents the impact of removing different components on model performance. The results indicate that eliminating the emotion modeling module (‘‘No Emotion Modeling’’) has the most significant effect, with RMSE increasing to 0.72, while Emotion Matching Accuracy and Precision@10 drop to 0.75 and 0.71, respectively, highlighting the crucial role of emotion modeling in recommendation accuracy.
+Removing the hybrid recommendation strategy (‘‘No Hybrid Strategy’’)
+also leads to performance degradation, with RMSE rising to 0.68,
+showing that the hybrid strategy effectively enhances recommendation refinement. Meanwhile, removing dynamic emotion modeling (‘‘No Dynamic Emotion Modeling’’) results in a smaller performance decline,
+indicating that while dynamic adaptation improves model flexibility,
+its absence does not drastically impact overall effectiveness. These findings emphasize that emotion modeling has the greatest contribution to model performance, followed by the hybrid strategy, while dynamic adaptation provides additional but less critical improvements.
+
+4.2. Experimental setup In order to verify the effectiveness of our proposed emotional music recommendation system based on deep neural networks, we conducted a series of experiments on two datasets. The main goal of these experiments is to evaluate the performance of the system in emotionally driven personalized recommendations, especially the recommendation accuracy and emotional matching ability of the model. The experimental environment settings, model training hyperparameters, and data preprocessing are shown in Table 3. Through these experimental settings, we can comprehensively evaluate the performance of different models and parameter configurations.
+
+4.3.3. Graphical analysis In this section, we show the performance of emotion-driven recommender systems on several dimensions through four charts, including the emotion matching degree, the user’s emotional state, the effect of different music genres on the user’s emotion, as well as the curves of the emotion matching degree of different models over time.
+Fig. 4 shows the relationship between the user’s emotional state and the emotional match of the recommended music. In the figure, the horizontal axis represents the user’s emotional polarity (Valence) and
+
+4.3. Results In order to comprehensively verify the effectiveness of our proposed deep neural network-based affective music recommendation system, we 239
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+Table 4 Performance comparison of different models in music recommendation and emotion matching.
+Model
+
+RMSE
+
+Emotion matching accuracy
+
+Precision@10
+
+Recall@10
+
+F1-Score
+
+MAP@10
+
+NDCG@10
+
+Recommendation latency
+
+Content-based [66] (Model A)
+Collaborative filtering [67] (Model B)
+Matrix factorization [68] (Model C)
+Neural collaborative filtering [69] (Model D)
+Emotion-driven [70] (Model E)
+Hybrid recommendation (Model F)
+Context-Aware [71] (Model G)
+Sequential recommendation [72] (Model H)
+
+0.79 0.75 0.70 0.68 0.66 0.62 0.69 0.71
+
+0.63 0.66 0.70 0.74 0.78 0.82 0.73 0.75
+
+0.62 0.68 0.72 0.76 0.75 0.83 0.71 0.73
+
+0.38 0.43 0.48 0.50 0.55 0.68 0.47 0.50
+
+0.47 0.54 0.59 0.62 0.65 0.74 0.57 0.60
+
+0.50 0.55 0.63 0.68 0.72 0.79 0.60 0.65
+
+0.65 0.72 0.75 0.78 0.80 0.85 0.76 0.77
+
+0.20 s 0.25 s 0.30 s 0.28 s 0.30 s 0.33 s 0.35 s 0.32 s
+
+Table 5 Ablation study results: Impact of different components on model performance.
+Ablation setting
+
+RMSE
+
+Emotion matching accuracy
+
+Precision@10
+
+F1-Score
+
+Full model (Model F)
+No emotion modeling No hybrid strategy No dynamic emotion modeling
+
+0.62 0.72 0.68 0.70
+
+0.82 0.75 0.78 0.77
+
+0.83 0.71 0.76 0.74
+
+0.74 0.59 0.66 0.64
+
+Fig. 4. Relationship between user affective state and emotional match of recommended music.
+
+the vertical axis represents the user’s emotional arousal (Arousal). Each point represents a user’s emotional state, and the color depth of the point represents the degree of matching between the recommended music and that user’s emotional state. The darker the color, the lower the match between the recommended music and the user’s emotional state;
+the lighter the color, the higher the match between the recommended music and the user’s emotional state.
+The advantage of the emotion-driven recommender system (Model C) is that it is able to recommend the most suitable music for the user according to his emotional needs. In the figure, we can see that the emotion-driven recommender system is able to provide users with higher emotional needs (high Valence and high Arousal) with recommendations that have a high degree of emotional matching, and most of the recommended music is concentrated in the region of the user’s emotional needs (i.e., the region of high Valence and high Arousal).
+This phenomenon shows that emotion-driven recommender systems not only pay attention to the user’s historical behavioral data, but also capture the user’s emotional changes in real time, so as to make accurate recommendations.
+In contrast, the traditional content-based recommendation model
+(Model A) does not consider the user’s emotional state, and thus fails to provide accurate emotion matching when recommending music. Its recommended music is widely distributed throughout the emotional
+
+space with a low degree of matching, especially in the region of high emotional demand, and the recommended music does not match the user’s emotional state. This indicates that the core advantage of the emotion-driven recommendation model lies in its ability to provide users with personalized recommendations that meet their emotional needs based on their current emotional state.
+Fig. 5 illustrates the relationship between the emotional matching degree and the user’s emotional state over time. In the figure, the blue dashed line represents the change of user’s emotional Valence
+(emotional polarity) over time, and the orange dashed line represents the change of user’s emotional Arousal (emotional arousal) over time.
+The purple solid line represents the Emotion Matching Degree, which reflects the match between the recommended music and the user’s emotional state.
+It can be observed from Fig. 5 that the user’s emotional state changes dynamically, especially during high emotional fluctuations, the user’s Valence and Arousal fluctuate more dramatically in a shorter period of time. The emotion-driven recommender system (Model C)
+is able to quickly adjust the recommended content to maintain a high match when the user’s emotional state changes. This is reflected in the purple curve (emotion matching degree) in Fig. We see that the emotion-driven recommender system is able to adjust the recommended music in time when the user’s emotion changes, which results 240
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+Fig. 5. Curve of emotional matching degree versus user’s emotional state over time.
+
+Fig. 6. Impact of different types of music on users’ emotional state.
+
+in smaller fluctuations in the emotion matching degree and maintains high stability.
+In contrast, the content-based recommender system (Model A) and the collaborative filtering model (Model B) are unable to respond effectively to changes in user sentiment. The sentiment matches of the content-based recommendation and collaborative filtering models do not quickly keep up when the sentiment changes, resulting in large fluctuations in the matches, which indicates that these traditional recommendation methods fail to dynamically adjust their recommended content. This graph fully demonstrates the advantages of emotiondriven recommender systems in dynamic emotion matching, especially in adjusting recommendations in real time to adapt to user emotion changes.
+Fig. 6 shows the impact of different types of music on the user’s emotional state. The horizontal axis of the graph represents the user’s emotional polarity (Valence) and the vertical axis represents the user’s emotional arousal (Arousal). Each point represents the change in the user’s emotional state after listening to a certain type of music, and the color shades indicate how well the recommended music matches that user’s emotional state.
+In Fig. 6, light music (marked in blue) is mainly concentrated in the area of low Arousal and high Valence, indicating that light music usually brings a pleasant and relaxing emotional experience to users.
+Rock music (marked in red) is distributed in the high Arousal and high
+
+Valence regions, which indicates that rock music usually carries a highenergy and passionate emotional color. Pop music (labeled in green),
+on the other hand, shows a more balanced emotional response, with both high Valence and moderate Arousal, indicating that pop music can bring users diverse emotional experiences.
+Through these distributions, we can visualize how different music genres affect users’ emotional states. The emotion-driven recommendation system makes use of these emotional features of music to provide more accurate personalized recommendations by identifying and matching users’ emotional needs.
+Fig. 7 shows the comparison of the emotional matching degree of different recommendation models over time. The horizontal axis represents time and the vertical axis represents Emotion Matching Score. In the figure, the emotion-driven recommendation model (Model C) (green curve) and the hybrid recommendation model (Model D)
+(purple curve) demonstrate smoother and more sustained fluctuations in emotion matching score. In contrast, the content-based recommendation model (Model A) (blue curve) and the collaborative filtering model
+(Model B) (red curve) demonstrate larger fluctuations.
+A key point of the graphs is that when there are large fluctuations in the user’s affective states (e.g., Valence and Arousal), the emotiondriven recommender system is able to respond quickly and adjust the recommended content in time to maintain a high affective match. This feature is especially obvious in the sentiment matching curves of Model 241
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+Fig. 7. Comparison of different recommendation models’ emotion matching over time.
+
+significant past experiences over neutral or low-impact interactions.
+This ability to dynamically reweight historical interactions enables the model to adapt to the user’s evolving emotional states, improving the accuracy of emotion-driven recommendations.
+5. Conclusion and discussion In this study, we propose an emotional music recommendation system based on deep neural networks, aiming to solve the limitations of traditional recommendation systems in matching users’ emotional needs. With the rapid development of personalized recommendation technology, the core problem of recommendation systems is not only to provide highly relevant recommended content, but also to satisfy users’ emotional needs at a deeper level. However, most of the existing recommendation methods rely on users’ historical behavioral data or content-based features, ignoring the impact of users’ emotional states on the recommendation results. To this end, we propose a deep learning approach that combines emotion modeling and hybrid recommendation strategies to provide more personalized and emotion-driven music recommendations by considering the emotional features of music and the user’s emotional state.
+Experimental results show that our proposed emotion-driven recommendation system significantly outperforms traditional recommendation models in several aspects. In the comparison experiments, our hybrid recommendation model (Model F) performs well in the metrics of RMSE, Sentiment Matching, Precision@10, and Recall@10, especially in sentiment matching, which is significantly higher than the contentbased recommendation and collaborative filtering models. Through ablation experiments, we further validate the key contributions of emotion modeling and hybrid recommendation strategies to model performance. emotion modeling significantly improves sentiment matching,
+while hybrid recommendation strategies further optimize the accuracy of personalized recommendations. In addition, graphical analysis demonstrates how the emotion-driven recommender system adjusts the recommended content according to the changes in user emotions to ensure the stability and efficiency of the emotion matching degree.
+While this study advances the field of emotion-driven music recommendation, some limitations remain. First, the current model relies on immediate feedback of user emotions, which may result in the model not being able to adequately capture long-term changes in user emotional states. Second, there is still room for improving the recommendation timeliness of the models, especially when dealing with large-scale datasets, the response speed of the recommender system may be affected to some extent, which is crucial for user experience.
+Therefore, how to incorporate finer-grained sentiment state data as well
+
+Fig. 8. Visualization of attention weights in user emotion modeling.
+
+C and Model D. On the contrary, based on content recommendation and collaborative filtering models, their sentiment matching degree fluctuates greatly over time, especially when the user’s sentiment changes drastically, the recommender system fails to adjust in time, which leads to a lower matching degree.
+Through this chart, we can clearly see that emotion-driven recommender systems are not only able to provide high matching degree in static situations, but also maintain high emotional matching degree when the user’s emotion changes dynamically, thus improving the user experience.
+4.3.4. Visualization of attention weights in emotion modeling To further analyze how the Self-Attention mechanism influences user emotion modeling, we visualize the distribution of attention weights assigned to different historical interactions. Fig. 8 illustrates an example of attention scores learned by the model when predicting the user’s current emotional state, where each row represents a specific historical interaction, and each column denotes the corresponding attention weight assigned to it. The color intensity indicates the relative importance, with darker shades representing higher attention weights.
+The visualization reveals that the model assigns higher attention weights to interactions where the user previously engaged with emotionally relevant music, suggesting that it successfully captures longterm dependencies and key emotional transitions. Notably, we observe that certain interactions consistently receive higher attention across different user sessions, indicating that the model prioritizes emotionally 242
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+
+as optimize the real-time responsiveness of the model will be the focus of future research.
+Future research plans will be devoted to further optimizing emotion modeling and recommendation strategies to address the shortcomings of current models. We plan to explore the modeling of additional sentiment dimensions, such as Dominance, and incorporate them into the emotion modeling process to fully capture the complexity of user sentiment. Additionally, we will further refine the model architecture by considering hybrid approaches that integrate DCNN with sequential models such as LSTM or GRU, leveraging their respective strengths in extracting spatial and temporal emotional features from music signals. To improve recommendation timeliness, we will continue to optimize computational efficiency by introducing a lightweight neural network architecture, ensuring that high-quality recommendations can still be provided efficiently in large-scale data environments. Meanwhile, future work will also involve deeper cross-modal recommendation research, combining the visual and auditory features of music with the user’s emotional state, further enhancing the diversity and personalization of the recommendation system.
+
+[8] Z. Yu, M. Zhao, Y. Wu, P. Liu, H. Chen, Research on automatic music recommendation algorithm based on facial micro-expression recognition, in:
+2020 39th Chinese Control Conference, CCC, IEEE, 2020, pp. 7257–7263.
+[9] K. Patel, H.B. Patel, A state-of-the-art survey on recommendation system and prospective extensions, Comput. Electron. Agric. 178 (2020) 105779.
+[10] A. Khelloufi, H. Ning, A. Naouri, A.B. Sada, A. Qammar, A. Khalil, L. Mao, S.
+Dhelim, A multimodal latent-features-based service recommendation system for the social Internet of Things, IEEE Trans. Comput. Soc. Syst. (2024).
+[11] S. Dhelim, N. Aung, M.A. Bouras, H. Ning, E. Cambria, A survey on personality-aware recommendation systems, Artif. Intell. Rev. (2022) 1–46.
+[12] X. He, Improved music recommendation algorithm for deep neural network based on attention mechanism, Mob. Inf. Syst. 2022 (1) (2022) 4112575.
+[13] M.F. Aljunid, M. Dh, An efficient deep learning approach for collaborative filtering recommender system, Procedia Comput. Sci. 171 (2020) 829–836.
+[14] S. Kumar, K. De, P.P. Roy, Movie recommendation system using sentiment analysis from microblogging data, IEEE Trans. Comput. Soc. Syst. 7 (4) (2020)
+915–923.
+[15] H. Ko, S. Lee, Y. Park, A. Choi, A survey of recommendation systems: recommendation models, techniques, and application fields, Electronics 11 (1) (2022)
+141.
+[16] Q. Zhang, J. Lu, Y. Jin, Artificial intelligence in recommender systems, Complex Intell. Syst. 7 (1) (2021) 439–457.
+[17] C. Gao, W. Lei, X. He, M. de Rijke, T.-S. Chua, Advances and challenges in conversational recommender systems: A survey, AI Open 2 (2021) 100–126.
+[18] S. Natarajan, S. Vairavasundaram, S. Natarajan, A.H. Gandomi, Resolving data sparsity and cold start problem in collaborative filtering recommender system using linked open data, Expert Syst. Appl. 149 (2020) 113248.
+[19] K. Shah, B. Arora, A. Shinde, S. Vaghasia, AI in Entertainment–Movie Recommendation using cosine similarity, in: 2022 6th International Conference on Computing, Communication, Control and Automation (ICCUBEA, IEEE, 2022, pp.
+1–4.
+[20] J. Yu, H. Yin, J. Li, Q. Wang, N.Q.V. Hung, X. Zhang, Self-supervised multichannel hypergraph convolutional network for social recommendation, in:
+Proceedings of the Web Conference 2021, 2021, pp. 413–424.
+[21] M. Jiang, S. Zhao, S. Yang, X. Lin, X. He, X. Wei, Q. Song, R. Li, C. Fu, J. Zhang,
+et al., An ‘‘essential herbal medicine’’—Licorice: A review of phytochemicals and its effects in combination preparations, J. Ethnopharmacol. 249 (2020) 112439.
+[22] L.-C. Yang, A. Lerch, On the evaluation of generative models in music, Neural Comput. Appl. 32 (9) (2020) 4773–4784.
+[23] X.-S. Wei, Y.-Z. Song, O. Mac Aodha, J. Wu, Y. Peng, J. Tang, J. Yang, S.
+Belongie, Fine-grained image analysis with deep learning: A survey, IEEE Trans.
+Pattern Anal. Mach. Intell. 44 (12) (2021) 8927–8948.
+[24] Y. Wang, W. Song, W. Tao, A. Liotta, D. Yang, X. Li, S. Gao, Y. Sun, W. Ge,
+W. Zhang, et al., A systematic review on affective computing: Emotion models,
+databases, and recent advances, Inf. Fusion 83 (2022) 19–52.
+[25] W. Li, W. Shao, S. Ji, E. Cambria, BiERU: Bidirectional emotional recurrent unit for conversational sentiment analysis, Neurocomputing 467 (2022) 73–82.
+[26] A.H. Alamoodi, B.B. Zaidan, A.A. Zaidan, O.S. Albahri, K.I. Mohammed, R.Q.
+Malik, E.M. Almahdi, M.A. Chyad, Z. Tareq, A.S. Albahri, et al., Sentiment analysis and its applications in fighting COVID-19 and infectious diseases: A systematic review, Expert Syst. Appl. 167 (2021) 114155.
+[27] L. Yang, Y. Li, J. Wang, R.S. Sherratt, Sentiment analysis for E-commerce product reviews in Chinese based on sentiment lexicon and deep learning, IEEE Access 8 (2020) 23522–23530.
+[28] U. Naseem, I. Razzak, M. Khushi, P.W. Eklund, J. Kim, COVIDSenti: A largescale benchmark Twitter data set for COVID-19 sentiment analysis, IEEE Trans.
+Comput. Soc. Syst. 8 (4) (2021) 1003–1015.
+[29] S. Boon-Itt, Y. Skunkan, et al., Public perception of the COVID-19 pandemic on Twitter: sentiment analysis and topic modeling study, JMIR Public Heal. Surveill.
+6 (4) (2020) e21978.
+[30] A. Khelloufi, et al., A multimodal latent-features-based service recommendation system for the social Internet of Things, IEEE Trans. Comput. Soc. Syst. (2024).
+[31] X. Chen, D. Zou, H. Xie, G. Cheng, C. Liu, Two decades of artificial intelligence in education, Educ. Technol. Soc. 25 (1) (2022) 28–47.
+[32] R.A. Hamid, A.S. Albahri, J.K. Alwan, Z. Al-Qaysi, O.S. Albahri, A.A. Zaidan, A.
+Alnoor, A.H. Alamoodi, B. Zaidan, How smart is e-tourism? A systematic review of smart tourism recommendation system applying data management, Comput.
+Sci. Rev. 39 (2021) 100337.
+[33] S. Buechel, U. Hahn, Emobank: Studying the impact of annotation perspective and representation format on dimensional emotion analysis, 2022, arXiv preprint arXiv:2205.01996.
+[34] E. Pranav, S. Kamal, C.S. Chandran, M. Supriya, Facial emotion recognition using deep convolutional neural network, in: 2020 6th International Conference on Advanced Computing and Communication Systems, ICACCS, IEEE, 2020, pp.
+317–320.
+[35] A. Kumar, K. Srinivasan, W.-H. Cheng, A.Y. Zomaya, Hybrid context enriched deep learning model for fine-grained sentiment analysis in textual and visual semiotic modality social data, Inf. Process. Manage. 57 (1) (2020) 102141.
+[36] O. Alqaryouti, N. Siyam, A.A. Monem, K. Shaalan, Aspect-based sentiment analysis using smart government review data, Appl. Comput. Inform. 20 (1/2)
+(2020) 142–161.
+
+CRediT authorship contribution statement Jing Lin: Writing – original draft, Methodology, Conceptualization.
+Siyang Huang: Writing – review & editing, Supervision. Yujun Zhang:
+Writing – review & editing, Software, Data curation.
+Declaration of competing interest The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+Acknowledgments Major Project of Fujian Provincial Social Science Fund Base ‘‘Research on the Inheritance and Innovation of Southern Music from the Perspective of Cultural Change’’ FJ2024JDZ071.
+Data availability The data used in this study are publicly available and can be accessed from the respective repositories. The music datasets used for training and testing the model, including user interaction data and music features, are sourced from the Million Song Dataset and the Last.fm Dataset. All data files and related documentation are freely accessible.
+References
+[1] J. Wang, K. Ding, L. Hong, H. Liu, J. Caverlee, Next-item recommendation with sequential hypergraphs, in: Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval, 2020, pp.
+1101–1110.
+[2] Y. Koren, S. Rendle, R. Bell, Advances in collaborative filtering, Recomm. Syst.
+Handb. (2021) 91–142.
+[3] S.C. Hoi, D. Sahoo, J. Lu, P. Zhao, Online learning: A comprehensive survey,
+Neurocomputing 459 (2021) 249–289.
+[4] Z. Guo, H. Wang, A deep graph neural network-based mechanism for social recommendations, IEEE Trans. Ind. Inform. 17 (4) (2020) 2776–2783.
+[5] K. Yu, Z. Guo, Y. Shen, W. Wang, J.C.-W. Lin, T. Sato, Secure artificial intelligence of things for implicit group recommendations, IEEE Internet Things J. 9 (4) (2021) 2698–2707.
+[6] S. Dhelim, L. Chen, N. Aung, W. Zhang, H. Ning, A hybrid personalityaware recommendation system based on personality traits and types models,
+J. Ambient. Intell. Humaniz. Comput. 14 (9) (2023) 12775–12788.
+[7] R. Wang, X. Ma, C. Jiang, Y. Ye, Y. Zhang, Heterogeneous information networkbased music recommendation system in mobile networks, Comput. Commun. 150
+(2020) 429–437.
+243
+
+Alexandria Engineering Journal 125 (2025) 232–244
+
+J. Lin et al.
+[37] A. Gandhi, K. Adhvaryu, S. Poria, E. Cambria, A. Hussain, Multimodal sentiment analysis: A systematic review of history, datasets, multimodal fusion methods,
+applications, challenges and future directions, Inf. Fusion 91 (2023) 424–444.
+[38] M. Yarchi, C. Baden, N. Kligler-Vilenchik, Political polarization on the digital sphere: A cross-platform, over-time analysis of interactional, positional, and affective polarization on social media, Polit. Commun. 38 (1–2) (2021) 98–139.
+[39] K. Zhang, Y. Li, J. Wang, E. Cambria, X. Li, Real-time video emotion recognition based on reinforcement learning and domain knowledge, IEEE Trans. Circuits Syst. Video Technol. 32 (3) (2021) 1034–1047.
+[40] S. Zhang, Y. Yang, C. Chen, X. Zhang, Q. Leng, X. Zhao, Deep learning-based multimodal emotion recognition from audio, visual, and text modalities: A systematic review of recent advancements and future prospects, Expert Syst.
+Appl. 237 (2024) 121692.
+[41] J. Xue, J. Chen, C. Chen, C. Zheng, S. Li, T. Zhu, Public discourse and sentiment during the COVID 19 pandemic: Using latent Dirichlet allocation for topic modeling on Twitter, PLoS One 15 (9) (2020) e0239441.
+[42] P. Chauhan, N. Sharma, G. Sikka, The emergence of social media data and sentiment analysis in election prediction, J. Ambient. Intell. Humaniz. Comput.
+12 (2021) 2601–2627.
+[43] R. Ali, J.H. Chuah, M.S.A. Talip, N. Mokhtar, M.A. Shoaib, Structural crack detection using deep convolutional neural networks, Autom. Constr. 133 (2022)
+103989.
+[44] T. Mao, Z. Shi, D.-X. Zhou, Approximating functions with multi-features by deep convolutional neural networks, Anal. Appl. (Singap.) 21 (01) (2023) 93–125.
+[45] E. Irmak, Multi-classification of brain tumor MRI images using deep convolutional neural network with fully optimized framework, Iran. J. Sci. Technol.
+Trans. Electr. Eng. 45 (3) (2021) 1015–1036.
+[46] L. Zhong, X. Guo, Z. Xu, M. Ding, Soil properties: Their prediction and feature extraction from the LUCAS spectral library using deep convolutional neural networks, Geoderma 402 (2021) 115366.
+[47] G. Demir, A. Çekmiş, V.B. Yeşilkaynak, G. Unal, Detecting visual design principles in art and architecture through deep convolutional neural networks, Autom.
+Constr. 130 (2021) 103826.
+[48] J. Wang, F. Li, S. Lv, L. He, C. Shen, Physically realizable adversarial creating attack against vision-based BEV space 3D object detection, IEEE Trans. Image Process. (2025).
+[49] J. Wang, F. Li, L. He, A unified framework for adversarial patch attacks against visual 3D object detection in autonomous driving, IEEE Trans. Circuits Syst.
+Video Technol. (2025).
+[50] W. Fan, X. Xu, B. Cai, X. Xing, Isnet: Individual standardization network for speech emotion recognition, IEEE/ ACM Trans. Audio Speech Lang. Process. 30
+(2022) 1803–1814.
+[51] L. Zhang, J. Liu, Y. Wei, D. An, X. Ning, Self-supervised learning-based multisource spectral fusion for fruit quality evaluation: A case study in mango fruit ripeness prediction, Inf. Fusion 117 (2025) 102814.
+[52] J. Ye, X.-C. Wen, Y. Wei, Y. Xu, K. Liu, H. Shan, Temporal modeling matters:
+A novel temporal emotional modeling approach for speech emotion recognition,
+in: ICASSP 2023-2023 IEEE International Conference on Acoustics, Speech and Signal Processing, ICASSP, IEEE, 2023, pp. 1–5.
+[53] S. Hu, A. Kumar, F. Al-Turjman, S. Gupta, S. Seth, et al., Reviewer credibility and sentiment analysis based user profile modelling for online product recommendation, Ieee Access 8 (2020) 26172–26189.
+[54] J. Sun, Y. Wang, P. Liu, S. Wen, Y. Wang, Memristor-based circuit design of PAD emotional space and its application in mood congruity, IEEE Internet Things J.
+10 (18) (2023) 16332–16342.
+
+[55] H. Zhang, L. Yu, G. Wang, S. Tian, Z. Yu, W. Li, X. Ning, Cross-modal knowledge transfer for 3D point clouds via graph offset prediction, Pattern Recognit. (2025)
+111351.
+[56] S. Subramanian, S. Rajesh, P.I. Britto, S. Sankaran, MDHO: mayfly deer hunting optimization algorithm for optimal obstacle avoidance based path planning using mobile robots, Cybern. Syst. (2023) 1–20.
+[57] T. Lalitha, P. Sreeja, Personalised self-directed learning recommendation system,
+Procedia Comput. Sci. 171 (2020) 583–592.
+[58] H. Tlijani, A. Jouila, K. Nouri, Optimized sliding mode control based on cuckoo search algorithm: Application for 2DF robot manipulator, Cybern. Syst. (2023)
+1–17.
+[59] X. Cai, Z. Hu, J. Chen, A many-objective optimization recommendation algorithm based on knowledge mining, Inform. Sci. 537 (2020) 148–161.
+[60] R.B. Ping, W.Z. Yue, Strategic focus, tasks, and pathways for promoting China’s modernization through new productive forces, J. Xi’an Univ. Financ. Econ. 1
+(2024) 3–11.
+[61] C. DeMatteo, J. Jakubowski, K. Stazyk, S. Randall, S. Perrotta, R. Zhang, The headaches of developing a concussion app for youth: Balancing clinical goals and technology, Int. J. E- Heal. Med. Commun. (IJEHMC) 15 (1) (2024) 1–20.
+[62] W. Liang, S. Xie, J. Cai, J. Xu, Y. Hu, Y. Xu, M. Qiu, Deep neural network security collaborative filtering scheme for service recommendation in intelligent cyber–physical systems, IEEE Internet Things J. 9 (22) (2021) 22123–22132.
+[63] W.I. Almayyan, B.A. AlGhannam, Detection of kidney diseases: Importance of feature selection and classifiers, Int. J. E- Heal. Med. Commun. (IJEHMC) 15 (1)
+(2024) 1–21.
+[64] T. Bertin-Mahieux, D.P. Ellis, B. Whitman, P. Lamere, The million song dataset,
+in: Proceedings of the 12th International Conference on Music Information Retrieval (ISMIR 2011), 2011.
+[65] B. Rozemberczki, R. Sarkar, Characteristic functions on graphs: Birds of a feather,
+from statistical descriptors to parametric models, in: Proceedings of the 29th ACM International Conference on Information & Knowledge Management, 2020,
+pp. 1325–1334.
+[66] Y. Deldjoo, M. Schedl, P. Knees, Content-driven music recommendation:
+Evolution, state of the art, and challenges, Comput. Sci. Rev. 51 (2024) 100618.
+[67] J.P. Verma, P. Bhattacharya, A.S. Rathor, J. Shah, S. Tanwar, Collaborative filtering-based music recommendation in view of negative feedback system, in:
+Proceedings of Third International Conference on Computing, Communications,
+and Cyber-Security: IC4S 2021, Springer, 2022, pp. 447–460.
+[68] J. Parekh, S. Parekh, P. Mozharovskyi, G. Richard, F. d’Alché Buc, Tackling interpretability in audio classification networks with non-negative matrix factorization, IEEE/ ACM Trans. Audio Speech Lang. Process. (2024).
+[69] L. Wu, X. He, X. Wang, K. Zhang, M. Wang, A survey on accuracyoriented neural recommendation: From collaborative filtering to information-rich recommendation, IEEE Trans. Knowl. Data Eng. 35 (5) (2022) 4425–4445.
+[70] P. Álvarez, J. García de Quirós, J. Fabra, Emotion-driven music and IoT devices for collaborative exer-games, Appl. Sci. 14 (22) (2024) 10251.
+[71] Y. Wang, A hybrid recommendation for music based on reinforcement learning,
+in: Advances in Knowledge Discovery and Data Mining: 24th Pacific-Asia Conference, PAKDD 2020, Singapore, May 11–14, 2020, Proceedings, Part I 24,
+Springer, 2020, pp. 91–103.
+[72] H. Weng, J. Chen, D. Wang, X. Zhang, D. Yu, Graph-based attentive sequential model with metadata for music recommendation, IEEE Access 10 (2022)
+108226–108240.
+
+244
+
+

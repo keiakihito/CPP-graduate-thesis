@@ -1,0 +1,716 @@
+Prototype for a Personalized Music Recommendation System
+Based on TL-CNN-GRU Model with 10-Fold Cross-Validation
+Pei-Chun Lin∗
+
+Chen-Yu Yu
+
+Eric Odle
+
+Department of Information
+Engineering and Computer Science
+Feng Chia University
+Taichung, Taiwan
+peiclin@fcu.edu.tw
+
+Department of Information
+Engineering and Computer Science
+Feng Chia University
+Taichung, Taiwan
+m1108511@o365.fcu.edu.tw
+
+Department of Natural History
+Sciences
+Hokkaido University
+Hokkaido, Japan
+ericmichael.odle.q5@elms.hokudai.ac.jp
+
+Abstract
+
+1
+
+Music is a medium that connects cultures, expresses emotions,
+and can create memory connections that are deeply embedded in
+people’s hearts. With the rapid expansion of digital music platforms,
+providing an effective personalized recommendation system that
+helps users browse huge song libraries can effectively promote
+platform usage. However, existing music recommendation systems
+usually fail to fully capture individual preferences. In this study,
+we aim to address these limitations by developing an advanced
+recommendation system focusing on two facets: 1) building a model
+for music genre classification, and 2) providing a platform with
+personalized recommendations based on user preferences. We
+herein integrate three models for music genre classification, transfer
+learning, convolutional neural networks, and gated recurrent units
+(TL + CNN + GRU), using the GTZAN dataset. Results show that
+the TL + CNN + GRU model can improve the accuracy (55%->71%)
+of personalized music recommendation systems by using 10-fold
+cross-validation. Finally, we introduce a prototype platform for
+understanding user experience. In conclusion, our model not only
+improves the accuracy of recommendations, but also promotes user
+exposure to different music genres, redefining the user experience.
+
+Music is a universal cultural and emotional expression deeply embedded in human existence. The rise of digital music services has
+given users access to vast libraries of songs, enabling the modern
+musical experience to be both diverse and personalized. However,
+the sheer number of song choices often leads to information overload, making it difficult for users to find music that matches their
+preferences. This challenge underscores the need for effective music
+recommendation systems that elevate the user experience through
+personalized suggestions and introduction to new music. For modern music consumers, streaming platforms offer convenient, instant
+access to music, but users often struggle to find specific styles that
+match their preferences.
+Music Recommendation Systems (MRS) are a topic of interest in
+the field of personalized digital services. Chen et al. [1] introduced
+an MRS that focuses on providing personalized music recommendations based on user interests. Building on this concept, this team
+then developed a system that determines representative tracks of
+polyphonic music objects and extracts features for proper music
+grouping to enhance the recommendation process [2]. Park et
+al. [3] proposed a Context-Aware Music Recommendation System
+(CA-MRS) that utilizes fuzzy systems, Bayesian networks, and utility theory to recommend appropriate music based on the context.
+Similarly, Lee et al. [4] developed a system called C2_Music that
+incorporates user demographics, behavioral patterns, and context
+to better recommend music that users listened to in similar contexts.
+Han et al. [5] contributed to the idea of context awareness in music
+recommendation by using a support vector machine (SVM) as an
+emotional state transition classifier, while Wang et al. [6] presented
+a hybrid method that integrates deep learning features with collaborative filtering to improve the performance of content-based
+and hybrid music recommendation systems. Moreover, Rosa et al.
+[7] focused on extracting user sentiment from social networks to
+recommend songs, while Ayata et al. [8] proposed an emotionbased music recommendation framework that learns user emotions
+from signals obtained via wearable physiological sensors. Finally,
+Abdul et al. [9] introduced an Emotion-Aware Personalized Music
+Recommendation System using Convolutional Neural Networks
+(CNN) to enhance the recommendation process based on user emotions. Despite attention by multiple research teams, modern music
+recommendation systems still struggle to deliver music that aligns
+with user preference.
+Music genre classification plays a crucial role in personalized music recommendation systems, as user preferences are often linked
+to specific genres. The GTZAN dataset, a well-known collection
+
+CCS Concepts
+• Information systems; • Recommendation systems; • Computing methodologies; • Neural networks; • Applied computing; • Sound and music computing;
+
+Keywords
+Music recommendation system, Transfer Learning (TL), Convolutional Neural Network (CNN), Gated Recurrent Unit (GRU)
+ACM Reference Format:
+Pei-Chun Lin, Chen-Yu Yu, and Eric Odle. 2024. Prototype for a Personalized
+Music Recommendation System Based on TL-CNN-GRU Model with 10-Fold
+Cross-Validation. In 2024 the 7th Artificial Intelligence and Cloud Computing
+Conference (AICCC) (AICCC 2024), December 14–16, 2024, Tokyo, Japan. ACM,
+New York, NY, USA, 8 pages. https://doi.org/10.1145/3719384.3719396
+∗ Corresponding Author
+
+This work is licensed under a Creative Commons Attribution 4.0 International License.
+AICCC 2024, Tokyo, Japan
+© 2024 Copyright held by the owner/author(s).
+ACM ISBN 979-8-4007-1792-5/2024/12
+https://doi.org/10.1145/3719384.3719396
+
+87
+
+Introduction
+
+AICCC 2024, December 14–16, 2024, Tokyo, Japan
+
+Pei-Chun Lin et al.
+
+of music pre-classified by genre, has been widely utilized in machine learning research on music genre recognition (MGR) [10].
+Research in music information retrieval (MIR) has explored various areas, including MGR and music emotion recognition [11].
+Advances in neural network training have enabled more efficient
+representation learning from raw audio data, enhancing feature
+extraction for audio analysis [12]. Deep learning methods, such as
+convolutional neural networks (CNNs), have been applied to MIR
+tasks, including genre recognition, by using spectrogram images
+for classification [13]. Additionally, sparse dictionaries have been
+employed in music-speech classification, where learned coefficients
+help distinguish between music and speech in datasets like GTZAN
+[14].
+Other approaches to genre classification include a feature extraction method called DWCHs for music genre classification developed
+by Li et al. [15]. A later study by this team explored the use of
+taxonomy for music genre classification and proposed an approach
+for automatically generating genre taxonomies based on confusion
+matrices [16]. Silla et al. [17] presented a novel approach to automatic music genre classification using multiple feature vectors and
+an ensemble of classifiers. Their experiments on a large Latin music
+dataset showed that features extracted from the middle part of the
+songs yielded better results than segments from the beginning or
+end. Lim et al. [18] developed an automatic classification system
+for music genres using a combined super-vector with a Decorrelated Filter Bank (DFB) and Octave-based Spectral Contrast (OSC)
+processed by a Support Vector Machine (SVM). Markov et al. [19]
+investigated the feasibility of Gaussian Processes (GPs) for music
+genre classification and music emotion estimation. Panagakis et
+al. [20] proposed a joint sparse low-rank representation (JSLRR)
+framework for music genre classification, which smooths noise in
+test samples and identifies the subspaces in which the test samples
+lie. Corrêa et al. [21] conducted a survey on symbolic data-based
+music genre classification. More recent studies have focused on
+deep learning techniques for music genre classification. Oramas
+et al. [22] explored multimodal deep learning for this task, while
+Bahuleyan [23] compared the performance of different machine
+learning models. Finally, Yu et al. [24] explored a deep attentionbased approach to the task of music genre classification.
+
+2
+
+where a filter or kernel slides across the image, computing local
+point products to create feature maps. This is followed by pooling,
+which reduces the dimensionality of the feature maps and makes the
+model more robust to changes in the data’s position. After feature
+extraction, the classification phase begins. The feature maps are
+flattened into one-dimensional vectors and passed through one
+or more fully connected layers. In these layers, each neuron is
+connected to all the activation functions from the previous layer,
+enabling the model to map the extracted features to the final class
+labels. The final layer, known as the output layer, typically uses a
+SoftMax function to assign predictive probabilities to each class.
+In music-related tasks, CNNs have proven effective at capturing
+audio features. For example, Rai [25] used the GTZAN dataset, extracting 100 audio files for spectrum preprocessing and classifying
+music using a CNN model. Similarly, research by Puppala et al. [26]
+and Zhang & Wu [27] applied CNNs to process spectral features
+for music genre classification. CNNs excel in music applications
+by efficiently identifying patterns in audio data, enabling superior
+performance in tasks such as music style classification and sentiment analysis. By training CNN models to recognize various music
+styles, researchers can effectively classify a wide range of music
+genres.
+
+2.2
+
+THEORETICAL BACKGROUND
+
+The following is an overview of the dataset, models, and related
+theories used in this study. First, model architectures such as CNNs
+and GRUs are introduced. Next, the concepts of transfer learning
+(TL) and 10-Fold Cross-Validation (10-FCV) are explained. By detailing these methodological components, Section 2 sets the stage
+for understanding the empirical findings presented later in the
+study and their implications for the field of music recommendation
+systems.
+
+2.1
+
+Gated Recurrent Unit (GRU)
+
+The Gated Recurrent Unit (GRU) is a recurrent neural network architecture similar to the Long Short-Term Memory (LSTM) network,
+designed to address the vanishing gradient problem in standard
+RNNs. GRUs incorporate memory and gating mechanisms like
+those in LSTMs but with a simplified structure, reducing the number of parameters. Despite this streamlined design, GRUs often
+perform comparably to LSTMs, providing an efficient alternative
+with similar capabilities. Both LSTMs and GRUs capture long-term
+dependencies effectively and mitigate issues like the vanishing gradient problem. Studies using LSTMs have demonstrated improved
+accuracy in music genre classification by processing sequential
+features such as Mel Frequency Cepstral Coefficients (MFCC) and
+Zero-Crossing Rate (ZCR) ([28]-[31]).
+A GRU Model operates through two key components: the update
+gate and the reset gate [32]. These gates control the flow of information, enabling selective forgetting and updating within the model.
+The reset gate determines how much past information should be
+forgotten by considering the current input X_t and the previous
+hidden state h_(t-1) , and outputs a value through the activation
+function 𝜎. The update gate, which uses a similar process, decides
+how much of the past information should be retained. A new candidate hidden state is generated by combining the previous hidden
+state h_(t-1) , scaled by the reset gate (indicating discarded information), with the current input X_t, passed through an activation
+function such as tanh. The final hidden state h_t is then produced
+by balancing the old hidden state h_(t-1) with the new candidate
+hidden state h_t, updated by the update gate.
+Sukanda & Adytia [33] used a GRU model to predict wave heights
+in Indonesia, leveraging significant wave height data from 2014 to
+2021 to support marine activities, including ship navigation, maintenance, and offshore engineering. Similarly, Kuan et al. [34] applied
+a GRU model for short-term power load forecasting, addressing the
+
+Convolutional Neural Networks (CNNs)
+
+Convolutional Neural Networks (CNNs) are widely used in deep
+learning, especially for image recognition tasks. These models
+generally consist of two main components: feature extraction and
+classification. In the feature extraction phase, the input image
+(either grayscale or RGB) is passed through a convolutional layer,
+
+88
+
+Prototype for a Personalized Music Recommendation System Based on TL-CNN-GRU Model with 10-Fold Cross-Validation
+
+exploding and vanishing gradient issues with a Scaled Exponential Linear Unit (SELU) activation function. Their findings showed
+that the GRU architecture provided more accurate predictions than
+other RNNs. Extending GRU applications to music data, Zhang et al.
+[35] introduced an approach combining a Residual Neural Network
+(ResNet) with GRU, using visual spectrum data as input to enhance
+genre classification and improve music recommendation systems.
+Although GRU models are efficient and require fewer parameters
+than standard RNNs, they may encounter challenges with longer
+sequences or complex melodies, where other models might perform
+better. GRUs improve temporal data modeling by simplifying the
+LSTM architecture while retaining strong performance, making
+them well-suited for applications like music analysis.
+
+2.3
+
+the model from being overly tuned to a particular subset of data
+and ensures a comprehensive evaluation by utilizing all data points
+for both training and validation [40]. For example, in the paper by
+Song et. al. [41], the researchers utilized the average accuracy of
+10-fold cross-checks in the final test of their model. They chose
+to use 1 out of all 10 folds for testing and the other folds for training. Following their method, the accuracy increased from 93.5% to
+95.8%. Therefore, in our music recommendation system, 10-FCV
+is employed to improve model generalizability, leading to more
+accurate predictions across different genres.
+
+3
+
+MODEL DESIGN AND TRAINING
+
+This section delineates the methodology employed in the development of our genre-specific music recommendation system. It
+provides a comprehensive overview of the experimental design,
+encompassing the system architecture, data collection processes,
+preprocessing techniques, and model design considerations.
+
+Transfer Learning (TL)
+
+Transfer Learning (TL) significantly enhances model performance
+by transferring knowledge from pre-trained tasks to new tasks,
+which is particularly beneficial in scenarios where labeled data
+is scarce ([36], [37]). This technique capitalizes on the rich features learned by deep neural networks during their training on
+large datasets, allowing them to apply this acquired knowledge
+to different but related tasks. In practical applications, TL often
+involves re-purposing pre-trained Convolutional Neural Network
+(CNN) models, such as VGG, ResNet, or Inception, which have been
+trained on extensive image datasets like ImageNet. By freezing
+the convolutional layers of these models and fine-tuning only the
+classifier on the new task, practitioners can achieve significantly
+faster training times and improved accuracy. This is especially advantageous for complex tasks like music genre classification, where
+the feature extraction process is computationally expensive. For
+instance, the MobileNet model [38], which is designed for efficiency
+and speed, has demonstrated remarkable improvements in classification performance when applied to the Magna-tag-a-tune [39].
+Additionally, TL not only reduces the amount of data needed for
+training but also helps mitigate the risk of overfitting, which is a
+common concern when training models from scratch on limited
+datasets. This approach enables researchers and practitioners to
+leverage pre-existing knowledge, resulting in models that can generalize better to unseen data. As a result, TL has emerged as a vital
+strategy in various domains, including computer vision and audio
+analysis, paving the way for more robust and reliable AI systems.
+
+2.4
+
+AICCC 2024, December 14–16, 2024, Tokyo, Japan
+
+3.1
+
+Data Collection
+
+To train our music recommendation model, we utilized the wellestablished GTZAN dataset [42], which comprises 1,000 songs distributed across ten distinct genres: blues, classical, country, disco,
+hip hop, jazz, metal, rock, reggae, and pop, with 100 songs allocated
+to each genre. These tracks were sourced from CDs, radio broadcasts, and personal recordings made between 2000 and 2001. Each
+track has a duration of 30 seconds and is stored in .wav format.
+3.1.1 Spectrogram Generation. To facilitate the analysis of audio data within the system, we employed the librosa Python library to convert audio signals into spectrograms. Initially, the
+Short-Time Fourier Transform (STFT) was utilized to transform the
+time-domain representation of the audio into a frequency-domain
+spectrogram, thereby capturing time-frequency variations. Subsequently, the spectrogram was converted to a decibel scale to provide
+a more visually interpretable representation of signal energy.
+3.1.2 Data Preprocessing. The spectrograms were processed and
+resized to dimensions of 256×256×3, where the values represent
+the height, width, and RGB channels, respectively. These formatted
+images served as input data for the model training process.
+
+3.2
+
+TL + CNN + GRU Model
+
+Previous research [43] has shown that combining Transfer Learning
+(TL) with Convolutional Neural Networks (CNN) improves genre
+classification using the GTZAN dataset. However, while the TL +
+CNN model achieved a respectable F1 score of 0.53, its accuracy
+(52%) was suboptimal. To address this, we propose a TL + CNN
++ GRU model, leveraging the strengths of both CNNs for spatial
+feature extraction and Gated Recurrent Units (GRU) for capturing temporal information. While this approach increases model
+complexity, careful parameter tuning mitigates overfitting risks.
+
+10-Fold Cross Validation (10-FCV)
+
+10-fold cross-validation (10-FCV) is a widely used technique for
+evaluating machine learning models, especially when the training
+data is limited. The 10-FCV is a case of the commonly used technique of k-fold cross-validation that emerged as a general statistical
+and machine learning method from the fields of statistical resampling and experimental design over the 20th century. When k=10,
+the dataset is divided into ten equal parts, or folds. The model is
+trained on nine of the folds, while the remaining fold is used for
+testing. This process is repeated ten times, with each fold serving
+as the test set once, ensuring that every data point is used for both
+training and testing. The results from all ten iterations are averaged
+to provide a reliable and comprehensive estimate of the model’s
+performance. This method helps reduce overfitting, as it prevents
+
+3.2.1 Model Architecture. Our TL + CNN + GRU model consists of
+several key layers:
+• Input Layer: Accepts input images of shape (256, 256, 3).
+• MobileNetV2: A pre-trained model for feature extraction,
+outputting a feature map of shape (8, 8, 1280).
+
+89
+
+AICCC 2024, December 14–16, 2024, Tokyo, Japan
+
+Pei-Chun Lin et al.
+
+Figure 1: Schematic of 10-fold cross-validation frame [40]
+Table 1: Architecture and Parameters of the TL + CNN + GRU Model
+Layer (type)
+
+Output Shape
+
+Param #
+
+input_2 (InputLayer)
+Mobilenetv2_1.00_224 (Functional)
+global_average_pooling2d (G
+lobalAveragepooling2D)
+reshape (Reshape)
+bidirectional (Bidirectional)
+flatten (Flatten)
+dense (Dense)
+Total params: 7,779,402
+Trainable params: 5,521,418
+Non-trainable params: 2,257,984
+
+(None, 256, 256, 3)
+(None, 8, 8, 1280)
+(None, 1280)
+
+0
+2257984
+0
+
+(None, 1,1280)
+(None, 1,1024)
+(None, 1024)
+(None, 10)
+
+0
+5511168
+0
+10250
+
+• Global Average Pooling 2D: Reduces the feature map to a
+1D vector of size (1280).
+• GRU Layer: A bidirectional GRU with 1024 units to process
+the sequence of features.
+• Dense Layer: Outputs a 10-category classification using a
+SoftMax activation function.
+
+categories. The model comprises a total of 7,779,402 parameters,
+of which 5,521,418 are trainable, while 2,257,984 are non-trainable,
+originating from the pre-trained weights of MobileNetV2.
+3.2.2 10-Fold Cross-Validation (10-FCV). We implemented 10-Fold
+Cross-Validation (10-FCV) to enhance model performance and mitigate the risk of overfitting. This methodology guarantees that each
+data sample is utilized for both training and validation, thereby
+maximizing the utilization of the dataset. By systematically partitioning the data into ten subsets, the model is trained and validated
+across multiple iterations, ensuring a robust evaluation of its generalization capabilities.
+Following the implementation of 10-Fold Cross-Validation (10FCV), our Transfer Learning (TL) combined with Convolutional
+Neural Network (CNN) and Gated Recurrent Unit (GRU) model
+achieved a notable accuracy of 71%. Furthermore, the F1-scores
+
+We summarize it in Table 1.
+The architecture of the model commences with an input layer
+designed to accept images of size 256×256 with three channels
+(RGB). Following this, the MobileNetV2 layer extracts spatial features from the input data, which are subsequently processed by a
+Global Average Pooling layer that reduces the dimensionality of the
+feature map. A Reshape layer then adjusts the output to facilitate
+sequential processing by the Simple RNN layer, enabling the capture of temporal information. After the output is flattened, a Dense
+layer is employed to perform the final classification into ten distinct
+
+90
+
+Prototype for a Personalized Music Recommendation System Based on TL-CNN-GRU Model with 10-Fold Cross-Validation
+
+AICCC 2024, December 14–16, 2024, Tokyo, Japan
+
+Figure 2: Performance of TL + CNN + GRU + 10-FCV model in terms of accuracy and loss of training and validation (epochs=100)
+
+Figure 3: Confusion matrix for TL + CNN + GRU + 10-FCV models.
+for genre classification exhibited improvements across all genres,
+except the pop genre. The analysis of the confusion matrix indicated
+a more balanced classification performance, while the validation
+loss demonstrated consistent improvement without any abrupt
+fluctuations. These results further underscore the effectiveness of
+the 10-FCV approach in enhancing model performance.
+The results presented in Table 2 demonstrate the performance
+of different model architectures for genre classification in music
+recommendation systems. The models compared include a basic
+Convolutional Neural Network (CNN) combined with Transfer
+Learning (TL), a model that adds Gated Recurrent Units (GRUs), and
+a final version that incorporates 10-Fold Cross-Validation (10-FCV)
+into the TL + CNN + GRU framework. Across various genres, the
+addition of GRUs consistently enhances the classification accuracy,
+although not uniformly across all genres. For instance, while the
+accuracy for classical music is notably high, reaching 0.88 with TL
++ CNN and improving to 0.92 with the addition of 10-FCV, genres
+
+like rock show more erratic results, dropping from 0.26 to 0.04
+with the GRU model. However, the inclusion of 10-FCV generally
+improves performance across most genres, particularly blues, which
+increases from 0.49 to 0.74. The overall model accuracy improves
+from 0.53 with TL + CNN to 0.71 with TL + CNN + GRU + 10FCV, indicating that the hybrid approach is effective in refining
+the classification process. These results highlight the importance
+of model complexity and validation techniques in achieving more
+accurate genre classifications in music recommendation systems.
+
+4
+
+NOVEL RECOMMENDATION SYSTEM
+
+Following the development of the TL + CNN + GRU + 10-FCV model,
+we implemented it to create a genre-based music recommendation
+system. This system enables users to upload audio files in various
+formats, including MP3, WAV, or FLAC, to query the genre and
+receive recommendations for similar music. Users can submit their
+
+91
+
+AICCC 2024, December 14–16, 2024, Tokyo, Japan
+
+Pei-Chun Lin et al.
+
+Table 2: F1-Score of TL + CNN, TL + CNN + GRU and TL + CNN + GRU + 10-FCV (epochs=100)
+Model
+Genre
+Blues
+classical
+country
+disco
+hiphop
+jazz
+metal
+pop
+reggae
+rock
+Accuracy
+
+TL+CNN
+
+TL + CNN + GRU
+
+TL + CNN + GRU + 10-FCV
+
+0.49
+0.87
+0.36
+0.39
+0.55
+0.68
+0.61
+0.76
+0.35
+0.26
+0.53
+
+0.52
+0.88
+0.49
+0.51
+0.54
+0.66
+0.67
+0.66
+0.33
+0.04
+0.55
+
+0.74
+0.92
+0.68
+0.56
+0.69
+0.75
+0.84
+0.68
+0.69
+0.50
+0.71
+
+Figure 4: Music Recommendation System Architecture
+files via a web interface, after which the backend model analyzes
+the audio content to determine its genre. Based on this genre
+classification, the system generates recommendations for songs
+with similar genres sourced from platforms such as YouTube and
+Spotify. Figure 4 illustrates the overall architecture of the music
+recommendation system.
+Once a user uploads a song through the web interface, they
+have the option to filter their search further by selecting a preferred language (English, Japanese, Korean, Chinese, or Russian)
+and specifying a time range (within a week, month, or year) for
+songs uploaded to YouTube and Spotify. Upon receiving the audio
+file, the backend system employs the TL + CNN + GRU + 10-FCV
+model to predict the genre of the uploaded song. Subsequently, the
+system provides recommendations for similar music based on the
+predicted genre from both YouTube and Spotify.
+Initially, the user uploads a song through the web interface. Subsequently, the user can refine their search by selecting a preferred
+language (English, Japanese, Korean, Chinese, or Russian) and specifying a time range (within a week, month, or year) for songs uploaded to platforms such as YouTube and Spotify. Upon receiving
+the audio file, the backend system employs Transfer Learning (TL)
+combined with Convolutional Neural Network (CNN), Gated Recurrent Unit (GRU), and 10-Fold Cross-Validation (10-FCV) model
+to predict the genre of the uploaded song. Based on the predicted
+
+genre, the system then generates recommendations for similar music from YouTube and Spotify. Refer to Fig. 5 for an APP of the
+Music Recommendation System Prototype.
+
+5
+
+CONCLUSIONS
+
+This study introduces a novel approach to developing a personalized
+music recommendation system that integrates Transfer Learning
+(TL), Convolutional Neural Networks (CNN), and Gated Recurrent
+Units (GRU), further enhanced by the implementation of 10-Fold
+Cross-Validation (10-FCV). The incorporation of 10-FCV significantly enhances the model’s performance by mitigating overfitting
+and optimizing genre classification accuracy, particularly for underrepresented genres such as classical and jazz. Our system effectively
+analyzes user-uploaded music files, accurately identifies their genres, and recommends similar tracks from platforms like YouTube
+and Spotify, thus delivering personalized music recommendations.
+Despite encountering challenges related to data imbalance and the
+intricacies of combining CNN and GRU, the model exhibits substantial improvements in genre prediction accuracy when compared to
+previous methodologies. Future research will aim to expand the
+dataset, integrate additional musical features, and refine the model
+to enhance both speed and accuracy for real-time recommendations, ultimately enriching user experiences through more precise
+and tailored music suggestions.
+
+92
+
+Prototype for a Personalized Music Recommendation System Based on TL-CNN-GRU Model with 10-Fold Cross-Validation
+
+AICCC 2024, December 14–16, 2024, Tokyo, Japan
+
+Figure 5: Prototype for a Personalized Music Recommendation System
+
+Acknowledgments
+
+[10] Panagakis, Yannis, Constantine Kotropoulos, and Gonzalo R. Arce. ”Non-negative
+multilinear principal component analysis of auditory temporal modulations for
+music genre classification.” IEEE Transactions on Audio, Speech, and Language
+Processing 18, no. 3 (2009): 576-588.
+[11] Sturm, Bob L. ”The state of the art ten years after a state of the art: Future research
+in music information retrieval.” Journal of new music research 43, no. 2 (2014):
+147-172.
+[12] Sigtia, Siddharth, and Simon Dixon. ”Improved music feature learning with deep
+neural networks.” In 2014 IEEE international conference on acoustics, speech
+and signal processing (ICASSP), pp. 6959-6963. IEEE, 2014.
+[13] Gwardys, Grzegorz, and Daniel Grzywczak. ”Deep image features in music information retrieval.” International Journal of Electronics and Telecommunications
+60 (2014): 321-326.
+[14] Srinivas, M., Debaditya Roy, and C. Krishna Mohan. ”Learning sparse dictionaries
+for music and speech classification.” In 2014 19th International Conference on
+Digital Signal Processing, pp. 673-675. IEEE, 2014.
+[15] Li, Tao, Mitsunori Ogihara, and Qi Li. ”A comparative study on content-based
+music genre classification.” In Proceedings of the 26th annual international ACM
+SIGIR conference on Research and development in informaion retrieval, pp.
+282-289. 2003.
+[16] Li, Tao, and Mitsunori Ogihara. ”Music genre classification with taxonomy.” In
+Proceedings.(ICASSP’05). IEEE International Conference on Acoustics, Speech,
+and Signal Processing, 2005., vol. 5, pp. v-197. IEEE, 2005.
+[17] Silla Jr, Carlos N., Celso AA Kaestner, and Alessandro L. Koerich. ”Automatic music genre classification using ensemble of classifiers.” In 2007 IEEE International
+Conference on Systems, Man and Cybernetics, pp. 1687-1692. IEEE, 2007.
+[18] Lim, Shin-Cheol, Sei-Jin Jang, Seok-Pil Lee, and Moo-Young Kim. ”Music genre
+classification system using decorrelated filter bank.” The Journal of the Acoustical
+Society of Korea 30, no. 2 (2011): 100-106.
+[19] Markov, Konstantin, and Tomoko Matsui. ”Music genre and emotion recognition
+using Gaussian processes.” IEEE access 2 (2014): 688-697.
+[20] Panagakis, Yannis, Constantine L. Kotropoulos, and Gonzalo R. Arce. ”Music
+genre classification via joint sparse low-rank representation of audio features.”
+IEEE/ACM Transactions on Audio, Speech, and Language Processing 22, no. 12
+(2014): 1905-1917.
+[21] Corrêa, Débora C., and Francisco Ap Rodrigues. ”A survey on symbolic databased music genre classification.” Expert Systems with Applications 60 (2016):
+190-210.
+[22] Oramas, Sergio, Francesco Barbieri, Oriol Nieto Caballero, and Xavier Serra.
+”Multimodal deep learning for music genre classification.” Transactions of the
+International Society for Music Information Retrieval. 2018; 1 (1): 4-21. (2018).
+
+The author would like to extend their appreciation to Feng Chia
+University and the Ministry of Science and Technology under Grant
+No. NSTC 113-2221-E-035-072-.
+
+References
+[1] Chen, Hung-Chen, and Arbee LP Chen. ”A music recommendation system based
+on music data grouping and user interests.” In Proceedings of the tenth international conference on Information and knowledge management, pp. 231-238.
+2001.
+[2] Chen, Hung-Chen, and Arbee LP Chen. ”A music recommendation system based
+on music and user grouping.” Journal of Intelligent Information Systems 24 (2005):
+113-132.
+[3] Park, Han-Saem, Ji-Oh Yoo, and Sung-Bae Cho. ”A context-aware music recommendation system using fuzzy bayesian networks with utility theory.” In Fuzzy
+Systems and Knowledge Discovery: Third International Conference, FSKD 2006,
+Xi’an, China, September 24-28, 2006. Proceedings 3, pp. 970-979. Springer Berlin
+Heidelberg, 2006.
+[4] Lee, Jae Sik, and Jin Chun Lee. ”Context awareness by case-based reasoning in a
+music recommendation system.” In Ubiquitous Computing Systems: 4th International Symposium, UCS 2007, Tokyo, Japan, November 25-28, 2007. Proceedings
+4, pp. 45-58. Springer Berlin Heidelberg, 2007.
+[5] Han, Byeong-jun, Seungmin Rho, Sanghoon Jun, and Eenjun Hwang. ”Music
+emotion classification and context-based music recommendation.” Multimedia
+Tools and Applications 47 (2010): 433-460.
+[6] Wang, Xinxi, and Ye Wang. ”Improving content-based and hybrid music recommendation using deep learning.” In Proceedings of the 22nd ACM international
+conference on Multimedia, pp. 627-636. 2014.
+[7] Rosa, Renata L., Demsteneso Z. Rodriguez, and Graça Bressan. ”Music recommendation system based on user’s sentiments extracted from social networks.”
+IEEE Transactions on Consumer Electronics 61, no. 3 (2015): 359-367.
+[8] Ayata, Deger, Yusuf Yaslan, and Mustafa E. Kamasak. ”Emotion based music
+recommendation system using wearable physiological sensors.” IEEE transactions
+on consumer electronics 64, no. 2 (2018): 196-203.
+[9] Abdul, Ashu, Jenhui Chen, Hua-Yuan Liao, and Shun-Hao Chang. ”An emotionaware personalized music recommendation system using a convolutional neural
+networks approach.” Applied Sciences 8, no. 7 (2018): 1103.
+
+93
+
+AICCC 2024, December 14–16, 2024, Tokyo, Japan
+
+Pei-Chun Lin et al.
+
+[23] Bahuleyan, Hareesh. ”Music genre classification using machine learning techniques.” arXiv preprint arXiv:1804.01149 (2018).
+[24] Yu, Yang, Sen Luo, Shenglan Liu, Hong Qiao, Yang Liu, and Lin Feng. ”Deep
+attention based music genre classification.” Neurocomputing 372 (2020): 84-91.
+[25] Rai, S. “Music Genres Classification using Deep learning techniques,”
+Analytics Vidhya. Accessed:
+Nov. 06, 2023. [Online]. Available:
+https://www.analyticsvidhya.com/blog/2021/06/music-genres-classificationusing-deep-learning-techniques
+[26] Puppala, Lakshman Kumar, Siva Sankar Reddy Muvva, Sudarshan Reddy Chinige,
+and P. Selvi Rajendran. ”A novel music genre classification using convolutional
+neural network.” In 2021 6th international conference on communication and
+electronics systems (ICCES), pp. 1246-1249. IEEE, 2021.
+[27] Zhang, Yezi. ”Music recommendation system and recommendation model based
+on convolutional neural network.” Mobile Information Systems 2022, no. 1 (2022):
+3387598.
+[28] Yi, Yinhui, Xiaohui Zhu, Yong Yue, and Wei Wang. ”Music genre classification
+with LSTM based on time and frequency domain features.” In 2021 IEEE 6th
+International Conference on Computer and Communication Systems (ICCCS),
+pp. 678-682. IEEE, 2021.
+[29] Tam, Sakirin, Rachid Ben Said, and Ö. Özgür Tanriöver. ”A ConvBiLSTM deep
+learning model-based approach for Twitter sentiment classification.” IEEE Access
+9 (2021): 41283-41293.
+[30] Sharfuddin, Abdullah Aziz, Md Nafis Tihami, and Md Saiful Islam. ”A deep
+recurrent neural network with bilstm model for sentiment classification.” In 2018
+International conference on Bangla speech and language processing (ICBSLP),
+pp. 1-4. IEEE, 2018.
+[31] Su, Yuanhang, and C-C. Jay Kuo. ”On extended long short-term memory and
+dependent bidirectional recurrent neural network.” Neurocomputing 356 (2019):
+151-161.
+[32] Chung, Junyoung, Caglar Gulcehre, Kyunghyun Cho, and Yoshua Bengio. ”Gated
+feedback recurrent neural networks.” In International conference on machine
+learning, pp. 2067-2075. PMLR, 2015.
+[33] Sukanda, Azka Jauhary Thanthawy, and Didit Adytia. ”Wave forecast using
+bidirectional GRU and GRU method case study in Pangandaran, Indonesia.” In
+
+2022 International Conference on Data Science and Its Applications (ICoDSA),
+pp. 278-282. IEEE, 2022.
+[34] Kuan, Lu, Zhao Yan, Wang Xin, Cheng Yan, Pang Xiangkun, Sun Wenxue, Jiang
+Zhe, Zhang Yong, Xu Nan, and Zhao Xin. ”Short-term electricity load forecasting
+method based on multilayered self-normalizing GRU network.” In 2017 IEEE
+Conference on Energy Internet and Energy System Integration (EI2), pp. 1-5.
+IEEE, 2017.
+[35] Zhang, Junfei. ”Music genre classification with ResNet and Bi-GRU using visual
+spectrograms.” arXiv preprint arXiv:2307.10773 (2023).
+[36] Mesuga, Reymond, and Brian James Bayanay. ”A deep transfer learning approach
+on identifying glitch wave-form in gravitational wave data.” arXiv preprint
+arXiv:2107.01863 (2021).
+[37] Song, Guangxiao, Zhijie Wang, Fang Han, and Shenyi Ding. ”Transfer learning for music genre classification.” In Intelligence Science I: Second IFIP TC
+12 International Conference, ICIS 2017, Shanghai, China, October 25-28, 2017,
+Proceedings 2, pp. 183-190. Springer International Publishing, 2017.
+[38] Sinha, Debjyoti, and Mohamed El-Sharkawy. ”Thin mobilenet: An enhanced mobilenet architecture.” In 2019 IEEE 10th annual ubiquitous computing, electronics
+& mobile communication conference (UEMCON), pp. 0280-0285. IEEE, 2019.
+[39] Buckman, John. ”Magnatune, an open music experiment.” Linux Journal 2004,
+no. 118 (2004): 3.
+[40] McLachlan, G.J., Do, K.-A. and Ambroise, C.,“Analyzing Microarray Gene Expression Data”, Wiley Series in Probability and Statistics. Wiley, 2004.
+[41] G. Song, Z. Wang, F. Han, and S. Ding, “Transfer Learning for Music Genre
+Classification,” in Intelligence Science I, IFIP Advances in Information and Communication Technology, Springer International Publishing, 2017, pp. 183–190.
+[42] A. Vulpe, “GTZAN Dataset - Music Genre Classification”, Kaggle Accessed: 2000.
+[online]: https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-musicgenre-classification
+[43] C. Chiou, “K-fold cross-validation”, Medium. Accessed:
+November
+15, 2024. [Online]. Available:
+https://chioujryu.medium.com/k-foldcross-validation-%E4%BA%A4%E5%8F%89%E9%A9%97%E8%AD%89%E5%88%86%E5%89%B2%E8%A8%93%E7%B7%B4%E9%9B%86%E5%92%8C%E6%
+B8%AC%E8%A9%A6%E9%9B%86-2526f5519a0f
+
+94
+
+

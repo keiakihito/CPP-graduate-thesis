@@ -1,0 +1,460 @@
+arXiv:2409.04329v1 [cs.IR] 6 Sep 2024
+
+Enhancing Sequential Music Recommendation with Personalized Popularity Awareness Davide Abbattista
+
+Vito Walter Anelli
+
+Tommaso Di Noia
+
+Politecnico di Bari, Italy d.abbattista@studenti.poliba.it
+
+Politecnico di Bari, Italy vitowalter.anelli@poliba.it
+
+Politecnico di Bari, Italy tommaso.dinoia@poliba.it
+
+Craig Macdonald
+
+Aleksandr Petrov
+
+University of Glasgow, UK craig.macdonald@glasgow.ac.uk
+
+University of Glasgow, UK a.petrov.1@research.gla.ac.uk
+
+ABSTRACT
+
+1 INTRODUCTION
+
+Sequential recommendation allows the prediction of potential items In the realm of music recommendation, sequential recommender of interest to users based on their past interactions. It is a comsystems have shown promise in capturing the dynamic nature of monly deployed form of recommendation that takes into account music consumption. Nevertheless, traditional Transformer-based the order of interactions when making predictions. Indeed, in many models, such as SASRec and BERT4Rec, while eﬀective, encounter recommendation domains such as e-commerce, music, and POI,
+challenges due to the unique characteristics of music listening habits.
+the order of recent interactions can provide more ﬁne-grained evIn fact, existing models struggle to create a coherent listening exidence of users’ current interests and context than the traditional perience due to rapidly evolving preferences. Moreover, music conset-based collaborative ﬁltering mechanism [23].
+sumption is characterized by a prevalence of repeated listening, i.e.
+In our work, we focus on music recommendation. The music users frequently return to their favourite tracks, an important sigdomain exhibits unique characteristics such as vast catalog sizes,
+nal that could be framed as individual or personalized popularity.
+repeated consumption patterns, and sequential and passive conThis paper addresses these challenges by introducing a novel apsumption behaviors, each posing distinct challenges for recommender proach that incorporates personalized popularity information into systems [26]. Music listening habits are inherently repetitive. Theresequential recommendation. By combining user-item popularity fore, a recommender system must identify and prioritize users’ fascores with model-generated scores, our method eﬀectively balvorite tracks to maintain their satisfaction and engagement. Ignorances the exploration of new music with the satisfaction of user ing previously enjoyed tracks can lead to a disconnect between preferences. Experimental results demonstrate that a Personalized the user’s preferences and the recommendations, reducing the sysMost Popular recommender, a method solely based on user-speciﬁc tem’s perceived relevance.
+popularity, outperforms existing state-of-the-art models. FurtherTransformer-based models [31] are widely adopted for sequence more, augmenting Transformer-based models with personalized recommendation due to their popularity in other sequential tasks popularity awareness yields superior performance, showing imsuch as language modeling. Indeed, sequence recommendation is provements ranging from 25.2% to 69.8%. The code for this paper is similar to the language modeling task of sentence completion if available at https://github.com/sisinﬂab/personalized-popularity-awareness.
+items are treated like language tokens. Models such as SASRec [17]
+(and its recent adaption, gSASRec [22]) and BERT4Rec [28] have CCS CONCEPTS shown to be eﬀective for sequence recommendation and have been
+• Information systems → Recommender systems.
+used as baselines for music recommendation in previous works,
+such as [1, 8, 27, 29, 30, 36, 37]. However, as we show later in this KEYWORDS paper, music recommendation presents signiﬁcant complexity for Recommender Systems, Sequential Recommendation, Music Recsuch Transformer-based models due to its inherent characteristics,
+ommendation, Personalized Popularity especially the repeated consumption patterns.
+ACM Reference Format:
+Our take on the problem is: Giving knowledge of the personalDavide Abbattista, Vito Walter Anelli, Tommaso Di Noia, Craig Macdonald,
+ized popularity of all track items for each user to sequential modand Aleksandr Petrov. 2024. Enhancing Sequential Music Recommendation els can help them to learn more reﬁned user-speciﬁc recommenwith Personalized Popularity Awareness. In 18th ACM Conference on Recdations due to the repeated consumption patterns in the music doommender Systems (RecSys ’24), October 14–18, 2024, Bari, Italy. ACM, New main. Although popularity is often used as a baseline [2, 3, 18, 25],
+York, NY, USA, 6 pages. https://doi.org/10.1145/3640457.3691719 this is the ﬁrst approach directly injecting a personalized popularity signal into sequential models.
+Permission to make digital or hard copies of all or part of this work for personal or The contributions of this work are as follows: (1) A novel apclassroom use is granted without fee provided that copies are not made or distributed for proﬁt or commercial advantage and that copies bear this notice and the full citation proach to integrate personalized popularity awareness into sequenon the ﬁrst page. Copyrights for third-party components of this work must be honored.
+tial recommender systems; (2) an experimental evaluation of the For all other uses, contact the owner/author(s).
+proposed approach. Our results show that (i) Personalized Most RecSys ’24, October 14–18, 2024, Bari, Italy
+© 2024 Copyright held by the owner/author(s).
+ACM ISBN 979-8-4007-0505-2/24/10 https://doi.org/10.1145/3640457.3691719
+
+RecSys ’24, October 14–18, 2024, Bari, Italy
+
+Abbattista et al.
+
+Popular recommender, which ranks track items according to userspeciﬁc popularity, has the best performance compared to stateof-the-art sequential recommenders, (ii) combining personalized popularity scores within Transformer-based models improves the quality of music recommendation, beating Personalized Most Popular recommender at high ranking cutoﬀs.
+
+2
+
+PERSONALIZED POPULARITY AWARENESS
+
+This section introduces the concept of personalized popularity awareness and its application in music recommendation. Personalized popularity refers to the tendency of users to repeatedly listen to tracks they have enjoyed in the past. This behaviour, known as repeated consumption, is a distinctive characteristic of music consumption. Indeed, Personalized Most Popular is an often-employed baseline, which recommends items based on user-speciﬁc popularity, and has been used as a baseline in previous works on timeaware kNN [2], session-based [13, 25] and next basket [3, 7, 14, 18]
+recommendation, outperforming, in domains with high repetitiveness, state-of-the-art models or being in the same range as them. In addition, previous works on sequential [19, 24] and session-aware [35]
+recommendation have introduced novel architectures to model the repeated consumption pattern. To the best of our knowledge, this is the ﬁrst attempt at directly injecting a personalized popularity signal into sequential models.
+We argue that traditional recommendation models, such as Transformer-based models like SASRec and BERT4Rec, often struggle to eﬀectively capture this behavior. To address this, we introduce a novel approach that integrates personalized popularity information directly into sequential recommendation models. This is achieved by combining user-item popularity scores with model-generated scores assigned to items (music tracks) by diﬀerent recommendation models. In essence, instead of learning the entire probability distribution of item preferences, our key insight is that the training process for models like BERT4Rec, SASRec and gSASRec can be adapted to focus on deviations from the popularity distribution.
+This intuition is similar to gradient boosting, where a model is tasked with learning the delta from a previous model [11, Ch.10].
+In our case, the models are tasked with learning the delta from personalized popularity, i.e. recommendation going beyond the repeated consumed tracks.
+Sequential Models Item Probability. Considering the user input sequence of item ids 𝑆 = [𝑠 1 , . . . , 𝑠𝑖 , . . . , 𝑠𝐿 ], where 𝐿 is the maximum input sequence length, let 𝐿𝑖 = [𝑥𝑖 1 , . . . , 𝑥𝑖 𝑗 , . . . , 𝑥𝑖 𝑁 ] be the scores vector corresponding to 𝑠𝑖 output by a sequential recommendation model, such as BERT4Rec or SASRec, where 𝑥𝑖 𝑗 is the score of the item 𝑗 related to the position 𝑖 and 𝑁 is the number of items in the catalogue. The loss function used for the training of BERT4Rec model is Cross Entropy, where
+
+𝑧=1 𝑒
+
+𝑝 𝑀 ( 𝑗𝑖 ) = 𝑠𝑖𝑔𝑚𝑜𝑖𝑑 (𝑥 𝑗𝑖 ) =
+
+1 1 + 𝑒 −𝑥 𝑗𝑖
+
+(2)
+
+is the probability of item 𝑗 to at position 𝑖 (in case of gBCE, the
+𝑠𝑖𝑔𝑚𝑜𝑖𝑑 (·) is then raised to the power of 𝛽 before applying the loss).
+Personalized Popularity Item Probability. Let us denote with
+𝐶 = [𝑐 1 , . . . , 𝑐𝑖 , . . . , 𝑐 𝑁 ] the counts vector obtained from the input sequence 𝑆, where 𝑐𝑖 is the count of item 𝑖 and 𝑁 is the number of items in the catalogue. The probability of a previous item 𝑗 being selected by the user, i.e. its personalized popularity is1 :
+𝑐𝑗
+𝑚𝑎𝑥 (𝐶 )
+= Í𝑁
+𝑝 𝑃 ( 𝑗) = Í𝑁
+.
+𝑐𝑧
+𝑧=1 𝑐 𝑧
+𝑧=1 𝑚𝑎𝑥 (𝐶 )
+
+𝑐𝑗
+
+(3)
+
+We further smooth 𝑝 𝑃 ( 𝑗) using an 𝜖 > 0 value, which can be tuned in order to control the contribution of the personalized popularity on the score of each item, once the model’s score and the personalized popularity are combined. In our experiments 𝜖 is set to 0.01. By smoothing, the personalized popularity probability of item 𝑗 becomes:
+𝑐 𝑗 +𝜖
+𝑚𝑎𝑥 (𝐶+𝜖 )
+𝑝ˆ𝑃 ( 𝑗) = Í𝑁
+.
+𝑐𝑧 +𝜖
+𝑧=1 𝑚𝑎𝑥 (𝐶+𝜖 )
+
+(4)
+
+The lower is 𝜖, the higher the contribution of personalized popularity on the overall items’ score. As 𝜖 → 0 the probability of item
+𝑗 corresponds to the unsmoothed personalized popularity probability 𝑝 𝑃 ( 𝑗) in Eq. (3). As 𝜖 → +∞, personalized popularity item probabilities have the same value, for all items in the catalogue.
+As a consequence, with 𝜖 → +∞ the personalized popularity will have less inﬂuence on the item ranking. Combination of 𝑝ˆ𝑃 ( 𝑗)
+with model outputs depends on the activation function used by the model’s loss function (sigmoid or softmax), as we explain next.
+Using Personalized Popularity in a Softmax. In BERT4Rec, the probability of an item is obtained using the softmax function (Eq. (1)).
+Therefore, to combine 𝑝ˆ𝑃 ( 𝑗) into the softmax, we need to transform the 𝑝ˆ𝑃 ( 𝑗) into a compatible score, which we denote 𝑦 𝑗 , that can be combined with the model’s score. By imposing an equivalence between Eq. (1) and Eq. (4), the personalized popularity score
+𝑦 𝑗 of an item 𝑗 is the exponent value in Eq. (1). Therefore, to inject the personalized popularity probability into the model’s scoring,
+we can combine Eq. (1) and Eq. (4) as follows:
+𝑐 𝑗 +𝜖
+𝑚𝑎𝑥 (𝐶+𝜖 )
+𝑐𝑧 +𝜖
+𝑧=1 𝑚𝑎𝑥 (𝐶+𝜖 )
+
+𝑝ˆ𝑃 ( 𝑗) = Í𝑁
+
+𝑒 𝑦𝑗
+= Í𝑁
+.
+𝑦𝑧
+𝑧=1 𝑒
+
+(5)
+
+Next, the personalized popularity probability can be formulated as a softmax following the equivalence
+
+𝑒 𝑥 𝑗𝑖
+
+𝑝 𝑀 ( 𝑗𝑖 ) = 𝑠𝑜 𝑓 𝑡𝑚𝑎𝑥 (𝑥 𝑗𝑖 ) = Í𝑁
+
+Entropy loss (gBCE), respectively, where
+
+𝑥 𝑗𝑧
+
+(1)
+
+is the probability of item 𝑗 to be ranked in position 𝑖. Similarly,
+the loss used for the training of SASRec and gSASRec models is the Binary Cross Entropy (BCE) and the generalized Binary Cross
+
+𝑐 𝑗 +𝜖
+𝑚𝑎𝑥 (𝐶+𝜖 )
+Í𝑁
+𝑐𝑧 +𝜖
+𝑧=1 𝑚𝑎𝑥 (𝐶+𝜖 )
+
+𝑐 +𝜖
+
+𝑒
+=
+𝑒
+
+ln
+
+ln 𝑚𝑎𝑥𝑗(𝐶+𝜖 )
+
+Í𝑁
+
+𝑐 𝑧 +𝜖
+𝑧=1 𝑚𝑎𝑥 (𝐶+𝜖 )
+
+1We divide by 𝑚𝑎𝑥 (𝐶 ) to avoid numerical instabilities.
+
+.
+
+(6)
+
+Enhancing Sequential Music Recommendation with Personalized Popularity Awareness
+
+Table 1: Key statistics for the two music datasets, before and after applying a popularity-based sampling method to select 30,000 items (N ). Avg len and Med len denote the average and the median number of interactions per user, respectively.
+Sampling (𝑁 = 30000) Users Items Interactions Avg. len Med. len
+
+Dataset Yandex
+
+None Popularity-based
+
+20862 300000 20862 30000
+
+46919149 28408152
+
+2249 1362
+
+2289 1275
+
+Last.fm-1K
+
+None Popularity-based
+
+992 990
+
+16982280 4990042
+
+17119 5040
+
+10249 2605
+
+961416 30000
+
+Combining Eq. (5) with Eq. (6), we obtain
+𝑐 +𝜖
+
+𝑒
+ln
+
+ln 𝑚𝑎𝑥𝑗(𝐶+𝜖 )
+
+Í𝑁
+
+𝑐 𝑧 +𝜖
+𝑧=1 𝑚𝑎𝑥 (𝐶+𝜖 )
+
+𝑒 𝑦𝑗
+= Í𝑁
+.
+𝑦𝑧
+𝑧=1 𝑒
+
+𝑒
+Therefore we can formulate the personalized popularity score of the item 𝑗 for BERT4Rec as
+𝑐𝑗 + 𝜖
+.
+(7)
+𝑦 𝑗 = ln
+𝑚𝑎𝑥 (𝐶 + 𝜖)
+To integrate personalized popularity score into the BERT4Rec model, starting from the user input sequence 𝑆, we compute the personalized popularity scores vector 𝑃 = [𝑦1, . . . , 𝑦 𝑗 , . . . , 𝑦𝑁 ], and sum it to each scores vector 𝐿𝑖 obtained from BERT4Rec, where 𝑖
+is the position in the sequence.
+Using Personalized Popularity in a Sigmoid. In SASRec (and gSASRec), the probability of an item 𝑗 is obtained using the sigmoid function. Consequently, the personalized popularity score 𝑦 𝑗 of an item 𝑗 is the additive inverse of the exponent value in the sigmoid formula (Eq. (2)). Combining Eq. (2) with Eq. (4) gives:
+𝑐 𝑗 +𝜖
+𝑚𝑎𝑥 (𝐶+𝜖 )
+𝑐𝑧 +𝜖
+𝑧=1 𝑚𝑎𝑥 (𝐶+𝜖 )
+
+𝑝ˆ𝑃 ( 𝑗) = Í𝑁
+
+=
+
+1
+.
+1 + 𝑒 −𝑦 𝑗
+
+(8)
+
+This implies that 𝑦 𝑗 can be isolated in Eq. (8) as follows:
+𝑝ˆ𝑃 ( 𝑗) · (1 + 𝑒 −𝑦 𝑗 ) = 1 ⇒ 𝑝ˆ𝑃 ( 𝑗) + 𝑝ˆ𝑃 ( 𝑗) · 𝑒 −𝑦 𝑗 = 1
+⇒ 𝑒 −𝑦 𝑗 =
+
+1 − 𝑝ˆ𝑃 ( 𝑗)
+1 − 𝑝ˆ𝑃 ( 𝑗)
+⇒ 𝑦 𝑗 = − ln
+.
+𝑝ˆ𝑃 ( 𝑗)
+𝑝ˆ𝑃 ( 𝑗)
+
+To integrate personalized popularity scores into the SASRec and gSASRec models, starting from the user input sequence 𝑆, we compute a personalized popularity scores matrix 𝑃 and sum it to the scores matrix 𝐿 obtained from the model. We deﬁne a vector of personalized popularity scores as 𝑃𝑖 = [𝑦𝑖 1 , . . . , 𝑦𝑖 𝑗 , . . . , 𝑦𝑖 𝑁 ], where 𝑖
+is the position in the sequence, after removing all the items after position 𝑖 from the input sequence 𝑆. This ensures that the popularity scores at each position are computed without experiencing temporal leakage from future data, and therefore maintain the causal structure of the sequence.
+
+3
+
+EXPERIMENTAL SETUP
+
+Research Questions. This section examines the eﬀectiveness of incorporating personalized popularity awareness into sequential music recommender systems through a series of experiments designed to answer the following research questions:
+RQ1 How eﬀectively do state-of-the-art sequential recommender models behave on music datasets?
+
+RecSys ’24, October 14–18, 2024, Bari, Italy
+
+RQ2 To what extent does explicitly incorporating personalized popularity information enhance the performance of sequential recommendation models in the context of music?
+Datasets. Our experiments are performed on the Yandex music event dataset2 and on the Last.fm-1K dataset3 [4]. In the Yandex dataset from 2019, there are four types of time-stamped interaction events on music tracks: like, dislike, play and skip. Last.fm-1K is a smaller dataset, published in 2010, containing time-stamped play events for nearly 1,000 users. Since training models with the whole datasets would require a large amount of GPU memory, we use a popularity-based item sampling method, which selects 𝑁
+items based on a probability distribution derived from global items counts in the users interactions, thus ensuring that more popular items have a higher chance of being selected while still allowing for the inclusion of less popular items. Other sampling methods,
+such as uniformly sampling interactions, would have not given the same guarantees of not injecting an additional popularity bias. Table 1 reports the overall statistics of the datasets before and after item sampling.
+Models. The recommender models considered in the experiments comprise two variants of the Most Popular recommender and some of the most known sequential Transformer-based recommenders both in their original formulation, and integrating the personalized popularity scores (PPS) as per Section 2. The Most Popular recommender suggests items based on overall popularity across all users. Although it is a strong baseline [6], in experiments we see Most Popular exhibits sub-optimal performance compared to other models. We further include Personalized Most Popular, following many existing works [2, 3, 7, 13, 14, 18, 25]. This baseline leverages the tendency of users to prefer and repeatedly listen to previously enjoyed music, demonstrating robust performance and highlighting the repeated consumption characteristic of music recommendation.
+To evaluate the eﬀectiveness of the Personalized Most Popular baseline and personalized popularity score, we also compare them with state-of-the-art models for sequential recommendation: BERT4Rec
+[28], SASRec [17], and its recent variant gSASRec [22]. BERT4Rec is a model for sequential recommendations that leverages bidirectional self-attention mechanisms. SASRec is a sequential recommendation model that uses unidirectional self-attention. gSASRec
+(generalized SASRec) is a version of SASRec model with an increased number of negatives, trained with gBCE loss. Finally, to show the eﬀectiveness of personalized popularity score, we integrate it into these models, assessing whether they generate more accurate and relevant music recommendations.
+Implementation Details. We use PyTorch4 [20] library to implement all the models, except for Most Popular and Personalized Most Popular. Moreover, we rely on Hugging Face’s Transformers5
+[32] library to implement BERT4Rec with and without PPS. We use the aprec6 framework from [21]. We selected the hyperparameters, i.e. the choice of optimizer (Adam, AdamW), the learning 2 https://www.kaggle.com/competitions/yandex-music-event-2019-02-16 3 http://ocelma.net/MusicRecommendationDataset/lastfm-1K.html
+
+4 https://pytorch.org/docs/stable/index.html 5 https://huggingface.co/transformers
+
+6 https://github.com/asash/BERT4Rec_repro
+
+RecSys ’24, October 14–18, 2024, Bari, Italy
+
+Abbattista et al.
+
+Yandex Model
+
+NDCG@5
+
+Most Popular 0.0447 Personalized Most Popular 0.1866*
+
+Last.fm-1K
+
+NDCG@10
+
+NDCG@40
+
+NDCG@100
+
+NDCG@5
+
+NDCG@10
+
+NDCG@40
+
+NDCG@100
+
+0.0416 0.1826*
+
+0.0386 0.1721
+
+0.0449 0.1947
+
+0.0946 0.5366*
+
+0.0889 0.5056*
+
+0.0831 0.4138
+
+0.0817 0.3554
+
+BERT4Rec BERT4Rec w/ PPS
+
+0.1311 0.1263 0.1248 0.1466 0.3504 0.3164 0.2437 0.2108 0.1780† (+35.8%) 0.1745† (+38.2%) 0.1765*† (+41.4%) 0.2024*† (+38.1%) 0.5096† (+45.4%) 0.4812† (+52.1%) 0.4100† (+68.2%) 0.3579† (+69.8%)
+
+SASRec SASRec w/ PPS
+
+0.1025 0.1030 0.1086 0.1658† (+61.8%) 0.1647† (+59.9%) 0.1718† (+58.2%)
+
+0.1332 0.2012† (+51.1%)
+
+0.3381 0.3160 0.2625 0.2317 0.4500† (+33.1%) 0.4258† (+34.8%) 0.3785† (+44.2%) 0.3410† (+47.2%)
+
+gSASRec gSASRec w/ PPS
+
+0.1418 0.1364 0.1353 0.1776† (+25.2%) 0.1737† (+27.3%) 0.1747† (+29.1%)
+
+0.1592 0.2013† (+26.4%)
+
+0.3475 0.3222 0.2559 0.2218 0.4990† (+43.6%) 0.4710† (+46.2%) 0.4006† (+56.6%) 0.3534† (+59.3%)
+
+Table 2: Experimental results. The best results are highlighted in bold; second best are underlined. * and † denote statistically signiﬁcant diﬀerences (p-value < 0.05, Bonferroni multi-test correction) between the best model and the second best one, and between the model w/ PPS and the one w/o PPS., respectively. Improvements over models w/o PPS are shown in parentheses.
+rate (0.1, 0.001, 0.0001), the weight decay (0, 0.5), the early stopping patience (200, 500) and the 𝜖 smoothing parameter (0.01, 0.05, 0.1,
+0.2), through an extensive search (≈ 338 GPU hours). For further research we made the chosen hyperparameters and code publicly available7 . Experiments are conducted using 16-cores of an AMD Ryzen Threadripper PRO 3955WX CPU with 128GB of RAM and an Nvidia RTX 3090 GPU with 24GB of VRAM. Given these capabilities, we limit the length of the input sequences to 150.
+Evaluation Details. Following sequential recommendation best practices [5, 12, 26], we evaluate models using a Global Temporal Split strategy and Normalized Discounted Cumulative Gain (NDCG)
+[16]. The Global Temporal Split strategy splits the interactions in the dataset given a test fraction and a validation fraction, both set to 0.1. Speciﬁcally, all interactions in the dataset are sorted by their timestamp and the global test border timestamp is obtained taking the one of the interactions in the position that leaves 10% of all interactions for testing. For each user we hold out the interactions after the global test border timestamp as the test set. We also construct a validation set with the same strategy using a group of 2048 users with Yandex music event dataset and 128 users with Last.fm1K dataset (approximately the 10% of the users). Following Yakura et al. [33, 34], in the Yandex dataset, we assign labels to items for the purposes of calculating NDCG, based on the user-track interaction type: like=2, play=1, skip=-1, dislike=-2. To handle the repeated consumption patterns within the dataset ground truth, the label is assigned based on the ﬁrst interaction and updated only if the absolute value of the new one is greater or equal than the absolute value of the previous one: (i) if a user likes or dislikes a track,
+the corresponding label is updated, regardless its past interactions with that track, (ii) if a user plays or skips a track, the corresponding label is updated only if that user has not liked nor disliked that track in the past. Negative interactions (dislike, skip) are then assigned a label of 0, to avoid instability of NDCG in the presence of negatively scored labels [10].
+
+4
+
+RESULTS
+
+Our experimental results are presented in Table 2, which compares the performance of various recommendation models on the Yandex and Last.fm-1K datasets. These models include variations of Most Popular recommender, Transformer-based models, and their counterparts enhanced with personalized popularity scores (PPS).
+7 https://github.com/sisinﬂab/personalized-popularity-awareness
+
+To measure the signiﬁcance of performance diﬀerences, we use the paired t-test with Bonferroni multiple testing correction (p-value <
+0.05), following recommended practices in IR [9]. In the table, we use * to denote statistically signiﬁcant diﬀerences between the best and second-best models, and † to denote statistically signiﬁcant diﬀerences between models with and without integrated personalized popularity scores. The table presents the results using the NDCG at various cutoﬀs (@5, @10, @40, and @100). Additionally,
+the relative improvements achieved by incorporating personalized popularity scores are shown in parentheses.
+RQ1. With respect to the performance of state-of-the-art transformerbased sequential recommenders, we unexpectedly ﬁnd that BERT4Rec,
+SASRec, and gSASRec fail to outperform Personalized Most Popular in the context of music recommendation. Although the strength of this baseline is known in the literature [3, 7, 13–15, 18, 25], its dominance in the music domain has not been previously highlighted.
+Our results underscore the importance of user-speciﬁc popularity in music recommendation and indicate that tracks frequently enjoyed by users have a high probability of being replayed. This highlights the strong repetitive consumption patterns among listeners.
+In addition, our results reveal a signiﬁcant challenge faced by stateof-the-art sequential recommendation models, such as BERT4Rec,
+SASRec, and gSASRec. These models struggle to eﬀectively capture and learn the repeated consumption patterns that are essential for providing accurate and relevant music recommendations.
+This diﬃculty suggests a need for further reﬁnement and adaptation of these models to better address the characteristics of music listening behavior.
+Contrary to expectations, the more complex Transformer-based models did not outperform the Personalized Most Popular recommender, revealing that users’ strong preference for replaying previously enjoyed tracks is a more signiﬁcant factor in music recommendation than complex algorithmic predictions.
+RQ2. By incorporating personalized popularity scores (PPS) into Transformer-based models, we achieve performance levels comparable to the simplistic Personalized Most Popular baseline at lower ranking cutoﬀs, such as NDCG@10, and surpass it at higher ranking cutoﬀs, such as NDCG@100. This integration allows the models to leverage the inherent user-speciﬁc popularity bias eﬀectively.
+
+Enhancing Sequential Music Recommendation with Personalized Popularity Awareness
+
+Our results indicate that introducing an inclination towards frequently played tracks signiﬁcantly enhances model performance,
+in a range from 25.2% to 69.8%. This highlights the importance of accounting for users’ tendencies to repeatedly enjoy certain tracks,
+suggesting that Transformer-based models can beneﬁt greatly from integrating personalized popularity information. By doing so, these models become more adept at reﬂecting the natural listening habits of users, leading to more eﬀective and satisfying music recommendations.
+By explicitly integrating personalized popularity information into Transformer-based models, their performance in music recommendation was signiﬁcantly improved, achieving comparable or even surpassing the Personalized Most Popular recommender,
+demonstrating the importance of directly incorporating users’
+preference for replaying previously enjoyed tracks.
+
+5
+
+CONCLUSIONS
+
+This work demonstrates that music recommendation beneﬁts considerably from incorporating personalized popularity awareness.
+Experimental results on the Yandex Music Event and Last.fm-1K datasets show that recommending based on user-speciﬁc listening history, as exempliﬁed by the Personalized Most Popular recommender, outperforms several state-of-the-art sequential models,
+including BERT4Rec, SASRec, and gSASRec. This highlights the signiﬁcant inﬂuence of repeated listening patterns in music consumption, which the more complex models struggle to capture effectively. Furthermore, integrating personalized popularity scores into Transformer-based models leads to performance comparable to the Personalized Most Popular recommender at lower ranking cutoﬀs and even surpasses it at higher cutoﬀs. This suggests that directly incorporating a bias towards previously enjoyed tracks enhances recommendation accuracy. Future work can explore several promising avenues, including investigating techniques beyond scores integration, exploring the impact of popularity awareness in other recommendation domains, and examining the long-term eﬀects of popularity-aware recommendation, speciﬁcally the potential to create ﬁlter bubbles or limit user exposure to novel content.
+
+ACKNOWLEDGMENTS Anelli and Di Noia acknowledge partial support of the following projects: OVS: Fashion Retail Reloaded, Lutech Digitale 4.0, Secure Safe Apulia, Patti Territoriali WP1, BIO-D, Reach-XY.
+
+REFERENCES
+[1] Mehrnaz Amjadi, Seyed Danial Mohseni Taheri, and Theja Tulabandhula. 2021.
+KATRec: Knowledge Aware aTtentive Sequential Recommendations. In DS (Lecture Notes in Computer Science, Vol. 12986). Springer, 305–320.
+[2] Vito Walter Anelli, Tommaso Di Noia, Eugenio Di Sciascio, Azzurra Ragone, and Joseph Trotta. 2019. Local Popularity and Time in top-N Recommendation. In ECIR (1) (Lecture Notes in Computer Science, Vol. 11437). Springer, 861–868.
+[3] Mozhdeh Ariannezhad, Sami Jullien, Ming Li, Min Fang, Sebastian Schelter, and Maarten de Rijke. 2022. ReCANet: A Repeat Consumption-Aware Neural Network for Next Basket Recommendation in Grocery Shopping. In SIGIR. ACM,
+1240–1250.
+[4] O. Celma. 2010. Music Recommendation and Discovery in the Long Tail. Springer.
+[5] Szu-Yu Chou, Yi-Hsuan Yang, and Yu-Ching Lin. 2015. Evaluating music recommendation in a real-world setting: On data splitting and evaluation metrics. In
+
+RecSys ’24, October 14–18, 2024, Bari, Italy
+
+ICME. IEEE Computer Society, 1–6.
+[6] Paolo Cremonesi, Yehuda Koren, and Roberto Turrin. 2010. Performance of recommender algorithms on top-n recommendation tasks. In RecSys. ACM, 39–46.
+[7] Guglielmo Faggioli, Mirko Polato, and Fabio Aiolli. 2020. Recency Aware Collaborative Filtering for Next Basket Recommendation. In UMAP. ACM, 80–87.
+[8] Ziwei Fan, Zhiwei Liu, Jiawei Zhang, Yun Xiong, Lei Zheng, and Philip S. Yu.
+2021. Continuous-Time Sequential Recommendation with Temporal Graph Collaborative Transformer. In CIKM. ACM, 433–442.
+[9] Norbert Fuhr. 2020. Proof by experimentation?: towards better IR research. SIGIR Forum 54, 2 (2020), 2:1–2:4.
+[10] Lukas Gienapp, Maik Fröbe, Matthias Hagen, and Martin Potthast. 2020. The Impact of Negative Relevance Judgments on NDCG. In CIKM. ACM, 2037–2040.
+[11] Trevor Hastie, Robert Tibshirani, and Jerome Friedman. 2001. The Elements of Statistical Learning. Springer New York Inc., New York, NY, USA.
+[12] Balázs Hidasi and Ádám Tibor Czapp. 2023. Widespread Flaws in Oﬄine Evaluation of Recommender Systems. In RecSys. ACM, 848–855.
+[13] Balázs Hidasi, Alexandros Karatzoglou, Linas Baltrunas, and Domonkos Tikk.
+2016. Session-based Recommendations with Recurrent Neural Networks. In ICLR (Poster).
+[14] Haoji Hu and Xiangnan He. 2019. Sets2Sets: Learning from Sequential Sets with Neural Networks. In KDD. ACM, 1491–1499.
+[15] Haoji Hu, Xiangnan He, Jinyang Gao, and Zhi-Li Zhang. 2020. Modeling Personalized Item Frequency Information for Next-basket Recommendation. In SIGIR.
+ACM, 1071–1080.
+[16] Kalervo Järvelin and Jaana Kekäläinen. 2002. Cumulated gain-based evaluation of IR techniques. ACM Trans. Inf. Syst. 20, 4 (2002), 422–446.
+[17] Wang-Cheng Kang and Julian J. McAuley. 2018. Self-Attentive Sequential Recommendation. In ICDM. IEEE Computer Society, 197–206.
+[18] Ming Li, Sami Jullien, Mozhdeh Ariannezhad, and Maarten de Rijke. 2023. A Next Basket Recommendation Reality Check. ACM Trans. Inf. Syst. 41, 4 (2023),
+116:1–116:29.
+[19] Jun Ma, Pengpeng Zhao, Yanchi Liu, Victor S. Sheng, Jiajie Xu, and Lei Zhao.
+2020. Modeling Periodic Pattern with Self-Attention Network for Sequential Recommendation. In DASFAA (3) (Lecture Notes in Computer Science, Vol. 12114).
+Springer, 557–572.
+[20] Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, Alban Desmaison, Andreas Köpf, Edward Z. Yang, Zachary DeVito, Martin Raison,
+Alykhan Tejani, Sasank Chilamkurthy, Benoit Steiner, Lu Fang, Junjie Bai, and Soumith Chintala. 2019. PyTorch: An Imperative Style, High-Performance Deep Learning Library. In NeurIPS. 8024–8035.
+[21] Aleksandr V. Petrov and Craig Macdonald. 2022. A Systematic Review and Replicability Study of BERT4Rec for Sequential Recommendation. In RecSys. ACM,
+436–447.
+[22] Aleksandr Vladimirovich Petrov and Craig Macdonald. 2023. gSASRec: Reducing Overconﬁdence in Sequential Recommendation Trained with Negative Sampling. In RecSys. ACM, 116–128.
+[23] Massimo Quadrana, Paolo Cremonesi, and Dietmar Jannach. 2018. SequenceAware Recommender Systems. ACM Comput. Surv. 51, 4 (2018), 66:1–66:36.
+[24] Shigang Quan, Shui Liu, Zhenzhe Zheng, and Fan Wu. 2023. Enhancing RepeatAware Recommendation from a Temporal-Sequential Perspective. In CIKM.
+ACM, 2095–2105.
+[25] Pengjie Ren, Zhumin Chen, Jing Li, Zhaochun Ren, Jun Ma, and Maarten de Rijke. 2019. RepeatNet: A Repeat Aware Neural Recommendation Machine for Session-Based Recommendation. In AAAI. AAAI Press, 4806–4813.
+[26] Markus Schedl, Peter Knees, Brian McFee, and Dmitry Bogdanov. 2022. Music Recommendation Systems: Techniques, Use Cases, and Challenges. In Recommender Systems Handbook, Francesco Ricci, Lior Rokach, and Bracha Shapira
+(Eds.). Springer US, 927–971.
+[27] Yehjin Shin, Jeongwhan Choi, Hyowon Wi, and Noseong Park. 2024. An Attentive Inductive Bias for Sequential Recommendation beyond the Self-Attention.
+In AAAI. AAAI Press, 8984–8992.
+[28] Fei Sun, Jun Liu, Jian Wu, Changhua Pei, Xiao Lin, Wenwu Ou, and Peng Jiang.
+2019. BERT4Rec: Sequential Recommendation with Bidirectional Encoder Representations from Transformer. In CIKM. ACM, 1441–1450.
+[29] Xiaohai Tong, Pengfei Wang, Chenliang Li, Long Xia, and Shaozhang Niu. 2021.
+Pattern-enhanced Contrastive Policy Learning Network for Sequential Recommendation. In IJCAI. ijcai.org, 1593–1599.
+[30] Viet-Anh Tran, Guillaume Salha-Galvan, Bruno Sguerra, and Romain Hennequin. 2023. Attention Mixtures for Time-Aware Sequential Recommendation.
+In SIGIR. ACM, 1821–1826.
+[31] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin. 2017. Attention is All you Need. In NIPS. 5998–6008.
+[32] Thomas Wolf, Lysandre Debut, Victor Sanh, Julien Chaumond, Clement Delangue, Anthony Moi, Pierric Cistac, Tim Rault, Rémi Louf, Morgan Funtowicz,
+Joe Davison, Sam Shleifer, Patrick von Platen, Clara Ma, Yacine Jernite, Julien Plu, Canwen Xu, Teven Le Scao, Sylvain Gugger, Mariama Drame, Quentin
+
+RecSys ’24, October 14–18, 2024, Bari, Italy
+
+Lhoest, and Alexander M. Rush. 2020. Transformers: State-of-the-Art Natural Language Processing. In EMNLP (Demos). Association for Computational Linguistics, 38–45.
+[33] Hiromu Yakura, Tomoyasu Nakano, and Masataka Goto. 2018. FocusMusicRecommender: A System for Recommending Music to Listen to While Working. In IUI. ACM, 7–17.
+[34] Hiromu Yakura, Tomoyasu Nakano, and Masataka Goto. 2022. An automated system recommending background music to listen to while working. User Model.
+User Adapt. Interact. 32, 3 (2022), 355–388.
+
+Abbattista et al.
+
+[35] Gang Yang, Xiaofeng Zhang, and Yueping Li. 2020. Session-Based Recommendation with Graph Neural Networks for Repeat Consumption. In ICCPR. ACM,
+519–524.
+[36] Yixin Zhang, Lizhen Cui, Wei He, Xudong Lu, and Shipeng Wang. 2021. Behavioral data assists decisions: exploring the mental representation of digital-self.
+Int. J. Crowd Sci. 5, 2 (2021), 185–203.
+[37] Kun Zhou, Hui Wang, Wayne Xin Zhao, Yutao Zhu, Sirui Wang, Fuzheng Zhang,
+Zhongyuan Wang, and Ji-Rong Wen. 2020. S3-Rec: Self-Supervised Learning for Sequential Recommendation with Mutual Information Maximization. In CIKM.
+ACM, 1893–1902.
+
+
