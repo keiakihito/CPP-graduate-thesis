@@ -25,7 +25,9 @@ More recently, transformer-based architectures have emerged as a prominent famil
 Compact CNN architectures have demonstrated efficient and high-performing solutions for music detection tasks \cite{reddy2022}.
 CNN-based architectures are widely used for supervised music genre and tagging tasks, with performance depending on dataset scale and model design.
 These characteristics make compact CNN architectures attractive for deployment in resource-constrained environments.
-Due to their strong inductive biases, such as local connectivity and translation invariance, CNNs may offer advantages in small-data regimes, making compact architectures reasonable baselines in constrained archival settings.
+Due to their strong inductive biases, such as local connectivity and translation invariance, CNNs can learn robust feature representations without the massive parameter counts required by transformer-based architectures. 
+This data efficiency positions them as a strong theoretical counterpoint to the assumption that high-capacity models are necessary for effective retrieval in constrained archival settings, where stable local feature extraction may be more critical than large-scale contextual modeling.
+
 
 
 \subsection{Hybrid CNN--RNN Models}
@@ -37,22 +39,23 @@ These architectures combine local spectral feature extraction with sequence-leve
 
 CNN–Transformer hybrid architectures employ convolutional front-ends to extract local spectral features before passing them to transformer encoders for modeling long-range temporal dependencies \cite{pourmoazemi2024}. 
 In contrast, pure transformer-based models such as the Audio Spectrogram Transformer (AST) operate directly on spectrogram representations using self-attention mechanisms to capture global context \cite{gong2021ast}. 
-
 These approaches represent a contrasting architectural family to CNN and CNN--RNN models, often characterized by higher representational flexibility and reliance on large-scale data.
 
 Recent transformer-based audio models increasingly rely on large-scale self-supervised pretraining to learn general-purpose representations from unlabeled audio corpora. 
 For example, BEATs introduces an iterative self-supervised framework based on masked discrete label prediction using semantic acoustic tokenizers \cite{chen2023beats}. 
 Such approaches demonstrate that carefully designed pretraining objectives and large-scale exposure can yield substantial improvements in downstream audio tasks, even without proportionally increasing model size.
 
-
 However, these advantages are typically demonstrated on large and diverse datasets such as AudioSet. 
-It remains unclear whether such scale-dependent benefits transfer to small, domain-constrained archival collections, where data diversity and pretraining conditions differ substantially.
+In small, domain-constrained archival collections, the benefits of increased capacity may be moderated by domain shift; high-capacity models pretrained on heterogeneous source domains may encode feature distributions that are suboptimal or misaligned with the structural characteristics of a specialized target domain such as classical music.
+
 
 
 \subsection{Compact and Efficient Models}
 Across all architectural families, there is growing interest in compact and efficient models that reduce parameter count and inference cost while maintaining competitive performance. Such models are particularly relevant for archival systems and research prototypes, where computational resources may be limited.
 Compact models are not a distinct architectural class but rather a design objective that can be applied to CNN-based, hybrid, or transformer-based approaches. Evaluating the trade-offs between efficiency and retrieval performance is therefore an important consideration when selecting backend embeddings for classical music archives.
-In the context of this thesis, compact architectures represent the lower-capacity end of the experimental spectrum. Their parameter efficiency and reduced complexity make them particularly relevant when investigating whether increased model capacity yields meaningful gains in small-scale archival retrieval tasks.
+In the context of this thesis, compact architectures serve as the experimental lower bound for model capacity. 
+By treating them as a baseline control, we can isolate the marginal utility of increased parameter counts and examine whether the theoretical advantages of larger models translate into stable and interpretable retrieval improvements in small-scale archival settings.
+
 
 
 \section{Evaluation Strategies for Music Embeddings}
