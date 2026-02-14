@@ -1,7 +1,7 @@
 \chapter{Background and Literature Review}
 
 This chapter reviews prior work relevant to backend audio embeddings for music similarity and retrieval, with a particular focus on architectural model families, evaluation strategies, and the challenges posed by classical music archives. 
-In addition to surveying model architectures and evaluation metrics, this review critically examines the implicit assumptions under which embedding-based retrieval evaluation is considered valid, particularly in small, domain-specific archives.
+In addition to surveying model architectures and evaluation metrics, This review supports the thesis focus on embedding-model capacity and its practical impact on retrieval performance in small-scale classical archives, while also discussing evaluation considerations relevant to such constrained settings..
 The review is structured to support the thesis focus on backend-only comparison using ranking-based metrics, while placing collaborative filtering, user modeling, and system deployment in a background role.
 
 \section{Content-Based Recommendation and the Role of Audio Embeddings}
@@ -14,8 +14,11 @@ For classical music archives, content-based approaches are particularly attracti
 This thesis focuses on comparing backend audio embedding model families rather than individual end-to-end recommendation systems. Prior work in music information retrieval has explored a range of architectural approaches for learning audio representations.
 
 \subsection{CNN-Based Models}
-Convolutional neural networks (CNNs) have been widely used for music tagging, classification, and representation learning. By applying convolutional filters to time--frequency representations such as mel-spectrograms, CNNs can capture local spectral patterns that correspond to timbral and harmonic features. Compact CNN architectures have been shown to provide efficient and effective embeddings for music-related tasks \cite{reddy2022}.
-Several studies evaluate CNN-based embeddings using supervised objectives, such as genre or tag classification, demonstrating strong performance with relatively modest model complexity \cite{dias_cnn, zhang2022}. These models are often attractive for deployment in resource-constrained environments due to their computational efficiency.
+Compact CNN architectures have demonstrated efficient and high-performing solutions for music detection tasks \cite{reddy2022}.
+Several studies apply CNN-based architectures to supervised music genre classification tasks \cite{dias_cnn, zhang2022}, though reported performance varies depending on dataset scale and model design.
+These characteristics make compact CNN architectures attractive for deployment in resource-constrained environments.
+Due to their strong inductive biases, such as local connectivity and translation invariance, CNNs may offer advantages in small-data regimes, making compact architectures reasonable baselines in constrained archival settings.
+
 
 \subsection{Hybrid CNN--RNN Models}
 To better capture temporal structure in music, hybrid architectures combining CNN feature extractors with recurrent neural networks (RNNs) have been proposed. In these models, convolutional layers extract local features from spectrograms, while recurrent layers such as gated recurrent units (GRUs) or long short-term memory (LSTM) networks model longer-term temporal dependencies.
@@ -23,28 +26,38 @@ Hybrid CNN--RNN architectures have been applied to tasks such as emotion recogni
 
 \subsection{CNN--Transformer and Transformer-Based Models}
 More recent work explores the use of self-attention mechanisms and transformer architectures for audio representation learning. CNN--Transformer hybrids combine convolutional front-ends with transformer encoders to model global temporal relationships, while pure transformer-based models operate directly on spectrogram patches or learned audio tokens\cite{pourmoazemi2024}.
-Self-supervised learning approaches based on transformers have gained popularity due to their ability to leverage large unlabeled datasets. Models such as Audio Spectrogram Transformer (AST) demonstrate that transformer-based embeddings can achieve strong performance across a variety of audio tasks \cite{ramos_ssl}. These approaches represent a contrasting architectural family to CNN and CNN--RNN models, often trading increased model capacity for improved representational flexibility.
+Self-supervised learning approaches based on transformers have gained popularity due to their ability to leverage large unlabeled datasets. 
+The Audio Spectrogram Transformer (AST) demonstrates state-of-the-art performance across multiple audio classification benchmarks \cite{gong2021ast}. 
+These approaches represent a contrasting architectural family to CNN and CNN--RNN models, often trading increased model capacity for improved representational flexibility.
+Transformer-based architectures typically benefit from large-scale pretraining and extensive data exposure. Due to their relatively weak inductive biases compared to convolutional models, their performance often scales with dataset size. This raises questions about whether such high-capacity architectures retain their advantage when applied to small, domain-constrained archives with limited data diversity.
 
 \subsection{Compact and Efficient Models}
 Across all architectural families, there is growing interest in compact and efficient models that reduce parameter count and inference cost while maintaining competitive performance. Such models are particularly relevant for archival systems and research prototypes, where computational resources may be limited.
 Compact models are not a distinct architectural class but rather a design objective that can be applied to CNN-based, hybrid, or transformer-based approaches. Evaluating the trade-offs between efficiency and retrieval performance is therefore an important consideration when selecting backend embeddings for classical music archives.
+In the context of this thesis, compact architectures represent the lower-capacity end of the experimental spectrum. Their parameter efficiency and reduced complexity make them particularly relevant when investigating whether increased model capacity yields meaningful gains in small-scale archival retrieval tasks.
+
 
 \section{Evaluation Strategies for Music Embeddings}
 The quality of audio embeddings is commonly assessed through downstream evaluation tasks. Prior work employs a variety of evaluation strategies, each with different implications for recommendation and retrieval.
 
 \subsection{Classification-Based Evaluation}
 Many studies evaluate audio embeddings using classification tasks, such as genre, mood, or tag prediction. Metrics such as accuracy, precision, recall, and F1-score are commonly reported on benchmark datasets. While classification performance provides insight into the discriminative power of embeddings, it does not directly measure their effectiveness for similarity search or ranking-based retrieval.
+Moreover, classification benchmarks are typically conducted on large-scale, well-annotated datasets. In such settings, increased model capacity often translates into improved discriminative accuracy. However, it remains unclear whether gains observed in large-scale classification tasks meaningfully transfer to small-scale retrieval scenarios in which data diversity and label granularity are limited.
+Furthermore, improvements in classification accuracy do not necessarily imply improved neighborhood structure in embedding space, which is critical for similarity-based retrieval tasks.
 
 \subsection{Ranking-Based Evaluation for Retrieval}
-For recommendation and retrieval systems, ranking-based metrics are more appropriate. Metrics such as normalized discounted cumulative gain (NDCG), Precision@K, and Recall@K explicitly evaluate how well relevant items are ranked near the top of a retrieved list.
-Some prior work applies ranking-based evaluation to music retrieval tasks, demonstrating that embeddings with strong classification performance do not always yield optimal ranking behavior \cite{tamm2024}. 
-This distinction motivates the use of ranking metrics as the primary evaluation criterion in this thesis.
-However, most ranking-based evaluations in the literature assume large candidate sets, stable relevance definitions, and statistically meaningful ranking distributions. The validity of such assumptions in small, curated classical archives has not been explicitly examined.
-
+For recommendation and retrieval systems, ranking-based metrics such as normalized discounted cumulative gain (NDCG), Precision@K, and Recall@K are more appropriate, as they evaluate whether relevant items are placed near the top of a retrieved list.
+While ranking-based evaluation better reflects similarity retrieval behavior than classification metrics, its interpretation depends strongly on dataset characteristics. In small-scale archives with limited candidate sets and coarse proxy definitions, differences in model capacity may not translate into stable or interpretable ranking improvements. Minor variations in embedding representations can disproportionately influence measured performance when the evaluation pool is small.
+Therefore, in constrained archival settings, ranking metrics must be interpreted in relation to dataset scale, proxy granularity, and model capacity.
+As a result, the relationship between model capacity and ranking performance may become unstable in small-scale settings, making it unclear whether observed improvements reflect genuine representational gains or evaluation artifacts.
 
 \subsection{Beyond Accuracy: Diversity and Long-Tail Considerations}
-In addition to accuracy-oriented metrics, several studies highlight the importance of diversity and long-tail discovery in music recommendation. Diversity-aware evaluation emphasizes the ability of a system to surface varied and less popular items, which is particularly relevant for cultural and archival collections \cite{porcaro2022}.
+In addition to accuracy-oriented metrics, prior work has highlighted the importance of diversity and long-tail discovery in music recommendation.
+Diversity-aware evaluation emphasizes the ability of a system to surface varied and less popular items, fostering exploration of unfamiliar music cultures \cite{porcaro2022}.
 While diversity metrics are not the primary focus of this thesis, they provide useful context for interpreting ranking results in classical music archives, where exploration and discovery are often prioritized over popularity.
+In small archival collections, diversity considerations may also interact with model capacity, as higher-capacity models might emphasize dominant stylistic patterns present in limited datasets, potentially affecting the diversity of retrieved items.
+
+
 
 \section{User Modeling and System-Level Approaches (Background)}
 A parallel line of research focuses on modeling user behavior, preferences, and context to improve recommendation quality \cite{lin2025}. Sequential recommendation models, emotion-aware systems, and geographically informed approaches incorporate user interaction data to personalize recommendations \cite{abbattista2024, schedl2021}.
@@ -53,19 +66,16 @@ At the system level, prior work also explores scalable architectures and deploym
 \section{Synthesis and Research Gap}
 
 The reviewed literature demonstrates significant progress in learning audio embeddings for music-related tasks, spanning CNN-based, hybrid, and transformer-based architectures.
-Prior studies show that increasing architectural complexity and model capacity can improve performance on large-scale classification benchmarks and heterogeneous music datasets.
-However, these findings are predominantly derived from settings with abundant training data, broad musical domains, and evaluation protocols focused on discriminative accuracy rather than retrieval behavior.
+Prior studies consistently report that increasing architectural complexity and model capacity improves performance on large-scale classification benchmarks and heterogeneous music datasets.
 
-Moreover, prior work rarely makes explicit the boundary conditions under which ranking-based retrieval evaluation remains meaningful in constrained, small-scale settings. 
-Factors such as normalization choices, similarity measures, proxy-label granularity, and candidate-set size are often treated as implementation details rather than as defining assumptions of the evaluation protocol.
-In small-scale settings, these factors can substantially alter ranking outcomes, potentially leading to unstable or non-interpretable evaluation results. When the candidate set is limited and relevance signals are coarse, minor implementation choices may disproportionately influence measured performance.
+However, these conclusions are predominantly derived from settings with abundant training data and broad musical domains.
+It remains unclear whether increased embedding-model capacity yields comparable benefits in small-scale, single-domain archives such as classical music collections.
 
-For classical music archives and other small, curated collections, the applicability of these conclusions remains unclear.
-While ranking-based evaluation has been adopted in some music retrieval studies, there is limited work that systematically examines how embedding model capacity interacts with the choice of proxy task in small-scale, single-domain settings.
-In particular, little attention has been paid to conditions under which increased model capacity may fail to translate into improved retrieval performance when similarity is evaluated through coarse, musically motivated proxies rather than fine-grained labels.
+In constrained settings, limited data diversity, small candidate sets, and coarse proxy definitions may reduce the practical impact of increased model complexity.
+Despite the central role of embedding capacity in modern audio representation learning, there is limited empirical work examining its practical effectiveness under such small-scale archival conditions.
 
-This thesis addresses this gap by focusing on backend audio embedding models in a constrained archival context.
-Rather than assuming that standard large-scale evaluation protocols transfer unchanged to archival settings, this study explicitly investigates the stability and boundary conditions of embedding-based retrieval evaluation in small, content-driven archives. 
-Within this boundary-aware framework, the work further examines whether increased model capacity translates into meaningful retrieval improvements when relevance is defined through musically motivated proxy tasks. 
-By formalizing evaluation assumptions and empirically testing their limits, this thesis contributes a structured perspective on when and how embedding complexity matters in small, domain-specific music archives.
+While evaluation protocols such as ranking-based metrics are widely adopted, prior work rarely investigates how embedding capacity interacts with proxy design and dataset scale in determining retrieval performance.
+This interaction is particularly relevant for content-based recommendation systems in curated classical archives.
 
+This thesis addresses this gap by systematically analyzing the influence of embedding-model capacity on similarity retrieval performance in a small-scale classical archive.
+Through a hypothesis-driven experimental design, the study examines whether heavier models provide measurable gains over lighter architectures and identifies conditions under which such gains emerge or disappear.
