@@ -1,6 +1,7 @@
   Extracted Claims
 
-  1. Role of Audio Embeddings
+  # 1. Role of Audio Embeddings ✅
+  ## => revise claim
   • Quote: "As a result, learned audio representations now form
      the backbone of many content-based music retrieval systems
      \cite{tamm2024}."
@@ -28,7 +29,8 @@
   • Core Claim: CNNs achieve high classification accuracy even
     with low model complexity.
 
-  4. Temporal Modeling in Hybrids
+  # 4. Temporal Modeling in Hybrids　✅ 
+  ## => Revise the claim
   • Quote: "Hybrid CNN--RNN architectures have been applied to 
     tasks such as emotion recognition and music classification,
      where temporal dynamics play an important role 
@@ -69,7 +71,8 @@
     for cultural archives to ensure less popular items are
     discovered.
 
-  8. User Modeling Context
+  8. User Modeling Context　✅
+  ## => Revise claim
   • Quote: "A parallel line of research focuses on modeling 
     user behavior, preferences, and context to improve 
     recommendation quality \cite{lin2025}."
@@ -78,7 +81,8 @@
     focused on improving recommendation quality via behavioral
     data.
 
-  9. Personalization Approaches
+  # 9. Personalization Approaches　✅
+  ## => Revise claim
   • Quote: "Sequential recommendation models, emotion-aware 
     systems, and geographically informed approaches incorporate
      user interaction data to personalize recommendations 
@@ -89,10 +93,3 @@
      personalization strategies like emotion-aware or
     sequential recommendation.
 
-  10. System Scalability
-  • Quote: "These studies address challenges related to 
-    latency, scalability, and system integration 
-    \cite{prasad_music}."
-  • Cited Paper(s): Prasad et al.
-  • Core Claim: Research on system architecture focuses on
-    engineering challenges like latency and scalability.
