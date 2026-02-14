@@ -60,10 +60,13 @@ The quality of audio embeddings is commonly assessed through downstream evaluati
 
 \subsection{Classification-Based Evaluation}
 Audio embeddings are often evaluated using classification-based benchmarks in music information retrieval \cite{gong2021ast, lin2024}. 
-Metrics such as accuracy, precision, recall, and F1-score are commonly reported on benchmark datasets.
+Metrics such as accuracy, precision, recall, and F1-score are commonly reported on benchmark datasets. 
 While classification performance provides insight into the discriminative power of embeddings, it does not directly measure their effectiveness for similarity search or ranking-based retrieval.
-Moreover, classification benchmarks are typically conducted on large-scale, well-annotated datasets. In such settings, increased model capacity often translates into improved discriminative accuracy. However, it remains unclear whether gains observed in large-scale classification tasks meaningfully transfer to small-scale retrieval scenarios in which data diversity and label granularity are limited.
-Furthermore, improvements in classification accuracy do not necessarily imply improved neighborhood structure in embedding space, which is critical for similarity-based retrieval tasks.
+Moreover, classification benchmarks are typically conducted on large-scale, well-annotated datasets. 
+In such settings, architectural innovations and large-scale self-supervised pretraining frequently translate into improved discriminative accuracy. 
+However, although certain models demonstrate transferability to smaller classification datasets \cite{gong2021ast}, it remains unclear whether these gains meaningfully transfer to small-scale similarity retrieval scenarios, where performance depends on neighborhood structure rather than categorical labeling.
+Importantly, improved classification accuracy does not guarantee improved neighborhood structure in embedding space, which is essential for similarity-based retrieval \cite{tamm2024}
+
 
 \subsection{Ranking-Based Evaluation for Retrieval}
 Ranking-based metrics such as normalized discounted cumulative gain (NDCG), Precision@K, and Recall@K are standard evaluation measures in top-N recommendation and retrieval settings, as they explicitly model the positional importance of relevant items in ranked lists \cite{krichene2020}. 
