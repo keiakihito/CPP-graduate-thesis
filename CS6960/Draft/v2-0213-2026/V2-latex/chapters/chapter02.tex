@@ -13,7 +13,12 @@ Classical collections are often smaller, stylistically coherent, and rich in str
 
 
 \section{Backend Audio Embedding Model Families}
-This thesis focuses on comparing backend audio embedding model families rather than individual end-to-end recommendation systems. Prior work in music information retrieval has explored a range of architectural approaches for learning audio representations.
+This thesis focuses on comparing backend audio embedding model families rather than individual end-to-end recommendation systems. 
+Prior work in music information retrieval has explored a range of architectural approaches for learning audio representations. 
+Comprehensive surveys categorize deep learning architectures for audio modeling into distinct families, including convolutional neural networks (CNNs), recurrent neural networks (RNNs), transformer-based models, and hybrid architectures \cite{zaman2023}. 
+
+Historically, CNN and hybrid CNN–RNN models have dominated music-related tasks, particularly in supervised classification settings \cite{jiang2024}. 
+More recently, transformer-based architectures have emerged as a prominent family for spectral audio representation, leveraging self-attention mechanisms to model long-range dependencies in audio signals \cite{zaman2023}.
 
 \subsection{CNN-Based Models}
 Compact CNN architectures have demonstrated efficient and high-performing solutions for music detection tasks \cite{reddy2022}.
@@ -51,18 +56,14 @@ Moreover, classification benchmarks are typically conducted on large-scale, well
 Furthermore, improvements in classification accuracy do not necessarily imply improved neighborhood structure in embedding space, which is critical for similarity-based retrieval tasks.
 
 \subsection{Ranking-Based Evaluation for Retrieval}
-
 Ranking-based metrics such as normalized discounted cumulative gain (NDCG), Precision@K, and Recall@K are standard evaluation measures in top-N recommendation and retrieval settings, as they explicitly model the positional importance of relevant items in ranked lists \cite{krichene2020}. 
 These metrics emphasize the upper portion of the ranked list, reflecting realistic user browsing behavior in which users are unlikely to inspect items far down the list.
-Compared to classification-based evaluation, ranking metrics account for item order and top-k utility, making them more suitable for similarity-based retrieval tasks.
+Furthermore, recent empirical evidence suggests that strong performance on classification benchmarks does not necessarily translate to superior retrieval effectiveness \cite{tamm2024}. 
+This finding underscores the importance of evaluating embeddings directly within retrieval-oriented frameworks rather than relying solely on classification benchmarks.
 
-However, evaluation design choices can substantially influence measured outcomes. 
-Recent work demonstrates that reduced or constrained candidate sets may decrease the discriminative power of ranking metrics and even lead to contradictory system comparisons under certain conditions \cite{krichene2020, canamares2020}. 
-Specifically, smaller item pools increase the probability of ranking ties and reduce the sensitivity of metrics to performance differences between models.
-
-In inherently small archival collections, where the candidate pool itself is limited, such effects may obscure meaningful differences in embedding capacity. 
-Minor variations in embedding representations can therefore have disproportionate effects on measured ranking performance when the evaluation space is small.
-
+However, recent work also demonstrates that ranking metrics are sensitive to evaluation design choices. Reduced or constrained candidate sets can decrease the discriminative power of ranking metrics and may even lead to contradictory system comparisons under certain conditions \cite{krichene2020, canamares2020}. 
+In particular, smaller item pools increase the probability of ranking ties and reduce metric sensitivity to performance differences between models \cite{canamares2020}.
+In inherently small archival collections, where the candidate pool itself is limited, similar effects may arise. Minor variations in embedding representations can therefore have disproportionate effects on measured ranking performance when the evaluation space is small. 
 Accordingly, ranking metrics in constrained environments must be interpreted in relation to dataset scale, proxy granularity, and model capacity, as observed improvements may reflect limitations of evaluation sensitivity rather than genuine representational gains.
 
 \subsection{Beyond Accuracy: Diversity and Long-Tail Considerations}

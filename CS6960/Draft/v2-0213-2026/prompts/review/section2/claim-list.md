@@ -39,7 +39,8 @@
   • Core Claim: Combining CNNs with RNNs helps model temporal
     dynamics for tasks like emotion recognition.
 
-  5. Transformer Architectures
+  # 5. Transformer Architectures　✅ 
+  ## => Revise the claim
   • Quote: "CNN--Transformer hybrids combine convolutional 
     front-ends with transformer encoders to model global 
     temporal relationships, while pure transformer-based models
@@ -71,7 +72,7 @@
     for cultural archives to ensure less popular items are
     discovered.
 
-  8. User Modeling Context　✅
+  # 8. User Modeling Context　✅
   ## => Revise claim
   • Quote: "A parallel line of research focuses on modeling 
     user behavior, preferences, and context to improve 
