@@ -5,35 +5,53 @@ Much of the prior work in this area, as well as many industrial systems, is buil
 While effective for mainstream catalogs, these approaches are ill-suited to small, curated archives that lack dense user data and whose mission emphasizes exploration over pure popularity.
 Classical music archives such as the iPalpiti collection exemplify this setting: they contain high-quality, stylistically coherent recordings but limited usage data, and they require tools that can surface musically meaningful relationships among works, performances, and artists.
 
-In such environments, content-based methods driven by audio embeddings become central.
-Recent advances in pretrained audio models---including convolutional networks, recurrent architectures, hybrid CNN--RNN and CNN--Transformer designs, and self-supervised transformers---have made it possible to encode rich musical information in fixed-length vectors.
-However, most evaluations of these models focus on genre or tag classification in popular-music datasets, or on recommendation tasks for broad, heterogeneous catalogs.
-It remains unclear how different embedding families compare when applied specifically to classical music, and how their design choices impact ranking performance in realistic similarity and retrieval tasks for archives like iPalpiti.
+In such environments, content-based recommendation driven by audio embeddings becomes central.
+Recent advances in pretrained audio models---including lightweight convolutional networks and large transformer-based architectures---enable the extraction of rich musical representations from raw audio.
+However, most evaluations of these models are conducted on large-scale, heterogeneous datasets, where increased model capacity often correlates with improved benchmark performance.
+It remains unclear whether this trend transfers to small, single-domain archives such as classical music collections.
+
+In small-scale settings, limited data diversity, constrained candidate sets, and coarse proxy definitions may reduce the practical benefit of increased model complexity.
+This raises a fundamental design question for content-based recommendation systems in archival contexts: does increasing embedding-model capacity meaningfully improve similarity retrieval performance, or does it introduce diminishing returns under constrained conditions?
+
 
 \section{Approach and Scope}
 
-This thesis addresses that gap by focusing exclusively on the backend: the stage that maps audio recordings to embeddings and supports similarity search, independent of full end-to-end user modeling.
-We formulate a set of proxy tasks, including sanity-check retrieval tests and a musical-character-based proxy, and evaluate multiple pretrained embedding families under a shared classical corpus and evaluation protocol.
-Ranking quality is quantified using standard metrics from information retrieval, including NDCG, Precision@K, and Recall@K, enabling a controlled comparison across architectures. This thesis focuses on a small-scale classical-music archive (single domain) and evaluates embeddings primarily through retrieval-oriented proxy tasks designed to reflect musical similarity.
+This thesis addresses this question by focusing exclusively on the backend: the stage that maps audio recordings to embeddings and supports similarity search, independent of end-to-end user modeling.
+
+The study adopts a hypothesis-driven experimental design inspired by research-oriented test-driven development (TDD).
+Rather than assuming that larger models necessarily yield better retrieval performance, we begin with the hypothesis that increased embedding-model capacity may not improve similarity retrieval in small-scale, single-domain archives.
+
+To evaluate this hypothesis, we systematically assess retrieval performance across a spectrum of model capacities, treating architecture size as the primary independent variable.
+Proxy retrieval tasks are formulated to reflect musically meaningful similarity, including both sanity-check retrieval tests and a musical-character-based proxy (e.g., \emph{heavy} vs.\ \emph{light}).
+
+Ranking quality is measured using information-retrieval metrics such as NDCG, Precision@K, and Recall@K.
+Experimental conditions are systematically varied to identify scenarios in which higher-capacity models either fail to provide measurable gains or demonstrate meaningful improvements over lighter architectures.
 
 \section{Research Questions}
 
-The primary research question guiding this work is: for a classical music archive (iPalpiti), how do different backend audio embedding model families (e.g., CNN-based, RNN-based, and alternative architectures) compare in terms of ranking performance on proxy similarity and retrieval tasks, as measured by NDCG, Precision@K, and Recall@K?
+RQ1: In a small-scale classical music archive (iPalpiti), how does embedding-model capacity influence content-based music similarity retrieval performance?
 
-A secondary, exploratory question asks which characteristics of the embedding models---such as temporal modeling strategy, input representation, or embedding dimensionality---are most associated with improved ranking performance on these tasks.
-Together, these questions frame the thesis as a systematic, if small-scale, study of backend design choices for classical music retrieval. This secondary, exploratory question is not answered in the present thesis and is deferred to future work.
+RQ2: Under what conditions, if any, do higher-capacity embedding models provide meaningful gains over lighter architectures?
 
 
 \paragraph{Hypothesis.}
-In a small-scale, single-domain classical music dataset, increasing embedding-model capacity does not necessarily improve music-similarity retrieval when evaluated using a musical-character-based proxy.
+In a small-scale, single-domain classical music dataset, increasing embedding-model capacity does not necessarily improve music-similarity retrieval performance.
 
 
 \section{Contributions}
 
 This work makes three main contributions.
-First, it provides a focused empirical framework for comparing multiple backend audio embedding model families for classical music similarity retrieval, using consistent preprocessing, indexing, and ranking-based evaluation.
-Second, it proposes a structured proxy-task design that separates (i) sanity-check proxies that verify whether embeddings preserve basic musical structure and (ii) a primary musical-character proxy (e.g., \emph{heavy} vs.\ \emph{light}) intended to better reflect discovery-oriented similarity beyond trivial metadata lookup.
-Third, rather than aiming to identify a universally best embedding model, it distills condition-dependent insights about when increasing model capacity is unlikely to yield meaningful retrieval gains in small, single-domain classical music archives, and outlines limitations and opportunities for future, user-aware extensions.
+
+% Before final results:
+First, it provides a systematic empirical investigation of the relationship between embedding-model capacity and content-based similarity retrieval performance in a small-scale, single-domain classical archive.
+
+% After confirming results:
+% First, it provides empirical evidence challenging the assumption that increased embedding-model capacity correlates with improved content-based similarity retrieval in small-scale, single-domain classical archives.
+
+Second, it establishes musically grounded evaluation criteria (via structured proxy retrieval tasks) that enable the identification of conditions under which retrieval improvements are meaningful.
+
+Third, through a hypothesis-driven experimental design, it analyzes how embedding-model capacity behaves under constrained archival conditions, clarifying the practical limits of model complexity in small, single-domain recommendation settings.
+
 
 \section{Thesis Organization}
 
