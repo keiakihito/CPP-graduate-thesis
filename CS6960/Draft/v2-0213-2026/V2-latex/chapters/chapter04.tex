@@ -16,6 +16,7 @@ Specifically, in small-scale, single-domain archives, increased capacity does no
 
 \subsection{Experimental Guarantees}
 The experimental design provides the following guarantees:
+Capacity tiers are defined on an approximately logarithmic parameter scale (e.g., tens of millions $\rightarrow$ hundreds of millions), enabling detection of diminishing marginal gains.
 
 \begin{itemize}
     \item \textbf{Isolation of Scaling Effects:} 
@@ -23,7 +24,7 @@ The experimental design provides the following guarantees:
     Cross-family comparisons (CNN vs.\ Transformer) are interpreted as evaluations of practical model complexity regimes, in which parameter count, architecture, and pretraining objectives co-vary.
 
     \item \textbf{Detection of Diminishing Returns:} 
-    By comparing models across a logarithmic capacity scale, the design enables observation of diminishing returns within the tested capacity range.
+    By comparing models across discrete capacity tiers, the design enables observation of diminishing returns within the tested capacity range.
 
     \item \textbf{Falsifiability:} 
     The hypothesis is falsifiable if higher-capacity models consistently outperform lower-capacity baselines across all proxy tasks without evidence of saturation.
@@ -50,8 +51,10 @@ In the primary experimental setup, each complete track serves as a single retrie
 Embeddings are therefore derived at the track level, treating each full recording as one input instance. 
 For models requiring fixed-length inputs, representative segments are extracted using a consistent windowing strategy (e.g., uniform segmentation with aggregation).
 
-Frame- or token-level representations produced by the model are aggregated using global mean pooling across the temporal dimension, resulting in a single fixed-dimensional embedding vector per track. 
-This pooling strategy is applied consistently across all evaluated models to ensure that performance differences are attributable to embedding-model capacity rather than aggregation mechanisms.
+For models that require fixed-length inputs, each track is segmented into uniform windows. 
+A window-level embedding is computed for each segment, and track-level embeddings are obtained by averaging window embeddings (mean aggregation). 
+When a model produces frame- or token-level representations within a window, these are first pooled temporally (global mean pooling) to yield a single embedding per window. 
+This two-stage aggregation (within-window pooling, then across-window averaging) is applied consistently across all models.
 
 Although classical works are often structured into multiple movements, movement-level segmentation is not applied in the primary experiments. 
 Each complete track serves as the unit of retrieval analysis in order to maintain a consistent and controlled evaluation setting.
@@ -69,7 +72,8 @@ Within each family, three capacity levels (small, base, and large) are selected 
 
 This design serves two complementary purposes. 
 First, comparisons within each architectural family (e.g., small vs.\ base vs.\ large) isolate parameter scaling effects while holding core architectural principles constant. 
-Second, cross-family comparisons (CNN vs.\ Transformer) provide insight into how architectural inductive biases interact with model capacity under matched or comparable capacity regimes. 
+Second, cross-family comparisons (CNN vs.\ Transformer) are treated as comparisons across practical model complexity regimes. 
+In these comparisons, parameter count, architectural inductive bias, and pretraining objectives may co-vary; thus, cross-family results are interpreted descriptively rather than as isolated causal effects of capacity alone.
 This structured design ensures that capacity effects are analyzed both within and across architectural families without conflating scaling and structural differences.
 
 \subsection{Experimental Matrix}
@@ -80,21 +84,23 @@ Table~\ref{tab:model_matrix} summarizes the selected architectures and their ope
 \centering
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-Family & Capacity Tier & Representative Model & Capacity ($\approx |\theta|$) & Status \\ \hline
-CNN & Small & [TBD] & Low & Planned \\ \hline
-CNN & Base & [TBD] & Medium & Planned \\ \hline
-CNN & Large & [TBD] & High & Planned \\ \hline
-Transformer & Small & [TBD] & Low & Planned \\ \hline
-Transformer & Base & [TBD] & Medium & Planned \\ \hline
-Transformer & Large & MERT-330M & High & Pilot Executed \\ \hline
+Family & Tier & Model & Parameters ($|\theta|$) & Embedding Dim. ($d$) \\ \hline
+CNN & Small & [Model-A] & $\sim$ 5M & 512 \\ \hline
+CNN & Base & [Model-B] & $\sim$ 20M & 768 \\ \hline
+CNN & Large & [Model-C] & $\sim$ 80M & 1024 \\ \hline
+Transformer & Small & [Model-D] & $\sim$ 30M & 768 \\ \hline
+Transformer & Base & [Model-E] & $\sim$ 90M & 768 \\ \hline
+Transformer & Large & MERT-330M & $\sim$ 330M & 1024 \\ \hline
 \end{tabular}
-\caption{Model Selection Matrix across architectural families and capacity tiers.}
+\caption{Embedding models grouped by architectural family and approximate parameter scale.}
 \label{tab:model_matrix}
 \end{table}
 
-Capacity effects are therefore examined along two axes: 
-(i) controlled scaling within architectural families, and 
-(ii) cross-family comparisons under comparable capacity tiers.
+
+Capacity effects are therefore examined along two axes:
+(i) controlled scaling within architectural families, and
+(ii) descriptive cross-family comparisons across practical model complexity regimes.
+
 
 For completeness, we report both parameter count ($|\theta|$) 
 and embedding dimensionality ($d$), as dimensionality may influence 
@@ -109,7 +115,8 @@ The retrieval system is implemented as a modular backend pipeline that isolates 
 
 \subsection{Similarity and Indexing}
 Although embedding dimensionality varies across models, cosine similarity is retained as a standardized similarity measure due to its scale invariance and widespread adoption in representation learning literature. 
-While high-dimensional spaces may exhibit concentration effects, all models are evaluated under identical similarity and ranking procedures. Because performance is assessed through rank-based metrics rather than raw similarity magnitudes, cross-model comparisons remain meaningful even under dimensional differences. Observed trends are therefore interpreted as arising from representational quality rather than dimensional artifacts alone.
+While high-dimensional spaces may exhibit concentration effects, all models are evaluated under identical similarity and ranking procedures. 
+Because all models are evaluated using the same similarity function and identical ranking procedure, observed differences are attributed to representational quality rather than downstream retrieval mechanics.
 Future extensions may include dimensionality normalization or projection (e.g., PCA alignment) to further disentangle capacity effects from embedding dimensionality. However, such transformations are excluded from the present study to preserve model-native representational characteristics.
 
 
@@ -122,12 +129,10 @@ Performance metrics are averaged across all query instances to obtain corpus-lev
 Relevance is determined by metadata matching as defined in Chapter 3. The first proxy task, the Sanity Proxy, defines relevance based on shared composer identity; a retrieved item is considered relevant only if it shares the same composer as the query item. The second task, the Primary Musical Proxy, defines relevance based on abstract musical character labels; items are relevant if they share the same descriptive character (e.g., ``Heavy'') as the query.
 
 \subsection{Performance Metrics}
-Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across all models. While NDCG can operate under binary relevance, Precision@K is additionally reported to mitigate potential saturation effects in cases where a large proportion of the archive satisfies the relevance criterion. These precautions preserve the interpretability of ranking-based comparisons across capacity tiers.
 
-Prior to full-scale experimentation, a preliminary validation was conducted to ensure the functional integrity of the retrieval pipeline. 
-Embedding generation, similarity computation, and ranking procedures were verified to operate deterministically and without degeneration. 
-As this validation pertains to implementation reliability rather than empirical findings, detailed results are omitted.
+Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across all models.
 
+Performance is primarily assessed using NDCG@10 and Precision@10. Given the limited dataset size, interpretation focuses on consistent scaling patterns across capacity tiers rather than marginal numerical differences between models.
 
 
 \section{Experimental Design}
@@ -135,6 +140,8 @@ The empirical evaluation proceeds in three structured stages.
 
 \paragraph{Stage I: Composer-Based Sanity Retrieval}
 This stage evaluates whether models can retrieve items sharing the same composer identity, establishing a functional baseline.
+Failure to perform above chance on this proxy would indicate issues in preprocessing, indexing, or metadata integrity, and would invalidate subsequent proxy-based interpretations.
+Chance-level performance is defined relative to a random ranking baseline under identical evaluation conditions.
 
 \paragraph{Stage II: Musical Character Retrieval}
 This stage evaluates retrieval performance under abstract musical-character constraints, directly testing the core hypothesis under domain-specific similarity definitions.
@@ -152,6 +159,6 @@ We explicitly define three failure scenarios and their implications for the hypo
 
 \begin{enumerate}
     \item \textbf{Strict Monotonic Improvement:} If retrieval performance improves linearly or log-linearly with model capacity across all proxies, the condition-dependence hypothesis is weakened, suggesting that capacity and modern large-scale pretraining strategies may act as dominant drivers under the tested domain conditions.
-    \item \textbf{No Performance Variation:} If all models perform equivalently (within a statistical margin), it implies that the proxy tasks or the dataset are insufficient to discriminate between embedding qualities, representing a validity threat to the experimental design. Such an outcome may reflect metric saturation under binary relevance rather than true equivalence between models, and would therefore motivate refinement of the proxy definition.
+    \item \textbf{No Performance Variation:} If all models perform at comparable levels across proxy tasks, it implies that either the proxy definitions or the dataset scale are insufficient to reveal meaningful differences in embedding quality. Such an outcome would represent a limitation of the evaluation setting rather than confirmation of capacity irrelevance.
     \item \textbf{Performance Degradation:} If higher-capacity models perform worse than compact baselines, it provides strong evidence for the hypothesis, suggesting overfitting or domain mismatch (e.g., pretraining bias) in the larger models.
 \end{enumerate}
