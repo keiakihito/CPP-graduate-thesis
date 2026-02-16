@@ -27,42 +27,31 @@ s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}
 
 Higher similarity values indicate greater embedding-space proximity.
 
-
-Given a query item $x_q \in D$, all items in $D \setminus \{x_q\}$
-are ranked in descending order of similarity $s(z_q, z_i)$.
-
-
-Retrieval quality is evaluated with respect to a relevance function
-$r_q(x_i) \in \{0,1\}$ defined by proxy tasks.
-
+Given a query item $x_q \in D$, all items in $D \setminus \{x_q\}$ are ranked in descending order of similarity $s(z_q, z_i)$. 
+Retrieval quality is evaluated with respect to a relevance function $r_q(x_i) \in \{0,1\}$ defined by proxy tasks.
 Ranking quality is measured using standard IR metrics including NDCG@K, Precision@K, and Recall@K.
 
 
 
 \section{Definition of Embedding Capacity}
 
-The primary independent variable in this study is embedding-model capacity.
-
-
-Embedding capacity is operationalized primarily by model parameter count ($|\theta|$),
-which serves as the principal quantitative measure of model size.
-
+The primary independent variable in this study is embedding-model capacity. 
+Embedding capacity is operationalized primarily through model parameter count ($|\theta|$), which serves as the principal quantitative measure of model size. 
 Embedding dimensionality ($d$) is reported as a secondary structural attribute.
 
-Architectural class (e.g., CNN-based vs. Transformer-based) is treated as a separate categorical factor rather than as a direct measure of capacity.
+Architectural class (e.g., CNN-based vs.\ Transformer-based) is treated as a separate categorical factor rather than as a direct measure of capacity. 
+Accordingly, models are compared at discrete capacity levels, with architectural differences analyzed independently from raw parameter count. 
+This operationalization allows capacity to be treated as a measurable experimental variable rather than a qualitative label (e.g., ``heavy'' vs.\ ``light'').
 
-Accordingly, models are compared at discrete capacity levels, with architectural differences analyzed independently from raw parameter count.
+Capacity effects are examined within each architectural family via small, base, and large variants, enabling controlled scaling comparisons under shared structural principles.
 
-This operationalization allows capacity to be treated as a measurable experimental variable rather than a qualitative label (e.g., "heavy" vs. "light").
-
+This design enables empirical characterization of scaling behavior under constrained data conditions.
 
 \section{Proxy Retrieval Tasks}
 
-Relevance is defined via structured proxy tasks.
-
-Let $g(x)$ denote a metadata-derived label function.
-
-Two proxy families are defined:
+Relevance is defined via structured proxy tasks derived from metadata.
+Let $g(x)$ denote a metadata-based labeling function.
+Two proxy families are considered:
 
 \paragraph{Sanity Proxy.}
 Relevance is defined by shared composer identity:
@@ -71,79 +60,64 @@ r_q(x_i) = 1 \quad \text{if} \quad g_{\text{composer}}(x_q) = g_{\text{composer}
 \]
 
 \paragraph{Primary Musical Proxy.}
-Relevance is defined by shared character labels (e.g., heavy vs. light):
+Relevance is defined by shared character labels:
 \[
 r_q(x_i) = 1 \quad \text{if} \quad g_{\text{character}}(x_q) = g_{\text{character}}(x_i)
 \]
 
-These proxy tasks are diagnostic instruments rather than end goals.
-They allow controlled evaluation of embedding-space organization under constrained archival conditions.
+For experimental tractability, relevance is treated as binary:
+\[
+r_q(x_i) \in \{0,1\}
+\]
+with $r_q(x_i)=0$ when labels do not match.
 
-For experimental tractability, relevance is treated as binary.
-Formally, $r_q(x_i) = 0$ when the corresponding proxy labels do not match.
-
-We acknowledge that musical similarity is inherently continuous and that
-metadata-based labels provide only a coarse approximation of true perceptual similarity.
-This binary proxy assumption is adopted as a controlled simplification.
-
-These proxy tasks are diagnostic instruments rather than end goals.
-They allow controlled evaluation of embedding-space organization under constrained archival conditions.
-
+Although musical similarity is inherently continuous, metadata-derived labels provide a controlled and reproducible approximation suitable for systematic evaluation.
+These proxy tasks serve as diagnostic instruments rather than end goals, enabling controlled analysis of embedding-space organization in constrained archival settings.
 
 
 \section{Experimental Variables and Controls}
 
 This study follows a hypothesis-driven experimental design.
+Embedding-model capacity serves as the primary independent variable, while ranking-based retrieval metrics (NDCG@K, Precision@K, and Recall@K) constitute the dependent variables.
+To ensure internal validity, the audio preprocessing pipeline, indexing mechanism, similarity function, and evaluation protocol are held constant across all experimental conditions.
+Under this controlled setting, performance differences can be attributed primarily to variations in embedding capacity.
 
-\paragraph{Independent Variable.}
-Embedding-model capacity (Section 3.2).
-
-\paragraph{Dependent Variables.}
-Ranking-based retrieval metrics (NDCG@K, Precision@K, Recall@K).
-
-\paragraph{Controlled Variables.}
-\begin{itemize}
-    \item Audio preprocessing pipeline
-    \item Indexing mechanism
-    \item Similarity function
-    \item Evaluation protocol
-\end{itemize}
-
-By holding controlled variables constant, observed performance differences can be attributed to embedding capacity.
 
 \section{Backend Pipeline Architecture}
 
-The backend evaluation pipeline consists of four stages:
+The backend evaluation pipeline consists of four sequential stages: 
+(1) audio preprocessing, 
+(2) embedding extraction, 
+(3) similarity indexing, and 
+(4) ranking and evaluation.
 
-1. Audio preprocessing
-2. Embedding extraction
-3. Similarity indexing
-4. Ranking and evaluation
+Audio recordings are first standardized through a consistent preprocessing pipeline.
+Embeddings are then extracted using models of varying capacity.
+The resulting representations are indexed using a fixed similarity-search mechanism, after which ranked retrieval is performed and evaluated using the predefined ranking metrics.
 
-All components other than embedding extraction are held constant across experiments.
-The pipeline isolates embedding capacity as the central variable of interest.
+All components other than embedding extraction are held constant across experimental conditions.
+This design isolates embedding-model capacity as the primary experimental variable.
 
 
 \section{Conditioning Assumptions}
 
-All claims in this thesis are conditioned on:
+All claims in this thesis are conditioned on specific contextual assumptions. 
+The study is conducted under a small-scale dataset setting ($N$ limited), 
+within a single-domain classical music archive, 
+using retrieval-based proxy evaluation, 
+and without incorporating user interaction modeling.
 
-\begin{itemize}
-    \item Small-scale dataset size ($N$ limited)
-    \item Single-domain classical music archive
-    \item Retrieval-based proxy evaluation
-    \item Absence of user interaction modeling
-\end{itemize}
+Accordingly, the findings should be interpreted within these constraints. 
+These assumptions define the validity domain of the study, 
+and results should not be generalized beyond similar small-scale, 
+single-domain archival settings without further empirical validation.
 
-Results should therefore be interpreted within these constraints.
+\subsection*{Assumption of Proxy Validity}
 
-These constraints define the validity domain of the study.
-Findings should not be generalized beyond similar small-scale, single-domain archival settings without further empirical validation.
-
-\paragraph{Assumption of Proxy Validity.}
-We assume that metadata-derived labels (e.g., Composer and Character)
-serve as valid, though coarse, ground-truth indicators of musical similarity
-within the archival context.
+This study assumes that metadata-derived labels (e.g., Composer and Character) 
+serve as valid, though coarse, indicators of musical similarity within the archival context. 
+While musical similarity is inherently continuous and multidimensional, 
+these proxy labels provide a controlled and reproducible approximation suitable for systematic evaluation.
 
 
 

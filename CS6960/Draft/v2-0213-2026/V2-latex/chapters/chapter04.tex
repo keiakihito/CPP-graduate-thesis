@@ -1,20 +1,34 @@
-\chapter{Methodology and Experimental Design}\label{ch:methodology}
+\chapter{Methodology and Experimental Design}
+\label{ch:methodology}
 
-This chapter details the experimental framework used to evaluate the influence of embedding-model capacity on retrieval performance. The methodology follows a hypothesis-driven, research-TDD approach: establishing a baseline pipeline, validating it through pilot testing, and systematically expanding experimental conditions to test the core hypothesis.
+This chapter presents the experimental framework used to examine the influence of embedding-model capacity on similarity-based retrieval performance. 
+The methodology follows a hypothesis-driven, iterative experimental design. 
+A baseline retrieval pipeline is first established to ensure controlled and reproducible evaluation, after which experimental conditions are progressively expanded to evaluate the core research hypothesis under varying capacity regimes.
 
-\subsection{Experimental Guarantees and Research Intent}
-This section defines the core research property we aim to test and the guarantees provided by the experimental design.
 
-\subsubsection{Core Research Property}
-The relationship between embedding-model capacity and retrieval performance is condition-dependent. Specifically, in small-scale, single-domain archives, higher capacity does not monotonically guarantee superior retrieval effectiveness.
+\section{Research Intent and Experimental Guarantees}
+This section defines the core research property under investigation and clarifies the guarantees provided by the experimental design.
 
-\subsubsection{Experimental Guarantees}
-The experiments are designed to guarantee:
+\subsection{Core Research Property}
+
+The relationship between embedding-model capacity and retrieval performance is hypothesized to be condition-dependent. 
+Specifically, in small-scale, single-domain archives, increased capacity does not necessarily guarantee monotonically superior retrieval effectiveness.
+
+\subsection{Experimental Guarantees}
+The experimental design provides the following guarantees:
+
 \begin{itemize}
-    \item \textbf{Isolation of Scaling Effects:} Parameter scaling effects are isolated within the Transformer family (e.g., base vs. large variants). Cross-family comparisons (CNN vs. Transformer) are interpreted as evaluations of practical model complexity regimes, where parametercount, architecture, and pretraining objectives co-vary.
-    \item \textbf{Detection of Diminishing Returns:} By comparing models across a logarithmic capacity scale, the design allows for the observation of diminishing returns within the tested capacity range.    .
-    \item \textbf{Falsifiability:} The hypothesis is falsifiable if higher-capacity models consistently outperform lower-capacity baselines across all proxy tasks without saturation.
+    \item \textbf{Isolation of Scaling Effects:} 
+    Parameter scaling effects are examined within each architectural family (CNN and Transformer) via small, base, and large variants.
+    Cross-family comparisons (CNN vs.\ Transformer) are interpreted as evaluations of practical model complexity regimes, in which parameter count, architecture, and pretraining objectives co-vary.
+
+    \item \textbf{Detection of Diminishing Returns:} 
+    By comparing models across a logarithmic capacity scale, the design enables observation of diminishing returns within the tested capacity range.
+
+    \item \textbf{Falsifiability:} 
+    The hypothesis is falsifiable if higher-capacity models consistently outperform lower-capacity baselines across all proxy tasks without evidence of saturation.
 \end{itemize}
+
 
 \section{Dataset Description and Preprocessing}
 
@@ -25,43 +39,68 @@ The primary dataset consists of the iPalpiti classical music archive, a curated 
 Ground truth for proxy retrieval tasks is derived from editorial metadata associated with each recording. The composer metadata serves as an objective label for sanity-check retrieval tasks, allowing us to verify if models can cluster tracks by composition. For the primary musical proxy task, tracks are annotated with abstract character labels (e.g., ``Heavy'' versus ``Light''), which capture the timbral and structural qualities relevant to the archive's curatorial goals.
 
 \subsection{Audio Preprocessing Pipeline}
-To ensure internal validity, the audio preprocessing pipeline is held constant across all embedding models. All audio files are first resampled to [TBD: e.g., 16kHz/32kHz] to satisfy the input requirements of the selected models. Following resampling, the channel format is standardized to [TBD: Mono/Stereo], and [TBD: Description of normalization, e.g., peak normalization] is applied to ensure consistent amplitude levels. Finally, the audio is segmented at the track level; for models requiring fixed-length inputs, [TBD: Describe truncation or windowing strategy] is employed to extract representative segments.
+
+To ensure internal validity, the audio preprocessing pipeline is held constant across all embedding models.
+
+Source recordings, originally distributed in compressed formats (e.g., MP3 from CD albums), are first converted to uncompressed WAV format to avoid variability introduced by compression artifacts. 
+All audio files are resampled to [e.g., 16 kHz or 32 kHz] in accordance with the input requirements of the evaluated models. 
+Channel configuration is standardized to [mono/stereo], and amplitude normalization (e.g., peak normalization) is applied to ensure consistent signal scaling across recordings.
+
+In the primary experimental setup, each complete track serves as a single retrieval unit. 
+Embeddings are therefore derived at the track level, treating each full recording as one input instance. 
+For models requiring fixed-length inputs, representative segments are extracted using a consistent windowing strategy (e.g., uniform segmentation with aggregation).
+
+Frame- or token-level representations produced by the model are aggregated using global mean pooling across the temporal dimension, resulting in a single fixed-dimensional embedding vector per track. 
+This pooling strategy is applied consistently across all evaluated models to ensure that performance differences are attributable to embedding-model capacity rather than aggregation mechanisms.
+
+Although classical works are often structured into multiple movements, movement-level segmentation is not applied in the primary experiments. 
+Each complete track serves as the unit of retrieval analysis in order to maintain a consistent and controlled evaluation setting.
+
+Movement-level metadata is retained for potential future analyses. 
+However, segmentation-based experiments are considered beyond the scope of the present study. 
+Such extensions may enable examination of whether embedding-model capacity interacts differently with finer-grained structural units.
+
 
 \section{Selection of Embedding Models (Independent Variable)}
-Models are selected to represent discrete points along the capacity spectrum, ranging from compact convolutional architectures to large-scale transformer models. Model capacity is operationalized primarily through parameter count ($|\theta|$). 
-While architectural class varies across tiers (e.g., CNN-based versus Transformer-based models), capacity is treated as the primary independent variable in two complementary ways. 
-First, comparisons within the Transformer family (e.g., base versus large variants) isolate parameter scaling effects under a shared architectural backbone. 
-Second, cross-family comparisons are interpreted cautiously, as they may reflect both parameter scaling and architectural inductive biases. This distinction ensures that observed performance trends are not simplistically attributed to capacity alone.
 
+Models are selected to represent discrete capacity tiers within two major architectural families: CNN-based and Transformer-based models. 
+Model capacity is operationalized primarily through parameter count ($|\theta|$). 
+Within each family, three capacity levels (small, base, and large) are selected to enable controlled scaling comparisons under a shared architectural backbone.
+
+This design serves two complementary purposes. 
+First, comparisons within each architectural family (e.g., small vs.\ base vs.\ large) isolate parameter scaling effects while holding core architectural principles constant. 
+Second, cross-family comparisons (CNN vs.\ Transformer) provide insight into how architectural inductive biases interact with model capacity under matched or comparable capacity regimes. 
+This structured design ensures that capacity effects are analyzed both within and across architectural families without conflating scaling and structural differences.
 
 \subsection{Experimental Matrix}
-The experiment compares performance across three distinct model families representing low, medium, and high capacity tiers. Table \ref{tab:model_matrix} summarizes the selected architectures and their operational status within the research timeline.
+The experiment evaluates six models spanning two architectural families and three capacity tiers (low, medium, high). 
+Table~\ref{tab:model_matrix} summarizes the selected architectures and their operational status within the research timeline.
 
 \begin{table}[h]
 \centering
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-Model Family & Representative Model & Capacity ($\approx |\theta|$) & Embedding Dim ($d$) & Status \\ \hline
-Compact / CNN & [TBD: e.g., VGGish] & Low ($< 10M$) & [TBD: e.g., 128] & Planned \\ \hline
-Transformer (Base) & [TBD: e.g., MERT-95M] & Medium ($\approx 95M$) & [TBD: e.g., 768] & Planned \\ \hline
-Transformer (Large) & MERT-330M & High ($> 300M$) & [TBD: e.g., 1024] & Pilot Executed \\ \hline
+Family & Capacity Tier & Representative Model & Capacity ($\approx |\theta|$) & Status \\ \hline
+CNN & Small & [TBD] & Low & Planned \\ \hline
+CNN & Base & [TBD] & Medium & Planned \\ \hline
+CNN & Large & [TBD] & High & Planned \\ \hline
+Transformer & Small & [TBD] & Low & Planned \\ \hline
+Transformer & Base & [TBD] & Medium & Planned \\ \hline
+Transformer & Large & MERT-330M & High & Pilot Executed \\ \hline
 \end{tabular}
-\caption{Model Selection Matrix including parameter count and embedding dimensionality.}
+\caption{Model Selection Matrix across architectural families and capacity tiers.}
 \label{tab:model_matrix}
 \end{table}
 
-Therefore, capacity effects are interpreted along two axes: 
-(i) controlled scaling within shared architectural families, and 
-(ii) practical scaling regimes where capacity co-varies with architecture and pretraining strategy.
+Capacity effects are therefore examined along two axes: 
+(i) controlled scaling within architectural families, and 
+(ii) cross-family comparisons under comparable capacity tiers.
 
-For completeness, we report both parameter count ($|\theta|$) and embedding dimensionality ($d$), as dimensionality may influence similarity behavior in high-dimensional spaces.
+For completeness, we report both parameter count ($|\theta|$) 
+and embedding dimensionality ($d$), as dimensionality may influence 
+similarity behavior in high-dimensional embedding spaces.
 
-\subsection{Low-Capacity Baselines}
-To establish a performance floor, we utilize compact architectures typically optimized for mobile or real-time inference. The representative model for this category is [Model A (TBD)], a [Description of architecture, e.g., CNN-based] architecture trained using supervised objectives.
-Although supervised pretraining may confer task-specific advantages, this baseline serves as a practical low-capacity reference reflecting commonly deployed compact MIR systems.
 
-\subsection{High-Capacity Transformers}
-To evaluate the relationship between model capacity and retrieval performance, we include large-scale transformer architectures. The primary model selected for this category is the Music Understanding Model with Large-Scale Self-Supervised Training (MERT), a transformer-based architecture pretrained using masked language modeling objectives on musical audio. Additionally, [TBD: Additional Large Model] is included to provide a comparative reference within the high-capacity tier.
 
 \section{The Retrieval Pipeline}
 
@@ -74,18 +113,10 @@ While high-dimensional spaces may exhibit concentration effects, all models are 
 Future extensions may include dimensionality normalization or projection (e.g., PCA alignment) to further disentangle capacity effects from embedding dimensionality. However, such transformations are excluded from the present study to preserve model-native representational characteristics.
 
 
-\section{Pilot Validation: Pipeline Unit Test}
-Before full-scale execution, a pilot experiment was conducted to validate the integrity of the retrieval pipeline. 
-This corresponds to the validation phase of the research-oriented test-driven development framework.
-
-
-\subsection{Pilot Configuration}
-The pilot experiment utilized a subset of 10 randomly selected tracks from the iPalpiti archive. The high-capacity MERT-330M model was employed to verify that the pipeline could handle complex transformer embeddings. The primary objective was to confirm that the pipeline produces consistent embeddings and correctly computes pairwise similarity and ranking.
-
-\subsection{Pilot Success Criteria}
-The pilot was evaluated against three specific criteria. First, the system must successfully generate embeddings for all input tracks without errors. Second, the retrieval results must be deterministic and reproducible across multiple runs. Third, the distribution of cosine similarity scores must exhibit variance, ensuring that the model has not suffered from embedding collapse where all vectors converge to a single point.
 
 \section{Evaluation Protocol (Dependent Variables)}
+Each track in the archive is used as a query in a leave-one-out retrieval setting, where the query item itself is excluded from the candidate pool.
+Performance metrics are averaged across all query instances to obtain corpus-level estimates.
 
 \subsection{Relevance Judgments (Ground Truth)}
 Relevance is determined by metadata matching as defined in Chapter 3. The first proxy task, the Sanity Proxy, defines relevance based on shared composer identity; a retrieved item is considered relevant only if it shares the same composer as the query item. The second task, the Primary Musical Proxy, defines relevance based on abstract musical character labels; items are relevant if they share the same descriptive character (e.g., ``Heavy'') as the query.
@@ -93,37 +124,29 @@ Relevance is determined by metadata matching as defined in Chapter 3. The first 
 \subsection{Performance Metrics}
 Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across all models. While NDCG can operate under binary relevance, Precision@K is additionally reported to mitigate potential saturation effects in cases where a large proportion of the archive satisfies the relevance criterion. These precautions preserve the interpretability of ranking-based comparisons across capacity tiers.
 
+Prior to full-scale experimentation, a preliminary validation was conducted to ensure the functional integrity of the retrieval pipeline. 
+Embedding generation, similarity computation, and ranking procedures were verified to operate deterministically and without degeneration. 
+As this validation pertains to implementation reliability rather than empirical findings, detailed results are omitted.
 
-\section{Experimental Phases}
 
-The study proceeds in three phases.
 
-\paragraph{Phase I: Sanity Check (Composer Proxy).}
-Validates whether models can cluster tracks by objective, high-level metadata such as composer identity.
+\section{Experimental Design}
+The empirical evaluation proceeds in three structured stages.
 
-\textit{What This Experiment Guarantees:}
-This phase tests the assumption that all selected models possess basic audio pattern recognition capabilities. 
-A failure here (random retrieval) indicates a fundamental model misalignment or pipeline error, rather than a capacity-related phenomenon. 
-This phase establishes a functional baseline. If all models fail to retrieve composer-consistent items above chance level, subsequent capacity comparisons become meaningless. 
-Thus, Phase I guarantees the validity of the retrieval setup before testing capacity-dependent behavior.
+\paragraph{Stage I: Composer-Based Sanity Retrieval}
+This stage evaluates whether models can retrieve items sharing the same composer identity, establishing a functional baseline.
 
-\paragraph{Phase II: Musical Character Retrieval (Primary Proxy).}
-Tests the core hypothesis by evaluating retrieval performance on abstract musical qualities.
+\paragraph{Stage II: Musical Character Retrieval}
+This stage evaluates retrieval performance under abstract musical-character constraints, directly testing the core hypothesis under domain-specific similarity definitions.
 
-\textit{What This Experiment Guarantees:}
-This phase tests whether increased capacity yields measurable gains under domain-specific similarity constraints. 
-A lack of systematic performance improvement with increasing capacity would be consistent with the condition-dependence hypothesis, though such an outcome must be interpreted in light of dataset scale and proxy sensitivity.
-Evidence of condition dependence would be observed if compact models perform competitively with or outperform larger transformers, suggesting that high capacity is not a prerequisite for retrieving abstract musical character in this specific domain.
+\paragraph{Stage III: Capacity–Performance Analysis}
+This stage analyzes the relationship between model capacity and retrieval metrics, examining whether performance trends exhibit monotonic growth, saturation, or degradation across capacity tiers.
 
-\paragraph{Phase III: Capacity-Performance Analysis.}
-Correlates the measured retrieval metrics with model capacity.
 
-\textit{What This Experiment Guarantees:}
-This phase quantitatively tests the ``bigger is better'' assumption. 
-This phase explicitly evaluates the shape of the capacity-performance relationship (monotonic, saturated, or degraded), thereby directly testing the core research property defined at the beginning of this chapter.
+
 
 \subsection{Failure Modes and Boundary Conditions}
-These boundary scenarios function as structural tests of the central property rather than empirical surprises.
+These boundary scenarios function as structural tests of the central hypothesis rather than unexpected empirical outcomes.
 If performance differences align strictly with architectural class rather than parameter count within the same family, this would suggest that inductive bias, rather than raw capacity, governs retrieval effectiveness under the tested domain conditions.
 We explicitly define three failure scenarios and their implications for the hypothesis:
 

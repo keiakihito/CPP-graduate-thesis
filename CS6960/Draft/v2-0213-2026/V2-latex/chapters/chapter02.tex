@@ -13,13 +13,20 @@ Classical collections are often smaller, stylistically coherent, and rich in str
 
 
 \section{Backend Audio Embedding Model Families}
-These architectural distinctions reflect broader trends in audio representation learning, where advances in model design and pretraining strategies have reshaped the landscape of music information retrieval.
+
+These architectural distinctions reflect broader trends in audio representation learning, where advances in model design and pretraining strategies have reshaped the landscape of music information retrieval. 
 This thesis focuses on comparing backend audio embedding model families rather than individual end-to-end recommendation systems. 
+
 Prior work in music information retrieval has explored a range of architectural approaches for learning audio representations. 
 Comprehensive surveys categorize deep learning architectures for audio modeling into distinct families, including convolutional neural networks (CNNs), recurrent neural networks (RNNs), transformer-based models, and hybrid architectures \cite{zaman2023}. 
 
 Historically, CNN and hybrid CNN–RNN models have dominated music-related tasks, particularly in supervised classification settings \cite{jiang2024}. 
-More recently, transformer-based architectures have emerged as a prominent family for spectral audio representation, leveraging self-attention mechanisms to model long-range dependencies in audio signals \cite{zaman2023}.
+More recently, transformer-based architectures have emerged as a prominent family for spectral audio representation, leveraging self-attention mechanisms to model long-range temporal dependencies in audio signals \cite{zaman2023}. 
+These families exhibit distinct inductive biases: CNNs emphasize local spectral structure, whereas transformers are designed to capture global contextual relationships.
+
+In the experimental design of this thesis, comparisons are structured around two primary architectural families—CNN-based and Transformer-based models. 
+Within each family, models are evaluated at small, base, and large capacity tiers to examine scaling behavior under controlled and comparable conditions.
+
 
 \subsection{CNN-Based Models}
 Compact CNN architectures have demonstrated efficient and high-performing solutions for music detection tasks \cite{reddy2022}.
@@ -27,8 +34,6 @@ CNN-based architectures are widely used for supervised music genre and tagging t
 These characteristics make compact CNN architectures attractive for deployment in resource-constrained environments.
 Due to their strong inductive biases, such as local connectivity and translation invariance, CNNs can learn robust feature representations without the massive parameter counts required by transformer-based architectures. 
 This data efficiency positions them as a strong theoretical counterpoint to the assumption that high-capacity models are necessary for effective retrieval in constrained archival settings, where stable local feature extraction may be more critical than large-scale contextual modeling.
-
-
 
 \subsection{Hybrid CNN--RNN Models}
 To better capture temporal structure in music, hybrid architectures combining CNN feature extractors with recurrent neural networks (RNNs) have been proposed. In these models, convolutional layers extract local features from spectrograms, while recurrent layers such as gated recurrent units (GRUs) or long short-term memory (LSTM) networks model longer-term temporal dependencies.
@@ -47,8 +52,6 @@ Such approaches demonstrate that carefully designed pretraining objectives and l
 
 However, these advantages are typically demonstrated on large and diverse datasets such as AudioSet. 
 In small, domain-constrained archival collections, the benefits of increased capacity may be moderated by domain shift; high-capacity models pretrained on heterogeneous source domains may encode feature distributions that are suboptimal or misaligned with the structural characteristics of a specialized target domain such as classical music.
-
-
 
 \subsection{Compact and Efficient Models}
 Across all architectural families, there is growing interest in compact and efficient models that reduce parameter count and inference cost while maintaining competitive performance. Such models are particularly relevant for archival systems and research prototypes, where computational resources may be limited.
