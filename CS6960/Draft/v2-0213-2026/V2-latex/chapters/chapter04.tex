@@ -65,7 +65,6 @@ Such extensions may enable examination of whether embedding-model capacity inter
 
 
 \section{Selection of Embedding Models (Independent Variable)}
-
 Models are selected to represent discrete capacity tiers within two major architectural families: CNN-based and Transformer-based models. 
 Model capacity is operationalized primarily through parameter count ($|\theta|$). 
 Within each family, three capacity levels (small, base, and large) are selected to enable controlled scaling comparisons under a shared architectural backbone.
@@ -75,6 +74,24 @@ First, comparisons within each architectural family (e.g., small vs.\ base vs.\ 
 Second, cross-family comparisons (CNN vs.\ Transformer) are treated as comparisons across practical model complexity regimes. 
 In these comparisons, parameter count, architectural inductive bias, and pretraining objectives may co-vary; thus, cross-family results are interpreted descriptively rather than as isolated causal effects of capacity alone.
 This structured design ensures that capacity effects are analyzed both within and across architectural families without conflating scaling and structural differences.
+
+
+\subsection{Model Selection Rationale}
+
+Models were selected to operationalize controlled capacity scaling within two architectural families.
+Within each family, small, base, and large variants were chosen to span approximately one order of magnitude in parameter count (e.g., tens of millions to several hundred million parameters).
+This logarithmic separation enables detection of potential diminishing returns or saturation effects.
+
+CNN-based models were selected from a unified convolutional lineage in which scaling is achieved primarily through increased depth and channel width under comparable training objectives.
+This ensures that parameter growth reflects increased representational capacity under consistent architectural principles.
+
+Transformer-based models were selected from publicly released self-supervised audio representation frameworks with clearly documented parameter tiers.
+These models reflect contemporary large-scale representation learning paradigms emphasizing general-purpose audio embeddings.
+The largest transformer model was intentionally chosen to represent an upper bound of practical model capacity.
+
+All selected models provide publicly available pretrained checkpoints and allow extraction of fixed-dimensional embeddings under a standardized inference pipeline.
+
+
 
 \subsection{Experimental Matrix}
 The experiment evaluates six models spanning two architectural families and three capacity tiers (low, medium, high). 
