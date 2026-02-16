@@ -128,7 +128,7 @@ If performance differences align strictly with architectural class rather than p
 We explicitly define three failure scenarios and their implications for the hypothesis:
 
 \begin{enumerate}
-    \item \textbf{Strict Monotonic Improvement:} If retrieval performance improves linearly or log-linearly with model capacity across all proxies, the condition-dependence hypothesis is weakened, suggesting that capacity may act as a dominant driver under the tested conditions.
+    \item \textbf{Strict Monotonic Improvement:} If retrieval performance improves linearly or log-linearly with model capacity across all proxies, the condition-dependence hypothesis is weakened, suggesting that capacity and modern large-scale pretraining strategies may act as dominant drivers under the tested domain conditions.
     \item \textbf{No Performance Variation:} If all models perform equivalently (within a statistical margin), it implies that the proxy tasks or the dataset are insufficient to discriminate between embedding qualities, representing a validity threat to the experimental design. Such an outcome may reflect metric saturation under binary relevance rather than true equivalence between models, and would therefore motivate refinement of the proxy definition.
     \item \textbf{Performance Degradation:} If higher-capacity models perform worse than compact baselines, it provides strong evidence for the hypothesis, suggesting overfitting or domain mismatch (e.g., pretraining bias) in the larger models.
 \end{enumerate}
