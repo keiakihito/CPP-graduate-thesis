@@ -23,7 +23,7 @@ WAV_DIR = PROJECT_ROOT / "data" / "wav"
 OUTPUT_CSV = PROJECT_ROOT / "data" / "output" / "pseudo_labels.csv"
 
 # Optional: limit for MVP test
-MAX_TRACKS = 3  # change to 20 later
+MAX_TRACKS = 20  
 
 def load_music2emo():
     old_cwd = os.getcwd()
