@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 import math
+from pathlib import Path
 import wave
 
 import numpy as np
 import pytest
 
 
-def _write_test_wav(path, sample_rate: int = 16_000, duration_sec: float = 1.0) -> None:
+def _write_test_wav(
+    path: Path,
+    sample_rate: int = 16_000,
+    duration_sec: float = 1.0,
+) -> None:
     """Write a small mono PCM WAV file for extractor smoke tests."""
     num_samples = int(sample_rate * duration_sec)
     time_axis = np.arange(num_samples, dtype=np.float32) / sample_rate
@@ -24,7 +29,7 @@ def _write_test_wav(path, sample_rate: int = 16_000, duration_sec: float = 1.0) 
 
 
 @pytest.fixture
-def wav_path(tmp_path):
+def wav_path(tmp_path: Path) -> str:
     """Create a temporary valid WAV file for smoke tests."""
     path = tmp_path / "smoke_test.wav"
     _write_test_wav(path)
@@ -33,7 +38,7 @@ def wav_path(tmp_path):
 
 @pytest.mark.smoke
 @pytest.mark.integration
-def test_cnn_small_embedder_smoke(wav_path):
+def test_cnn_small_embedder_smoke(wav_path: str) -> None:
     """CNNSmallEmbedder should return a valid 1D embedding."""
     pytest.importorskip("tensorflow")
     pytest.importorskip("tensorflow_hub")
@@ -53,7 +58,7 @@ def test_cnn_small_embedder_smoke(wav_path):
 
 @pytest.mark.smoke
 @pytest.mark.integration
-def test_transformer_small_embedder_smoke(wav_path):
+def test_transformer_small_embedder_smoke(wav_path: str) -> None:
     """TransformerSmallEmbedder should return a valid 1D embedding."""
     pytest.importorskip("torch")
     pytest.importorskip("transformers")

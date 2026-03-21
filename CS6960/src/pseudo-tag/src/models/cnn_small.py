@@ -1,8 +1,8 @@
-"""Inference-only YAMNet embedding extractor for thesis experiments.
+"""Inference-only PANNs embedding extractor for thesis experiments.
 
-This module provides a small wrapper around pretrained YAMNet so the thesis
-pipeline can extract one fixed-length clip embedding from a PCM WAV file without
-including any training code.
+This module wraps a pretrained PANNs CNN audio model and returns one fixed-
+length clip embedding per PCM WAV file. It is intended for embedding extraction
+only and does not include any training code.
 """
 
 from __future__ import annotations
@@ -13,16 +13,15 @@ import wave
 import numpy as np
 
 
-YAMNET_MODEL_HANDLE = "https://tfhub.dev/google/yamnet/1"
-YAMNET_SAMPLE_RATE = 16_000
-YAMNET_EMBEDDING_DIM = 1024
+PANNS_SAMPLE_RATE = 32_000
+PANNS_EMBEDDING_DIM = 2048
 
 
 def _load_wav_mono(wav_path: str) -> tuple[np.ndarray, int]:
     """Load a PCM WAV file and convert it to mono float32 audio.
 
     Assumptions:
-    - input is a local WAV file readable by the standard-library `wave` module
+    - input is a local PCM WAV file readable by the standard-library `wave` module
     - audio is PCM encoded with 8-bit, 16-bit, or 32-bit integer samples
     - 32-bit float WAV is not supported by this loader
     - multi-channel audio is averaged to mono before inference
@@ -78,94 +77,121 @@ def _resample_audio(audio: np.ndarray, orig_sr: int, target_sr: int) -> np.ndarr
     return resampled.astype(np.float32)
 
 
-class CNNSmallEmbedder:
-    """Inference-only CNN-style embedder backed by pretrained YAMNet.
+def _to_numpy(array_like) -> np.ndarray:
+    """Convert tensor-like outputs to a float32 NumPy array."""
+    if isinstance(array_like, np.ndarray):
+        return array_like.astype(np.float32, copy=False)
 
-    The public interface is intentionally small:
-    - `extract_frames()` returns frame-level embeddings from YAMNet
-    - `extract()` mean-pools those frames into one clip-level embedding
+    if hasattr(array_like, "detach"):
+        array_like = array_like.detach()
+    if hasattr(array_like, "cpu"):
+        array_like = array_like.cpu()
+    if hasattr(array_like, "numpy"):
+        return np.asarray(array_like.numpy(), dtype=np.float32)
+
+    return np.asarray(array_like, dtype=np.float32)
+
+
+class CNNSmallEmbedder:
+    """Inference-only CNN embedder backed by pretrained PANNs.
+
+    This wrapper uses the lightweight `panns_inference` package so the thesis
+    pipeline can rely on a pretrained PyTorch CNN without adding training logic.
+    The wrapper keeps the public interface aligned with `transformer_small.py`.
     """
 
     def __init__(
         self,
-        model_handle: str = YAMNET_MODEL_HANDLE,
-        target_sample_rate: int = YAMNET_SAMPLE_RATE,
+        checkpoint_path: str | None = None,
+        device: str | None = None,
+        target_sample_rate: int = PANNS_SAMPLE_RATE,
     ) -> None:
-        """Load the pretrained YAMNet model for inference."""
+        """Load the pretrained PANNs model for inference."""
         try:
-            import tensorflow as tf
-            import tensorflow_hub as hub
+            import torch
+            from panns_inference import AudioTagging
         except ImportError as exc:
             raise ImportError(
-                "CNNSmallEmbedder requires 'tensorflow' and 'tensorflow_hub' "
-                "to load pretrained YAMNet."
+                "CNNSmallEmbedder requires 'torch' and 'panns_inference' "
+                "to load a pretrained PANNs model."
             ) from exc
 
-        self._tf = tf
+        self._torch = torch
         self.target_sample_rate = target_sample_rate
-        self.model_handle = model_handle
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.checkpoint_path = checkpoint_path
 
         try:
-            self._model = hub.load(model_handle)
+            # `AudioTagging` is the simplest practical PANNs entry point for this MVP.
+            self._model = AudioTagging(checkpoint_path=checkpoint_path, device=self.device)
         except Exception as exc:
-            raise RuntimeError(f"Failed to load YAMNet model from: {model_handle}") from exc
+            raise RuntimeError("Failed to load pretrained PANNs model.") from exc
+
+        self._embedding_dim = PANNS_EMBEDDING_DIM
 
     def get_embedding_dim(self) -> int:
-        """Return the clip embedding dimension produced by YAMNet."""
-        return YAMNET_EMBEDDING_DIM
+        """Return the clip embedding dimension produced by PANNs."""
+        return self._embedding_dim
 
     def load_audio(self, wav_path: str) -> np.ndarray:
-        """Load PCM WAV audio and resample it to the YAMNet input rate."""
+        """Load PCM WAV audio and resample it to the PANNs input rate."""
         audio, sample_rate = _load_wav_mono(wav_path)
         if audio.size == 0:
             raise ValueError(f"Audio file contains no samples: {wav_path}")
         return _resample_audio(audio, sample_rate, self.target_sample_rate)
 
     def extract_frames(self, wav_path: str) -> np.ndarray:
-        """Run YAMNet and return frame-level embeddings."""
+        """Return PANNs embeddings in a shared 2D interface.
+
+        The simple `AudioTagging` wrapper returns one clip-level embedding rather
+        than time-resolved feature maps. To keep the interface aligned with the
+        AST extractor, this method wraps that clip embedding as shape `(1, d)`.
+        """
         waveform = self.load_audio(wav_path)
+        batch_audio = np.expand_dims(waveform, axis=0)
 
         try:
-            _, frame_embeddings, _ = self._model(
-                self._tf.convert_to_tensor(waveform, dtype=self._tf.float32)
-            )
+            with self._torch.no_grad():
+                _, embedding = self._model.inference(batch_audio)
         except Exception as exc:
-            raise RuntimeError(f"YAMNet inference failed for: {wav_path}") from exc
+            raise RuntimeError(f"PANNs inference failed for: {wav_path}") from exc
 
-        embeddings = np.asarray(frame_embeddings.numpy(), dtype=np.float32)
-        if embeddings.ndim != 2 or embeddings.shape[0] == 0:
-            raise RuntimeError(f"YAMNet returned no frame embeddings for: {wav_path}")
+        clip_embeddings = _to_numpy(embedding)
+        if clip_embeddings.ndim != 2 or clip_embeddings.shape[0] == 0:
+            raise RuntimeError(f"PANNs returned no embeddings for: {wav_path}")
 
-        if embeddings.shape[1] != YAMNET_EMBEDDING_DIM:
+        clip_embedding = clip_embeddings[0]
+        if clip_embedding.ndim != 1 or clip_embedding.shape[0] != self._embedding_dim:
             raise RuntimeError(
-                f"Unexpected YAMNet embedding dimension: {embeddings.shape[1]}"
+                f"Unexpected PANNs embedding dimension: {clip_embedding.shape[-1]}"
             )
 
-        return embeddings
+        # Expose a shared 2D interface even though AudioTagging is clip-level.
+        return clip_embedding[np.newaxis, :].astype(np.float32)
 
     def _pool_frames(self, frame_embeddings: np.ndarray) -> np.ndarray:
-        """Mean-pool frame embeddings into one fixed-length clip embedding."""
+        """Mean-pool embeddings into one clip representation."""
         if frame_embeddings.ndim != 2 or frame_embeddings.shape[0] == 0:
             raise ValueError("Frame embeddings must be a non-empty 2D array.")
 
-        # Mean pooling keeps the interface simple and deterministic for thesis experiments.
+        # Mean pooling is the baseline pooling strategy used across embedders.
         clip_embedding = frame_embeddings.mean(axis=0).astype(np.float32)
-
-        if clip_embedding.shape[0] != YAMNET_EMBEDDING_DIM:
+        if clip_embedding.shape[0] != self._embedding_dim:
             raise RuntimeError(
-                f"Unexpected YAMNet embedding dimension: {clip_embedding.shape[0]}"
+                f"Unexpected PANNs embedding dimension: {clip_embedding.shape[0]}"
             )
 
         return clip_embedding
 
     def extract(self, wav_path: str) -> np.ndarray:
-        """Return one mean-pooled clip embedding for a WAV file."""
+        """Return one pooled clip embedding for a PCM WAV file."""
         frame_embeddings = self.extract_frames(wav_path)
         return self._pool_frames(frame_embeddings)
 
 
 # Expected setup:
-# - Install TensorFlow and TensorFlow Hub in the project environment.
-# - The YAMNet model is loaded from TensorFlow Hub via YAMNET_MODEL_HANDLE.
+# - Install PyTorch and `panns_inference` in the project environment.
+# - Some `panns_inference` setups can download pretrained weights automatically.
+# - If automatic download is unavailable, pass a local checkpoint via `checkpoint_path`.
 # - Input audio is expected to be PCM WAV; 32-bit float WAV is not supported here.
-# - Preprocessing converts input audio to mono 16 kHz before inference.
+# - Audio is converted to mono and resampled to 32 kHz before CNN inference.
