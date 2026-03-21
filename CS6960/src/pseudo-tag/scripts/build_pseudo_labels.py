@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import csv
 import subprocess
@@ -7,23 +8,41 @@ from typing import Any, Dict, List, Optional
 
 import boto3
 
+MUSIC2EMO_DIR = Path(__file__).resolve().parents[1] / "Music2Emotion"
+sys.path.insert(0, str(MUSIC2EMO_DIR))
+from music2emo import Music2emo
 
 # =========================
 # Config
 # =========================
 BUCKET_NAME = os.getenv("IPALPITI_S3_BUCKET", "ipalpiti-audio-resource")
-METADATA_PATH = Path("metadata/tracks.json")
-RAW_DIR = Path("data/raw")
-WAV_DIR = Path("data/wav")
-OUTPUT_CSV = Path("data/output/pseudo_labels.csv")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+METADATA_PATH = PROJECT_ROOT / "metadata" / "tracks.json"
+RAW_DIR = PROJECT_ROOT / "data" / "raw"
+WAV_DIR = PROJECT_ROOT / "data" / "wav"
+OUTPUT_CSV = PROJECT_ROOT / "data" / "output" / "pseudo_labels.csv"
 
 # Optional: limit for MVP test
 MAX_TRACKS = 3  # change to 20 later
 
+def load_music2emo():
+    old_cwd = os.getcwd()
+    try:
+        os.chdir(MUSIC2EMO_DIR)
+        model = Music2emo()
+    finally:
+        os.chdir(old_cwd)
+    return model
+
+music2emo_model = None
 
 # =========================
 # Utility
 # =========================
+def normalize_1to9(x: float) -> float:
+    return (x - 1.0) / 8.0
+
+
 def ensure_dirs() -> None:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     WAV_DIR.mkdir(parents=True, exist_ok=True)
@@ -42,6 +61,7 @@ def safe_stem(track_id: Any, title: str) -> str:
     cleaned = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in title)
     cleaned = cleaned[:80].strip("_")
     return f"track_{track_id}_{cleaned}"
+
 
 
 # =========================
@@ -75,19 +95,21 @@ def convert_to_wav(input_path: Path, output_path: Path) -> None:
 # Music2Emo inference
 # =========================
 def predict_valence_arousal(wav_path: Path) -> Dict[str, float]:
-    """
-    Replace this with your actual Music2Emo inference call.
+    old_cwd = os.getcwd()
+    try:
+        os.chdir(MUSIC2EMO_DIR)
+        output_dic = music2emo_model.predict(str(wav_path.resolve()))
+    finally:
+        os.chdir(old_cwd)
 
-    Expected return:
-    {
-        "valence": 0.0 ~ 1.0,
-        "arousal": 0.0 ~ 1.0
-    }
-    """
+    raw_valence = float(output_dic["valence"])
+    raw_arousal = float(output_dic["arousal"])
+
     return {
-        "valence": 0.5,
-        "arousal": 0.5
+        "valence": normalize_1to9(raw_valence),
+        "arousal": normalize_1to9(raw_arousal),
     }
+
 
 # =========================
 # Pseudo tags
@@ -183,6 +205,9 @@ def save_results_csv(rows: List[Dict[str, Any]], output_path: Path) -> None:
 
 
 def main() -> None:
+    global music2emo_model
+    music2emo_model = load_music2emo()
+
     ensure_dirs()
     tracks = load_tracks(METADATA_PATH)
     tracks = tracks[:MAX_TRACKS]
