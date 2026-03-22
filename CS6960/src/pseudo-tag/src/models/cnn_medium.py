@@ -7,9 +7,9 @@ import wave
 
 import numpy as np
 
+from src.models.panns_family import PANNS_SAMPLE_RATE, load_panns_model
 
-PANNS_SAMPLE_RATE = 32_000
-PANNS_EMBEDDING_DIM = 2048
+PANNS_VARIANT = "cnn10"
 
 
 def _load_wav_mono(wav_path: str) -> tuple[np.ndarray, int]:
@@ -91,10 +91,9 @@ class CNNMediumEmbedder:
         """Load the pretrained PANNs model for inference."""
         try:
             import torch
-            from panns_inference import AudioTagging
         except ImportError as exc:
             raise ImportError(
-                "CNNMediumEmbedder requires 'torch' and 'panns_inference' "
+                "CNNMediumEmbedder requires 'torch' and vendored PANNs model code "
                 "to load a pretrained PANNs model."
             ) from exc
 
@@ -104,11 +103,13 @@ class CNNMediumEmbedder:
         self.checkpoint_path = checkpoint_path
 
         try:
-            self._model = AudioTagging(checkpoint_path=checkpoint_path, device=self.device)
+            self._model, _, self._embedding_dim = load_panns_model(
+                PANNS_VARIANT,
+                checkpoint_path=checkpoint_path,
+                device=self.device,
+            )
         except Exception as exc:
             raise RuntimeError("Failed to load pretrained PANNs model.") from exc
-
-        self._embedding_dim = PANNS_EMBEDDING_DIM
 
     def get_embedding_dim(self) -> int:
         """Return the clip embedding dimension produced by PANNs."""
@@ -124,15 +125,19 @@ class CNNMediumEmbedder:
     def extract_frames(self, wav_path: str) -> np.ndarray:
         """Expose PANNs clip embeddings in a shared 2D interface."""
         waveform = self.load_audio(wav_path)
-        batch_audio = np.expand_dims(waveform, axis=0)
+        batch_audio = self._torch.as_tensor(
+            np.expand_dims(waveform, axis=0),
+            dtype=self._torch.float32,
+            device=self.device,
+        )
 
         try:
             with self._torch.no_grad():
-                _, embedding = self._model.inference(batch_audio)
+                output_dict = self._model(batch_audio)
         except Exception as exc:
             raise RuntimeError(f"PANNs inference failed for: {wav_path}") from exc
 
-        clip_embeddings = _to_numpy(embedding)
+        clip_embeddings = _to_numpy(output_dict["embedding"])
         if clip_embeddings.ndim != 2 or clip_embeddings.shape[0] == 0:
             raise RuntimeError(f"PANNs returned no embeddings for: {wav_path}")
 

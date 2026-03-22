@@ -12,9 +12,9 @@ import wave
 
 import numpy as np
 
+from src.models.panns_family import PANNS_SAMPLE_RATE, load_panns_model
 
-PANNS_SAMPLE_RATE = 32_000
-PANNS_EMBEDDING_DIM = 2048
+PANNS_VARIANT = "cnn6"
 
 
 def _load_wav_mono(wav_path: str) -> tuple[np.ndarray, int]:
@@ -109,10 +109,9 @@ class CNNSmallEmbedder:
         """Load the pretrained PANNs model for inference."""
         try:
             import torch
-            from panns_inference import AudioTagging
         except ImportError as exc:
             raise ImportError(
-                "CNNSmallEmbedder requires 'torch' and 'panns_inference' "
+                "CNNSmallEmbedder requires 'torch' and vendored PANNs model code "
                 "to load a pretrained PANNs model."
             ) from exc
 
@@ -122,12 +121,13 @@ class CNNSmallEmbedder:
         self.checkpoint_path = checkpoint_path
 
         try:
-            # `AudioTagging` is the simplest practical PANNs entry point for this MVP.
-            self._model = AudioTagging(checkpoint_path=checkpoint_path, device=self.device)
+            self._model, _, self._embedding_dim = load_panns_model(
+                PANNS_VARIANT,
+                checkpoint_path=checkpoint_path,
+                device=self.device,
+            )
         except Exception as exc:
             raise RuntimeError("Failed to load pretrained PANNs model.") from exc
-
-        self._embedding_dim = PANNS_EMBEDDING_DIM
 
     def get_embedding_dim(self) -> int:
         """Return the clip embedding dimension produced by PANNs."""
@@ -143,20 +143,24 @@ class CNNSmallEmbedder:
     def extract_frames(self, wav_path: str) -> np.ndarray:
         """Return PANNs embeddings in a shared 2D interface.
 
-        The simple `AudioTagging` wrapper returns one clip-level embedding rather
-        than time-resolved feature maps. To keep the interface aligned with the
-        AST extractor, this method wraps that clip embedding as shape `(1, d)`.
+        The vendored PANNs models return one clip-level embedding. To keep the
+        interface aligned with the transformer extractors, this method wraps that
+        clip embedding as shape `(1, d)`.
         """
         waveform = self.load_audio(wav_path)
-        batch_audio = np.expand_dims(waveform, axis=0)
+        batch_audio = self._torch.as_tensor(
+            np.expand_dims(waveform, axis=0),
+            dtype=self._torch.float32,
+            device=self.device,
+        )
 
         try:
             with self._torch.no_grad():
-                _, embedding = self._model.inference(batch_audio)
+                output_dict = self._model(batch_audio)
         except Exception as exc:
             raise RuntimeError(f"PANNs inference failed for: {wav_path}") from exc
 
-        clip_embeddings = _to_numpy(embedding)
+        clip_embeddings = _to_numpy(output_dict["embedding"])
         if clip_embeddings.ndim != 2 or clip_embeddings.shape[0] == 0:
             raise RuntimeError(f"PANNs returned no embeddings for: {wav_path}")
 
@@ -166,7 +170,7 @@ class CNNSmallEmbedder:
                 f"Unexpected PANNs embedding dimension: {clip_embedding.shape[-1]}"
             )
 
-        # Expose a shared 2D interface even though AudioTagging is clip-level.
+        # Expose a shared 2D interface even though PANNs is clip-level here.
         return clip_embedding[np.newaxis, :].astype(np.float32)
 
     def _pool_frames(self, frame_embeddings: np.ndarray) -> np.ndarray:
