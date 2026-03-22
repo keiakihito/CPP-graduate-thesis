@@ -1,4 +1,4 @@
-"""Inference-only PANNs base embedding extractor for thesis experiments."""
+"""Inference-only PANNs large embedding extractor for thesis experiments."""
 
 from __future__ import annotations
 
@@ -79,8 +79,8 @@ def _to_numpy(array_like) -> np.ndarray:
     return np.asarray(array_like, dtype=np.float32)
 
 
-class CNNBaseEmbedder:
-    """Inference-only base CNN embedder backed by pretrained PANNs."""
+class CNNLargeEmbedder:
+    """Inference-only large CNN embedder backed by pretrained PANNs."""
 
     def __init__(
         self,
@@ -94,7 +94,7 @@ class CNNBaseEmbedder:
             from panns_inference import AudioTagging
         except ImportError as exc:
             raise ImportError(
-                "CNNBaseEmbedder requires 'torch' and 'panns_inference' "
+                "CNNLargeEmbedder requires 'torch' and 'panns_inference' "
                 "to load a pretrained PANNs model."
             ) from exc
 

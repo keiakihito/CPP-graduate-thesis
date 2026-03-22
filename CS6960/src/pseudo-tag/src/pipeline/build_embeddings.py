@@ -9,10 +9,11 @@ from typing import Any
 import numpy as np
 
 from src.io_utils import ensure_dir, save_json
-from src.models.cnn_base import CNNBaseEmbedder
+from src.models.cnn_large import CNNLargeEmbedder
+from src.models.cnn_medium import CNNMediumEmbedder
 from src.models.cnn_small import CNNSmallEmbedder
-from src.models.transformer_base import TransformerBaseEmbedder
-from src.models.transformer_small import TransformerSmallEmbedder
+from src.models.transformer_large import TransformerLargeEmbedder
+from src.models.transformer_medium import TransformerMediumEmbedder
 
 
 def collect_wav_paths(input_dir: str) -> list[Path]:
@@ -30,12 +31,14 @@ def create_extractor(model_name: str) -> Any:
     """Create an embedding extractor from a simple model name."""
     if model_name == "cnn_small":
         return CNNSmallEmbedder()
-    if model_name == "cnn_base":
-        return CNNBaseEmbedder()
-    if model_name == "transformer_small":
-        return TransformerSmallEmbedder()
-    if model_name == "transformer_base":
-        return TransformerBaseEmbedder()
+    if model_name == "cnn_medium":
+        return CNNMediumEmbedder()
+    if model_name == "cnn_large":
+        return CNNLargeEmbedder()
+    if model_name == "transformer_medium":
+        return TransformerMediumEmbedder()
+    if model_name == "transformer_large":
+        return TransformerLargeEmbedder()
     raise ValueError(f"Unsupported model_name: {model_name}")
 
 
@@ -126,7 +129,13 @@ def main() -> None:
         "--model-name",
         type=str,
         default="cnn_small",
-        choices=["cnn_small", "cnn_base", "transformer_small", "transformer_base"],
+        choices=[
+            "cnn_small",
+            "cnn_medium",
+            "cnn_large",
+            "transformer_medium",
+            "transformer_large",
+        ],
         help="Embedding backend to use.",
     )
     args = parser.parse_args()

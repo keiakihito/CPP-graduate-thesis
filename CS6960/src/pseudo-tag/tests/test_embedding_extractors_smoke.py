@@ -58,17 +58,17 @@ def test_cnn_small_embedder_smoke(wav_path: str) -> None:
 
 @pytest.mark.smoke
 @pytest.mark.integration
-def test_transformer_small_embedder_smoke(wav_path: str) -> None:
-    """TransformerSmallEmbedder should return a valid 1D embedding."""
+def test_cnn_medium_embedder_smoke(wav_path: str) -> None:
+    """CNNMediumEmbedder should return a valid 1D embedding."""
     pytest.importorskip("torch")
-    pytest.importorskip("transformers")
+    pytest.importorskip("panns_inference")
 
-    from src.models.transformer_small import TransformerSmallEmbedder
+    from src.models.cnn_medium import CNNMediumEmbedder
 
-    extractor = TransformerSmallEmbedder()
+    extractor = CNNMediumEmbedder()
     embedding = extractor.extract(wav_path)
 
-    # Smoke test the shared extractor contract, not model accuracy.
+    # Smoke test the shared extractor contract, not retrieval quality.
     assert isinstance(embedding, np.ndarray)
     assert embedding.ndim == 1
     assert embedding.size > 0
@@ -78,14 +78,14 @@ def test_transformer_small_embedder_smoke(wav_path: str) -> None:
 
 @pytest.mark.smoke
 @pytest.mark.integration
-def test_cnn_base_embedder_smoke(wav_path: str) -> None:
-    """CNNBaseEmbedder should return a valid 1D embedding."""
+def test_cnn_large_embedder_smoke(wav_path: str) -> None:
+    """CNNLargeEmbedder should return a valid 1D embedding."""
     pytest.importorskip("torch")
     pytest.importorskip("panns_inference")
 
-    from src.models.cnn_base import CNNBaseEmbedder
+    from src.models.cnn_large import CNNLargeEmbedder
 
-    extractor = CNNBaseEmbedder()
+    extractor = CNNLargeEmbedder()
     embedding = extractor.extract(wav_path)
 
     # Smoke test the shared extractor contract, not retrieval quality.
