@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import boto3
+import numpy as np
 
 MUSIC2EMO_DIR = Path(__file__).resolve().parents[1] / "Music2Emotion"
 sys.path.insert(0, str(MUSIC2EMO_DIR))
@@ -22,8 +23,12 @@ RAW_DIR = PROJECT_ROOT / "data" / "raw"
 WAV_DIR = PROJECT_ROOT / "data" / "wav"
 OUTPUT_CSV = PROJECT_ROOT / "data" / "output" / "pseudo_labels.csv"
 
-# Optional: limit for MVP test
-MAX_TRACKS = 20  
+# Optional: limit for MVP test. Set to None to process the full dataset.
+MAX_TRACKS = None
+LOW_QUANTILE = 0.33
+HIGH_QUANTILE = 0.67
+MIDDLE_LOW_QUANTILE = 0.40
+MIDDLE_HIGH_QUANTILE = 0.60
 
 def load_music2emo():
     old_cwd = os.getcwd()
@@ -114,12 +119,55 @@ def predict_valence_arousal(wav_path: Path) -> Dict[str, float]:
 # =========================
 # Pseudo tags
 # =========================
-def derive_pseudo_tags(valence, arousal):
+def compute_va_thresholds(rows: List[Dict[str, Any]]) -> Dict[str, float]:
+    """Compute dataset-relative valence/arousal thresholds from all rows."""
+    if not rows:
+        raise ValueError("Cannot compute thresholds from empty rows.")
+
+    valences = np.array([float(row["valence"]) for row in rows], dtype=float)
+    arousals = np.array([float(row["arousal"]) for row in rows], dtype=float)
+
     return {
-        "energetic": int(valence >= 0.6 and arousal >= 0.6),
-        "tense":     int(valence <  0.4 and arousal >= 0.6),
-        "calm":      int(valence >= 0.6 and arousal <  0.4),
-        "lyrical":   int(0.3 <= arousal <= 0.6 and 0.4 <= valence <= 0.7),
+        "valence_low": float(np.quantile(valences, LOW_QUANTILE)),
+        "valence_high": float(np.quantile(valences, HIGH_QUANTILE)),
+        "valence_middle_low": float(np.quantile(valences, MIDDLE_LOW_QUANTILE)),
+        "valence_middle_high": float(np.quantile(valences, MIDDLE_HIGH_QUANTILE)),
+        "arousal_low": float(np.quantile(arousals, LOW_QUANTILE)),
+        "arousal_high": float(np.quantile(arousals, HIGH_QUANTILE)),
+        "arousal_middle_low": float(np.quantile(arousals, MIDDLE_LOW_QUANTILE)),
+        "arousal_middle_high": float(np.quantile(arousals, MIDDLE_HIGH_QUANTILE)),
+    }
+
+
+def derive_pseudo_tags(
+    valence: float,
+    arousal: float,
+    thresholds: Dict[str, float],
+) -> Dict[str, int]:
+    """Derive binary pseudo tags from dataset-relative VA thresholds.
+
+    Quantile-based thresholds are used because predicted valence/arousal values
+    are concentrated in a narrow mid-range in this dataset.
+    """
+    valence_low = thresholds["valence_low"]
+    valence_high = thresholds["valence_high"]
+    arousal_low = thresholds["arousal_low"]
+    arousal_high = thresholds["arousal_high"]
+
+    is_middle_valence = (
+        thresholds["valence_middle_low"] < valence < thresholds["valence_middle_high"]
+    )
+    is_middle_arousal = (
+        thresholds["arousal_middle_low"] < arousal < thresholds["arousal_middle_high"]
+    )
+
+    # Axis-based tags are denser than quadrant-based tags for this dataset,
+    # where valence/arousal predictions cluster in a narrow central range.
+    return {
+        "energetic": int(arousal >= arousal_high),
+        "tense": int(valence <= valence_low),
+        "calm": int(arousal <= arousal_low),
+        "lyrical": int(is_middle_valence and is_middle_arousal),
     }
 
 
@@ -151,8 +199,6 @@ def process_track(s3_client, track: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     valence = float(pred["valence"])
     arousal = float(pred["arousal"])
 
-    tags = derive_pseudo_tags(valence, arousal)
-
     result = {
         "track_id": track_id,
         "title": title,
@@ -162,10 +208,6 @@ def process_track(s3_client, track: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "wav_path": str(wav_path),
         "valence": round(valence, 4),
         "arousal": round(arousal, 4),
-        "energetic": tags["energetic"],
-        "tense": tags["tense"],
-        "calm": tags["calm"],
-        "lyrical": tags["lyrical"],
         "review_flag": "",
         "review_corrected_tags": "",
         "review_notes": "",
@@ -210,7 +252,8 @@ def main() -> None:
 
     ensure_dirs()
     tracks = load_tracks(METADATA_PATH)
-    tracks = tracks[:MAX_TRACKS]
+    if MAX_TRACKS is not None:
+        tracks = tracks[:MAX_TRACKS]
 
     s3_client = boto3.client("s3")
     results: List[Dict[str, Any]] = []
@@ -222,6 +265,22 @@ def main() -> None:
                 results.append(row)
         except Exception as e:
             print(f"[ERROR] track_id={track.get('track_id')}: {e}")
+
+    thresholds = compute_va_thresholds(results)
+    print(
+        "[INFO] VA thresholds: "
+        f"valence_low={thresholds['valence_low']:.4f}, "
+        f"valence_high={thresholds['valence_high']:.4f}, "
+        f"arousal_low={thresholds['arousal_low']:.4f}, "
+        f"arousal_high={thresholds['arousal_high']:.4f}"
+    )
+
+    for row in results:
+        tags = derive_pseudo_tags(float(row["valence"]), float(row["arousal"]), thresholds)
+        row["energetic"] = tags["energetic"]
+        row["tense"] = tags["tense"]
+        row["calm"] = tags["calm"]
+        row["lyrical"] = tags["lyrical"]
 
     save_results_csv(results, OUTPUT_CSV)
 
