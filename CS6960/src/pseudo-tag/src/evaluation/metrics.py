@@ -17,13 +17,14 @@ def precision_at_k(relevance, k: int) -> float:
     return float(np.sum(top_k > 0) / top_k.size)
 
 
-def recall_at_k(relevance, k: int) -> float:
+def recall_at_k(relevance, k: int, total_relevant: int | None = None) -> float:
     """Compute recall among the top-k items."""
     if k <= 0:
         return 0.0
 
     rel = np.asarray(relevance)
-    total_relevant = np.sum(rel > 0)
+    if total_relevant is None:
+        total_relevant = int(np.sum(rel > 0))
 
     if total_relevant == 0:
         return 0.0
@@ -32,10 +33,10 @@ def recall_at_k(relevance, k: int) -> float:
     return float(np.sum(top_k > 0) / total_relevant)
 
 
-def f1_at_k(relevance, k: int) -> float:
+def f1_at_k(relevance, k: int, total_relevant: int | None = None) -> float:
     """Compute F1 score from precision@k and recall@k."""
     precision = precision_at_k(relevance, k)
-    recall = recall_at_k(relevance, k)
+    recall = recall_at_k(relevance, k, total_relevant=total_relevant)
 
     if precision == 0.0 and recall == 0.0:
         return 0.0

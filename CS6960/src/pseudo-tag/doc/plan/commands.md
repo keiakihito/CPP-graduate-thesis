@@ -60,7 +60,7 @@
 
   ———
 
-  # 3. Run Retrieval Evaluation
+  # 3. Run Retrieval Evaluation (1 song)
 
   Run top-k retrieval for one query and evaluate with pseudo labels.
 
@@ -68,12 +68,12 @@
   ```
   python -m src.evaluation.run_retrieval_eval \
     data/wav/track_30_Passacaglia.wav \
-    outputs/cnn/cnn_small_embeddings.npy \
-    outputs/cnn/cnn_small_metadata.json \
+    data/output/embeddings/cnn/cnn_small_embeddings.npy \
+    data/output/embeddings/cnn/cnn_small_metadata.json \
     data/output/pseudo_labels.csv \
     --model-name cnn_small \
     --top-k 5 \
-    --relevance-strategy composer
+    --relevance-strategy tag_overlap
   ```
   
   Transformer example:

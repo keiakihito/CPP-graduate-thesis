@@ -7,6 +7,7 @@ from pathlib import Path
 
 from src.evaluation.build_relevance import (
     build_relevance,
+    count_total_relevant_items,
     extract_track_id,
     load_label_data,
 )
@@ -42,8 +43,14 @@ def run_single_query_eval(
         label_data=label_data,
         strategy=relevance_strategy,
     )
+    total_relevant = count_total_relevant_items(
+        query_key=query_key,
+        label_data=label_data,
+        strategy=relevance_strategy,
+    )
+    relevant_in_top_k = sum(1 for value in relevance[:top_k] if value > 0)
 
-    if sum(relevance) == 0:
+    if total_relevant == 0:
         print("No relevant items for this query. Skipping evaluation.")
         return {
             "precision@k": None,
@@ -54,8 +61,8 @@ def run_single_query_eval(
 
     metrics = {
         f"precision@{top_k}": precision_at_k(relevance, top_k),
-        f"recall@{top_k}": recall_at_k(relevance, top_k),
-        f"f1@{top_k}": f1_at_k(relevance, top_k),
+        f"recall@{top_k}": recall_at_k(relevance, top_k, total_relevant=total_relevant),
+        f"f1@{top_k}": f1_at_k(relevance, top_k, total_relevant=total_relevant),
         f"ndcg@{top_k}": ndcg_at_k(relevance, top_k),
     }
 
@@ -67,6 +74,9 @@ def run_single_query_eval(
             f"file_id={item.get('file_id', '')}"
         )
 
+    print(f"total_relevant_in_corpus: {total_relevant}")
+    print(f"relevant_in_top_k: {relevant_in_top_k}")
+    print(f"top_k: {top_k}")
     print(f"Relevance: {relevance}")
     for name, value in metrics.items():
         print(f"{name}: {value:.6f}")

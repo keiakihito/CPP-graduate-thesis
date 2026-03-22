@@ -77,10 +77,11 @@ def shared_tag_overlap_relevance(
     candidate_row: dict[str, Any],
     tag_list: list[str],
 ) -> int:
-    """Return 1 when query and candidate share any active tag."""
+    """Return graded relevance equal to the number of overlapping active tags."""
     query_tags = row_to_multihot(query_row, tag_list)
     candidate_tags = row_to_multihot(candidate_row, tag_list)
-    return int(compute_tag_overlap(query_tags, candidate_tags) > 0)
+    # tag_overlap uses graded relevance so NDCG can reward larger tag matches directly.
+    return int(compute_tag_overlap(query_tags, candidate_tags))
 
 
 def _get_item_key(item: dict[str, Any]) -> str | None:
@@ -134,3 +135,37 @@ def build_relevance(
             raise ValueError(f"Unsupported relevance strategy: {strategy}")
 
     return relevance
+
+
+def count_total_relevant_items(
+    query_key: str,
+    label_data: list[dict[str, Any]],
+    strategy: str = "composer",
+) -> int:
+    """Count relevant corpus items for one query, excluding the query item itself."""
+    label_index = build_label_index(label_data)
+    query_row = label_index.get(str(query_key))
+
+    if query_row is None:
+        raise ValueError(f"Query id/path not found in label data: {query_key}")
+
+    tag_list = build_tag_list_from_columns(label_data) if strategy == "tag_overlap" else []
+    total_relevant = 0
+
+    for candidate_row in label_data:
+        if not isinstance(candidate_row, dict):
+            continue
+        if candidate_row is query_row:
+            continue
+
+        if strategy == "composer":
+            total_relevant += int(same_composer_relevance(query_row, candidate_row) > 0)
+        elif strategy == "tag_overlap":
+            # For recall and F1, any positive overlap counts as relevant in the corpus.
+            total_relevant += int(
+                shared_tag_overlap_relevance(query_row, candidate_row, tag_list) > 0
+            )
+        else:
+            raise ValueError(f"Unsupported relevance strategy: {strategy}")
+
+    return total_relevant
