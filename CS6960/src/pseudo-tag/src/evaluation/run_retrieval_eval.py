@@ -85,7 +85,13 @@ def main() -> None:
         "--model-name",
         type=str,
         default="cnn_small",
-        choices=["cnn_small", "transformer_small"],
+        choices=[
+            "cnn_small",
+            "cnn_medium",
+            "cnn_large",
+            "transformer_medium",
+            "transformer_large",
+        ],
         help="Embedding backend to use for retrieval.",
     )
     parser.add_argument("--top-k", type=int, default=5, help="Number of results to evaluate.")

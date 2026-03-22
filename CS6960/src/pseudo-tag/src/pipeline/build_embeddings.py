@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
+import wave
 
 import numpy as np
 
@@ -42,6 +44,58 @@ def create_extractor(model_name: str) -> Any:
     raise ValueError(f"Unsupported model_name: {model_name}")
 
 
+def _iter_wav_segments(wav_path: str, segment_length_sec: float = 30.0):
+    """Yield PCM WAV byte segments using fixed-length non-overlapping windows."""
+    if segment_length_sec <= 0:
+        raise ValueError(f"segment_length_sec must be positive, got {segment_length_sec}")
+
+    with wave.open(wav_path, "rb") as wav_file:
+        params = wav_file.getparams()
+        sample_rate = wav_file.getframerate()
+        frames_per_segment = max(1, int(round(sample_rate * segment_length_sec)))
+
+        while True:
+            segment_frames = wav_file.readframes(frames_per_segment)
+            if not segment_frames:
+                break
+            yield params, segment_frames
+
+
+def extract_track_embedding(
+    wav_path: str,
+    extractor: Any,
+    segment_length_sec: float = 30.0,
+) -> np.ndarray:
+    """Extract one track embedding by mean-pooling fixed-length segment embeddings."""
+    segment_embeddings: list[np.ndarray] = []
+
+    with TemporaryDirectory(prefix="build_embeddings_") as temp_dir:
+        temp_root = Path(temp_dir)
+
+        for segment_index, (params, segment_frames) in enumerate(
+            _iter_wav_segments(wav_path, segment_length_sec=segment_length_sec)
+        ):
+            segment_path = temp_root / f"segment_{segment_index:04d}.wav"
+            with wave.open(str(segment_path), "wb") as segment_file:
+                segment_file.setparams(params)
+                segment_file.writeframes(segment_frames)
+
+            segment_embedding = np.asarray(
+                extractor.extract(str(segment_path)),
+                dtype=np.float32,
+            )
+            if segment_embedding.ndim != 1:
+                raise ValueError(
+                    f"Expected 1D segment embedding, got shape {segment_embedding.shape}"
+                )
+            segment_embeddings.append(segment_embedding)
+
+    if not segment_embeddings:
+        raise ValueError(f"Audio file contains no segments: {wav_path}")
+
+    return np.mean(np.stack(segment_embeddings, axis=0), axis=0).astype(np.float32)
+
+
 def build_embeddings(input_dir: str, output_dir: str, model_name: str) -> None:
     """Build and save clip-level embeddings for all WAV files in a directory."""
     wav_paths = collect_wav_paths(input_dir)
@@ -62,7 +116,7 @@ def build_embeddings(input_dir: str, output_dir: str, model_name: str) -> None:
     for i, wav_path in enumerate(wav_paths):
         print(f"[{i+1}/{len(wav_paths)}] Processing: {wav_path}")
         try:
-            embedding = extractor.extract(str(wav_path))
+            embedding = extract_track_embedding(str(wav_path), extractor)
         except Exception as exc:
             failures.append(
                 {

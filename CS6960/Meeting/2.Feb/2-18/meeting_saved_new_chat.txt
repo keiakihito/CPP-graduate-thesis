@@ -1,0 +1,33 @@
+2026-02-19 17:43:37 From Fatemeh Jamshidi to Everyone:
+	https://arxiv.org/html/2401.00353v1
+	
+2026-02-19 17:45:10 From Fatemeh Jamshidi to Everyone:
+	https://towardsdatascience.com/evaluation-metrics-for-recommendation-systems-an-overview-71290690ecba/
+	
+2026-02-19 17:46:18 From Fatemeh Jamshidi to Everyone:
+	https://huggingface.co/amaai-lab/music2emo
+	
+2026-02-19 17:55:25 From Fatemeh Jamshidi to Everyone:
+	https://huggingface.co/blog/jiagaoxiang/genai-interaction-recommendation-system
+	
+2026-02-19 18:14:13 From Fatemeh Jamshidi to Everyone:
+	ISMIR
+	
+2026-02-19 18:14:36 From Fatemeh Jamshidi to Everyone:
+	EMNLP
+	
+2026-02-19 18:14:49 From Fatemeh Jamshidi to Everyone:
+	NeurlPS
+	
+2026-02-19 18:16:19 From Fatemeh Jamshidi to Everyone:
+	International Conference on Learning Representations (ICLR)
+	
+2026-02-19 18:16:42 From Fatemeh Jamshidi to Everyone:
+	International Conference on Acoustics Speech and Signal Processing (ICASSP)
+	
+2026-02-19 18:16:57 From Fatemeh Jamshidi to Everyone:
+	AAAI Conference on Artificial Intelligence (AAAI)
+	
+2026-02-19 18:17:17 From Fatemeh Jamshidi to Everyone:
+	NeurIPS Workshop on AI for Music
+	

@@ -37,12 +37,15 @@
 
   CNN embeddings:
   ```
-  python -m src.pipeline.build_embeddings data/wav outputs/cnn --model-name cnn_small
+  python -m src.pipeline.build_embeddings data/wav data/output/embeddings/cnn_small --model-name cnn_small
+  python -m src.pipeline.build_embeddings data/wav data/output/embeddings/cnn_medium --model-name cnn_medium
+  python -m src.pipeline.build_embeddings data/wav data/output/embeddings/cnn_large --model-name cnn_large
   ```
 
   Transformer embeddings:
   ``` 
-  python -m src.pipeline.build_embeddings data/wav outputs/ast --model-name transformer_small
+  python -m src.pipeline.build_embeddings data/wav data/output/embeddings/transformer_medium --model-name transformer_medium
+  python -m src.pipeline.build_embeddings data/wav data/output/embeddings/transformer_large --model-name transformer_large
   ```
   Outputs:
 
@@ -96,30 +99,65 @@
   ———
 
   # 4. Batch Evaluation
-  Transformer
+  Transformer medium
   ```
-    python -m src.evaluation.run_batch_eval \
-    data/wav \
-    data/output/embeddings/transformer_small_embeddings.npy \
-    data/output/embeddings/transformer_small_metadata.json \
-    data/output/labels/pseudo_labels.csv \
-    --model-name transformer_small \
-    --top-k 5 \
-    --relevance-strategy tag_overlap
-  ```
+  python -m src.evaluation.run_batch_eval \
+  data/wav \
+  data/output/embeddings/transformer_medium/transformer_medium_embeddings.npy \
+  data/output/embeddings/transformer_medium/transformer_medium_metadata.json \
+  data/output/labels/pseudo_labels.csv \
+  --model-name transformer_medium \
+  --top-k 5 \
+  --relevance-strategy tag_overlap
 
-  CNN
   ```
-    python -m src.evaluation.run_batch_eval \
+   Transformer large
+   ```
+   python -m src.evaluation.run_batch_eval \
+  data/wav \
+  data/output/embeddings/transformer_large/transformer_large_embeddings.npy \
+  data/output/embeddings/transformer_large/transformer_large_metadata.json \
+  data/output/labels/pseudo_labels.csv \
+  --model-name transformer_large \
+  --top-k 5 \
+  --relevance-strategy tag_overlap
+   ```
+
+  CNN small
+  ```
+  python -m src.evaluation.run_batch_eval \
     data/wav \
-    data/output/embeddings/cnn_small_embeddings.npy \
-    data/output/embeddings/cnn_small_metadata.json \
+    data/output/embeddings/cnn_small/cnn_small_embeddings.npy \
+    data/output/embeddings/cnn_small/cnn_small_metadata.json \
     data/output/labels/pseudo_labels.csv \
     --model-name cnn_small \
     --top-k 5 \
     --relevance-strategy tag_overlap
   ```
 
+  CNN medium
+  ```
+  python -m src.evaluation.run_batch_eval \
+  data/wav \
+  data/output/embeddings/cnn_medium/cnn_medium_embeddings.npy \
+  data/output/embeddings/cnn_medium/cnn_medium_metadata.json \
+  data/output/labels/pseudo_labels.csv \
+  --model-name cnn_medium \
+  --top-k 5 \
+  --relevance-strategy tag_overlap
+  ```
+
+  CNN Large
+  ```
+  python -m src.evaluation.run_batch_eval \
+  data/wav \
+  data/output/embeddings/cnn_large/cnn_large_embeddings.npy \
+  data/output/embeddings/cnn_large/cnn_large_metadata.json \
+  data/output/labels/pseudo_labels.csv \
+  --model-name cnn_large \
+  --top-k 5 \
+  --relevance-strategy tag_overlap
+  ```
   ———
 
   # Notes

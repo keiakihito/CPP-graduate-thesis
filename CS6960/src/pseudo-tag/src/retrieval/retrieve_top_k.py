@@ -9,8 +9,11 @@ from typing import Any
 import numpy as np
 
 from src.io_utils import load_json
+from src.models.cnn_large import CNNLargeEmbedder
+from src.models.cnn_medium import CNNMediumEmbedder
 from src.models.cnn_small import CNNSmallEmbedder
-from src.models.transformer_small import TransformerSmallEmbedder
+from src.models.transformer_large import TransformerLargeEmbedder
+from src.models.transformer_medium import TransformerMediumEmbedder
 from src.retrieval.similarity import pairwise_cosine_similarity
 
 
@@ -18,8 +21,14 @@ def create_extractor(model_name: str) -> Any:
     """Create an embedding extractor from a simple model name."""
     if model_name == "cnn_small":
         return CNNSmallEmbedder()
-    if model_name == "transformer_small":
-        return TransformerSmallEmbedder()
+    if model_name == "cnn_medium":
+        return CNNMediumEmbedder()
+    if model_name == "cnn_large":
+        return CNNLargeEmbedder()
+    if model_name == "transformer_medium":
+        return TransformerMediumEmbedder()
+    if model_name == "transformer_large":
+        return TransformerLargeEmbedder()
     raise ValueError(f"Unsupported model_name: {model_name}")
 
 
@@ -129,7 +138,13 @@ def main() -> None:
         "--model-name",
         type=str,
         default="cnn_small",
-        choices=["cnn_small", "transformer_small"],
+        choices=[
+            "cnn_small",
+            "cnn_medium",
+            "cnn_large",
+            "transformer_medium",
+            "transformer_large",
+        ],
         help="Embedding backend to use for the query.",
     )
     parser.add_argument("--top-k", type=int, default=5, help="Number of results to return.")
