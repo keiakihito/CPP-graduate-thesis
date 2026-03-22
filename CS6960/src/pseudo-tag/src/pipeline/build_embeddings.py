@@ -9,7 +9,9 @@ from typing import Any
 import numpy as np
 
 from src.io_utils import ensure_dir, save_json
+from src.models.cnn_base import CNNBaseEmbedder
 from src.models.cnn_small import CNNSmallEmbedder
+from src.models.transformer_base import TransformerBaseEmbedder
 from src.models.transformer_small import TransformerSmallEmbedder
 
 
@@ -28,8 +30,12 @@ def create_extractor(model_name: str) -> Any:
     """Create an embedding extractor from a simple model name."""
     if model_name == "cnn_small":
         return CNNSmallEmbedder()
+    if model_name == "cnn_base":
+        return CNNBaseEmbedder()
     if model_name == "transformer_small":
         return TransformerSmallEmbedder()
+    if model_name == "transformer_base":
+        return TransformerBaseEmbedder()
     raise ValueError(f"Unsupported model_name: {model_name}")
 
 
@@ -120,7 +126,7 @@ def main() -> None:
         "--model-name",
         type=str,
         default="cnn_small",
-        choices=["cnn_small", "transformer_small"],
+        choices=["cnn_small", "cnn_base", "transformer_small", "transformer_base"],
         help="Embedding backend to use.",
     )
     args = parser.parse_args()

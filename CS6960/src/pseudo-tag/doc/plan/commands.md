@@ -51,6 +51,11 @@
   - *_failures.json
 
   ———
+  # 2.5 Build embeddings test
+  pytest tests/test_build_embeddings.py -v -s
+  pytest tests/test_embedding_extractors_smoke.py -m smoke -v -s
+
+  ———
 
   # 3. Run Retrieval Evaluation
 

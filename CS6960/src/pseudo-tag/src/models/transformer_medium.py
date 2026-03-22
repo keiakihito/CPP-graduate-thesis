@@ -1,4 +1,4 @@
-"""Inference-only AST base embedding extractor for thesis experiments."""
+"""Inference-only MERT medium embedding extractor for thesis experiments."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ import wave
 import numpy as np
 
 
-AST_MODEL_NAME = "MIT/ast-finetuned-audioset-10-10-0.4593"
-AST_SAMPLE_RATE = 16_000
+MERT_MODEL_NAME = "m-a-p/MERT-v1-95M"
+MERT_SAMPLE_RATE = 24_000
 
 
 def _load_wav_mono(wav_path: str) -> tuple[np.ndarray, int]:
@@ -64,22 +64,22 @@ def _resample_audio(audio: np.ndarray, orig_sr: int, target_sr: int) -> np.ndarr
     return resampled.astype(np.float32)
 
 
-class TransformerBaseEmbedder:
-    """Inference-only base AST embedder for fixed-length clip representations."""
+class TransformerMediumEmbedder:
+    """Inference-only medium MERT embedder for fixed-length clip representations."""
 
     def __init__(
         self,
-        model_name: str = AST_MODEL_NAME,
-        target_sample_rate: int = AST_SAMPLE_RATE,
+        model_name: str = MERT_MODEL_NAME,
+        target_sample_rate: int = MERT_SAMPLE_RATE,
     ) -> None:
-        """Load the pretrained AST processor and model for inference."""
+        """Load the pretrained MERT processor and model for inference."""
         try:
             import torch
-            from transformers import AutoFeatureExtractor, ASTModel
+            from transformers import AutoFeatureExtractor, AutoModel
         except ImportError as exc:
             raise ImportError(
-                "TransformerBaseEmbedder requires 'torch' and 'transformers' "
-                "to load a pretrained AST model."
+                "TransformerMediumEmbedder requires 'torch' and 'transformers' "
+                "to load a pretrained MERT model."
             ) from exc
 
         self._torch = torch
@@ -87,27 +87,33 @@ class TransformerBaseEmbedder:
         self.model_name = model_name
 
         try:
-            self._feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
-            self._model = ASTModel.from_pretrained(model_name)
+            self._feature_extractor = AutoFeatureExtractor.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+            )
+            self._model = AutoModel.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+            )
             self._model.eval()
         except Exception as exc:
-            raise RuntimeError(f"Failed to load AST model from: {model_name}") from exc
+            raise RuntimeError(f"Failed to load MERT model from: {model_name}") from exc
 
         self._embedding_dim = int(self._model.config.hidden_size)
 
     def get_embedding_dim(self) -> int:
-        """Return the clip embedding dimension produced by AST."""
+        """Return the clip embedding dimension produced by MERT."""
         return self._embedding_dim
 
     def load_audio(self, wav_path: str) -> np.ndarray:
-        """Load PCM WAV audio and resample it to the AST input rate."""
+        """Load PCM WAV audio and resample it to the MERT input rate."""
         audio, sample_rate = _load_wav_mono(wav_path)
         if audio.size == 0:
             raise ValueError(f"Audio file contains no samples: {wav_path}")
         return _resample_audio(audio, sample_rate, self.target_sample_rate)
 
     def extract_frames(self, wav_path: str) -> np.ndarray:
-        """Run AST and return token-level hidden states."""
+        """Run MERT and return token-level hidden states."""
         waveform = self.load_audio(wav_path)
 
         try:
@@ -119,15 +125,15 @@ class TransformerBaseEmbedder:
             with self._torch.no_grad():
                 outputs = self._model(**inputs)
         except Exception as exc:
-            raise RuntimeError(f"AST inference failed for: {wav_path}") from exc
+            raise RuntimeError(f"MERT inference failed for: {wav_path}") from exc
 
         hidden_states = outputs.last_hidden_state
         embeddings = hidden_states.squeeze(0).detach().cpu().numpy().astype(np.float32)
 
         if embeddings.ndim != 2 or embeddings.shape[0] == 0:
-            raise RuntimeError(f"AST returned no hidden representations for: {wav_path}")
+            raise RuntimeError(f"MERT returned no hidden representations for: {wav_path}")
         if embeddings.shape[1] != self._embedding_dim:
-            raise RuntimeError(f"Unexpected AST embedding dimension: {embeddings.shape[1]}")
+            raise RuntimeError(f"Unexpected MERT embedding dimension: {embeddings.shape[1]}")
 
         return embeddings
 
@@ -139,7 +145,7 @@ class TransformerBaseEmbedder:
         clip_embedding = frame_embeddings.mean(axis=0).astype(np.float32)
         if clip_embedding.shape[0] != self._embedding_dim:
             raise RuntimeError(
-                f"Unexpected AST embedding dimension: {clip_embedding.shape[0]}"
+                f"Unexpected MERT embedding dimension: {clip_embedding.shape[0]}"
             )
 
         return clip_embedding

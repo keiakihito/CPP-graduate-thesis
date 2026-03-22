@@ -98,14 +98,34 @@ def test_cnn_base_embedder_smoke(wav_path: str) -> None:
 
 @pytest.mark.smoke
 @pytest.mark.integration
-def test_transformer_base_embedder_smoke(wav_path: str) -> None:
-    """TransformerBaseEmbedder should return a valid 1D embedding."""
+def test_transformer_medium_embedder_smoke(wav_path: str) -> None:
+    """TransformerMediumEmbedder should return a valid 1D embedding."""
     pytest.importorskip("torch")
     pytest.importorskip("transformers")
 
-    from src.models.transformer_base import TransformerBaseEmbedder
+    from src.models.transformer_medium import TransformerMediumEmbedder
 
-    extractor = TransformerBaseEmbedder()
+    extractor = TransformerMediumEmbedder()
+    embedding = extractor.extract(wav_path)
+
+    # Smoke test the shared extractor contract, not model accuracy.
+    assert isinstance(embedding, np.ndarray)
+    assert embedding.ndim == 1
+    assert embedding.size > 0
+    assert embedding.shape[0] == extractor.get_embedding_dim()
+    assert np.all(np.isfinite(embedding))
+
+
+@pytest.mark.smoke
+@pytest.mark.integration
+def test_transformer_large_embedder_smoke(wav_path: str) -> None:
+    """TransformerLargeEmbedder should return a valid 1D embedding."""
+    pytest.importorskip("torch")
+    pytest.importorskip("transformers")
+
+    from src.models.transformer_large import TransformerLargeEmbedder
+
+    extractor = TransformerLargeEmbedder()
     embedding = extractor.extract(wav_path)
 
     # Smoke test the shared extractor contract, not model accuracy.
