@@ -40,8 +40,8 @@ def wav_path(tmp_path: Path) -> str:
 @pytest.mark.integration
 def test_cnn_small_embedder_smoke(wav_path: str) -> None:
     """CNNSmallEmbedder should return a valid 1D embedding."""
-    pytest.importorskip("tensorflow")
-    pytest.importorskip("tensorflow_hub")
+    pytest.importorskip("torch")
+    pytest.importorskip("panns_inference")
 
     from src.models.cnn_small import CNNSmallEmbedder
 
