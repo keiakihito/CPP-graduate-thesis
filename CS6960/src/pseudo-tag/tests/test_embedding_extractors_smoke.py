@@ -74,3 +74,43 @@ def test_transformer_small_embedder_smoke(wav_path: str) -> None:
     assert embedding.size > 0
     assert embedding.shape[0] == extractor.get_embedding_dim()
     assert np.all(np.isfinite(embedding))
+
+
+@pytest.mark.smoke
+@pytest.mark.integration
+def test_cnn_base_embedder_smoke(wav_path: str) -> None:
+    """CNNBaseEmbedder should return a valid 1D embedding."""
+    pytest.importorskip("torch")
+    pytest.importorskip("panns_inference")
+
+    from src.models.cnn_base import CNNBaseEmbedder
+
+    extractor = CNNBaseEmbedder()
+    embedding = extractor.extract(wav_path)
+
+    # Smoke test the shared extractor contract, not retrieval quality.
+    assert isinstance(embedding, np.ndarray)
+    assert embedding.ndim == 1
+    assert embedding.size > 0
+    assert embedding.shape[0] == extractor.get_embedding_dim()
+    assert np.all(np.isfinite(embedding))
+
+
+@pytest.mark.smoke
+@pytest.mark.integration
+def test_transformer_base_embedder_smoke(wav_path: str) -> None:
+    """TransformerBaseEmbedder should return a valid 1D embedding."""
+    pytest.importorskip("torch")
+    pytest.importorskip("transformers")
+
+    from src.models.transformer_base import TransformerBaseEmbedder
+
+    extractor = TransformerBaseEmbedder()
+    embedding = extractor.extract(wav_path)
+
+    # Smoke test the shared extractor contract, not model accuracy.
+    assert isinstance(embedding, np.ndarray)
+    assert embedding.ndim == 1
+    assert embedding.size > 0
+    assert embedding.shape[0] == extractor.get_embedding_dim()
+    assert np.all(np.isfinite(embedding))
