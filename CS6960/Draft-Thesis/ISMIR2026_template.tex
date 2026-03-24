@@ -194,58 +194,42 @@ under constrained archival conditions \cite{tamm2024, krichene2020, canamares202
 
 % Section 3 Method
 \section{Method}\label{sec:method}\label{ch:problem}\label{ch:methodology}
+This section formalizes the retrieval setting and experimental framework used to evaluate the effect of embedding-model capacity on similarity-based retrieval performance.
 
-\subsection{Formal Problem Definition}
+\subsection{Problem Formulation}
 
-Let $D = \{x_1, x_2, \dots, x_N\}$ denote a collection of $N$ classical music recordings drawn from the iPalpiti archive.
-Each item $x_i$ represents a complete audio track.
+Let $D = \{x_1, x_2, \dots, x_N\}$ denote a collection of $N$ classical music recordings drawn from
+the iPalpiti archive. Each item $x_i$ represents a complete audio track.
 
 An embedding model is defined as a function:
-
 \[
 f_\theta : \mathcal{X} \rightarrow \mathbb{R}^d
 \]
-
-where $\theta$ denotes the model parameters and $d$ the embedding dimensionality.
-The embedding of item $x_i$ is:
-
+where $\theta$ denotes the model parameters and $d$ the embedding dimensionality. The embedding of
+item $x_i$ is:
 \[
 z_i = f_\theta(x_i)
 \]
 
-Similarity between two items is computed using a similarity function $s(\cdot,\cdot)$, such as cosine similarity:
-
+Similarity between two items is computed using a similarity function $s(\cdot,\cdot)$, such as cosine
+similarity:
 \[
 s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}
 \]
-
 Higher similarity values indicate greater embedding-space proximity.
 
-Given a query item $x_q \in D$, all items in $D \setminus \{x_q\}$ are ranked in descending order of similarity $s(z_q, z_i)$. 
-Retrieval quality is evaluated with respect to a relevance function $r_q(x_i) \in \{0,1\}$ defined by proxy tasks.
-Ranking quality is measured using standard IR metrics including NDCG@K, Precision@K, and Recall@K.
+Given a query item $x_q \in D$, all items in the collection except $x_q$ are ranked in descending
+order of similarity $s(z_q, z_i)$. Retrieval quality is evaluated with respect to a relevance
+function $r_q(x_i) \in \{0,1\}$ defined by proxy tasks, and ranking quality is measured using
+standard IR metrics including NDCG@K, Precision@K, Recall@K, and F1@K.
 
+The primary independent variable is embedding-model capacity, operationalized mainly through
+parameter count ($|\theta|$), with architectural class treated as a separate categorical factor.
+Capacity effects are examined within architectural families via small, base, and large variants under
+a controlled retrieval setting.
 
-
-\subsection{Definition of Embedding Capacity}
-
-The primary independent variable in this study is embedding-model capacity. 
-Embedding capacity is operationalized primarily through model parameter count ($|\theta|$), which serves as the principal quantitative measure of model size. 
-Embedding dimensionality ($d$) is reported as a secondary structural attribute.
-
-Architectural class (e.g., CNN-based vs.\ Transformer-based) is treated as a separate categorical factor rather than as a direct measure of capacity. 
-Accordingly, models are compared at discrete capacity levels, with architectural differences analyzed independently from raw parameter count. 
-This operationalization allows capacity to be treated as a measurable experimental variable rather than a qualitative label (e.g., ``Energetic'' vs.\ ``Calm'').
-
-Capacity effects are examined within each architectural family via small, base, and large variants, enabling controlled scaling comparisons under shared structural principles.
-
-This design enables empirical characterization of scaling behavior under constrained data conditions.
-
-\subsection{Proxy Retrieval Tasks}
-
-Relevance is defined via structured proxy tasks derived from metadata.
-Let $g(x)$ denote a metadata-based labeling function.
-Two proxy families are considered:
+Relevance is defined through two metadata-based proxy tasks. Let $g(x)$ denote a metadata labeling
+function.
 
 \textbf{Sanity Proxy.} Relevance is defined by shared composer identity:
 \[
@@ -261,243 +245,61 @@ For experimental tractability, relevance is treated as binary:
 \[
 r_q(x_i) \in \{0,1\}
 \]
-with $r_q(x_i)=0$ when labels do not match.
+with $r_q(x_i)=0$ when labels do not match. This study assumes that such metadata-derived labels
+provide a controlled, though coarse, approximation of musical similarity.
 
-Although musical similarity is inherently continuous, metadata-derived labels provide a controlled and reproducible approximation suitable for systematic evaluation.
-These proxy tasks serve as diagnostic instruments rather than end goals, enabling controlled analysis of embedding-space organization in constrained archival settings.
+\subsection{Retrieval Pipeline}
+The backend evaluation pipeline consists of four stages: audio preprocessing, embedding extraction,
+similarity computation, and ranking. All components other than embedding extraction are held constant
+to isolate the effect of embedding capacity.
 
+The dataset is the iPalpiti classical music archive, comprising [TBD] tracks and [TBD] hours of
+audio. Ground truth is derived from editorial metadata, including composer identity and character
+labels used in the proxy tasks.
 
-\subsection{Experimental Variables and Controls}
+Each complete track serves as the retrieval unit, and embeddings are computed directly from
+full-length audio inputs without segmentation. Cosine similarity is used for ranking across all
+models.
 
-This study follows a hypothesis-driven experimental design.
-Embedding-model capacity serves as the primary independent variable, while ranking-based retrieval metrics (NDCG@K, Precision@K, and Recall@K) constitute the dependent variables.
-To ensure internal validity, the audio preprocessing pipeline, indexing mechanism, similarity function, and evaluation protocol are held constant across all experimental conditions.
-Under this controlled setting, performance differences can be attributed primarily to variations in embedding capacity.
+\subsection{Model Setup}
+Models are selected to represent discrete capacity tiers within two architectural families: CNN-based
+and Transformer-based models. Within each family, small, medium, and large variants enable controlled
+scaling comparisons, while cross-family comparisons are interpreted descriptively because
+architecture, parameter count, and pretraining objectives may co-vary.
 
+CNN-based models are drawn from a unified convolutional lineage in which scaling is achieved
+primarily through increased depth under comparable training objectives. Specifically, we use Cnn6
+(small), Cnn10 (medium), and Cnn14 (large) to represent controlled capacity scaling within the CNN
+family.
 
-\subsection{Backend Pipeline Architecture}
+Transformer-based models are selected from a self-supervised audio representation framework with
+documented parameter tiers. We use MERT-95M (medium) and MERT-330M (large) to represent different
+capacity levels within the transformer family.
 
-The backend evaluation pipeline consists of four sequential stages: 
-(1) audio preprocessing, 
-(2) embedding extraction, 
-(3) similarity indexing, and 
-(4) ranking and evaluation.
+All selected models provide pretrained checkpoints and support standardized embedding extraction.
 
-Audio recordings are first standardized through a consistent preprocessing pipeline.
-Embeddings are then extracted using models of varying capacity.
-The resulting representations are indexed using a fixed similarity-search mechanism, after which ranked retrieval is performed and evaluated using the predefined ranking metrics.
 
-All components other than embedding extraction are held constant across experimental conditions.
-This design isolates embedding-model capacity as the primary experimental variable.
+\subsection{Evaluation Protocol}
 
+Each track in the archive is used as a query in a leave-one-out retrieval setting, where the query
+item itself is excluded from the candidate pool. Relevance is determined by metadata matching as
+defined above, and performance metrics are averaged across all query instances.
 
-\subsection{Conditioning Assumptions}
+Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when
+multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a
+consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across
+all models. Performance is primarily assessed using NDCG@10 and Precision@10, with interpretation
+focused on consistent scaling patterns rather than small numerical differences.
 
-All claims in this thesis are conditioned on specific contextual assumptions. 
-The study is conducted under a small-scale dataset setting ($N$ limited), 
-within a single-domain classical music archive, 
-using retrieval-based proxy evaluation, 
-and without incorporating user interaction modeling.
 
-Accordingly, the findings should be interpreted within these constraints. 
-These assumptions define the validity domain of the study, 
-and results should not be generalized beyond similar small-scale, 
-single-domain archival settings without further empirical validation.
 
-\subsection*{Assumption of Proxy Validity}
 
-This study assumes that metadata-derived labels (e.g., Composer and Character) 
-serve as valid, though coarse, indicators of musical similarity within the archival context. 
-While musical similarity is inherently continuous and multidimensional, 
-these proxy labels provide a controlled and reproducible approximation suitable for systematic evaluation.
 
 
 
 
-This section presents the experimental framework used to examine the influence of embedding-model capacity on similarity-based retrieval performance. 
-The methodology follows a hypothesis-driven, iterative experimental design. 
-A baseline retrieval pipeline is first established to ensure controlled and reproducible evaluation, after which experimental conditions are progressively expanded to evaluate the core research hypothesis under varying capacity regimes.
 
 
-\subsection{Research Intent and Experimental Guarantees}
-This section defines the core research property under investigation and clarifies the guarantees provided by the experimental design.
-
-\subsubsection{Core Research Property}
-
-The relationship between embedding-model capacity and retrieval performance is hypothesized to be condition-dependent. 
-Specifically, in small-scale, single-domain archives, increased capacity does not necessarily guarantee monotonically superior retrieval effectiveness.
-
-\subsubsection{Experimental Guarantees}
-The experimental design provides the following guarantees:
-Capacity tiers are defined on an approximately logarithmic parameter scale (e.g., tens of millions $\rightarrow$ hundreds of millions), enabling detection of diminishing marginal gains.
-
-\begin{itemize}
-    \item \textbf{Isolation of Scaling Effects:} 
-    Parameter scaling effects are examined within each architectural family (CNN and Transformer) via small, base, and large variants.
-    Cross-family comparisons (CNN vs.\ Transformer) are interpreted as evaluations of practical model complexity regimes, in which parameter count, architecture, and pretraining objectives co-vary.
-
-    \item \textbf{Detection of Diminishing Returns:} 
-    By comparing models across discrete capacity tiers, the design enables observation of diminishing returns within the tested capacity range.
-
-    \item \textbf{Falsifiability:} 
-    The hypothesis is falsifiable if higher-capacity models consistently outperform lower-capacity baselines across all proxy tasks without evidence of saturation.
-\end{itemize}
-
-
-\subsection{Dataset Description and Preprocessing}
-
-\subsubsection{The iPalpiti Classical Archive}
-The primary dataset consists of the iPalpiti classical music archive, a curated collection of live orchestral and chamber music performances. This single-domain archive features exclusively classical works performed by the iPalpiti festival orchestra. The collection comprises a total of [TBD: Insert Final Track Count] tracks, representing approximately [TBD: Insert Total Hours] hours of audio recordings.
-
-\subsubsection{Metadata and Label Taxonomy}
-Ground truth for proxy retrieval tasks is derived from editorial metadata associated with each recording. The composer metadata serves as an objective label for sanity-check retrieval tasks, allowing us to verify if models can cluster tracks by composition. For the primary musical proxy task, tracks are annotated with abstract character labels (e.g., ``Energetic'' versus ``Calm''), which capture the timbral and structural qualities relevant to the archive's curatorial goals.
-
-\subsubsection{Audio Preprocessing Pipeline}
-
-To ensure internal validity, the audio preprocessing pipeline is held constant across all embedding models.
-
-Source recordings, originally distributed in compressed formats (e.g., MP3 from CD albums), are first converted to uncompressed WAV format to avoid variability introduced by compression artifacts. 
-All audio files are resampled to [e.g., 16 kHz or 32 kHz] in accordance with the input requirements of the evaluated models. 
-Channel configuration is standardized to [mono/stereo], and amplitude normalization (e.g., peak normalization) is applied to ensure consistent signal scaling across recordings.
-
-In the primary experimental setup, each complete track serves as a single retrieval unit. 
-Embeddings are therefore derived at the track level, treating each full recording as one input instance. 
-For models requiring fixed-length inputs, representative segments are extracted using a consistent windowing strategy (e.g., uniform segmentation with aggregation).
-
-For models that require fixed-length inputs, each track is segmented into uniform windows. 
-A window-level embedding is computed for each segment, and track-level embeddings are obtained by averaging window embeddings (mean aggregation). 
-When a model produces frame- or token-level representations within a window, these are first pooled temporally (global mean pooling) to yield a single embedding per window. 
-This two-stage aggregation (within-window pooling, then across-window averaging) is applied consistently across all models.
-
-Although classical works are often structured into multiple movements, movement-level segmentation is not applied in the primary experiments. 
-Each complete track serves as the unit of retrieval analysis in order to maintain a consistent and controlled evaluation setting.
-
-Movement-level metadata is retained for potential future analyses. 
-However, segmentation-based experiments are considered beyond the scope of the present study. 
-Such extensions may enable examination of whether embedding-model capacity interacts differently with finer-grained structural units.
-
-
-\subsection{Selection of Embedding Models (Independent Variable)}
-Models are selected to represent discrete capacity tiers within two major architectural families: CNN-based and Transformer-based models. 
-Model capacity is operationalized primarily through parameter count ($|\theta|$). 
-Within each family, three capacity levels (small, base, and large) are selected to enable controlled scaling comparisons under a shared architectural backbone.
-
-This design serves two complementary purposes. 
-First, comparisons within each architectural family (e.g., small vs.\ base vs.\ large) isolate parameter scaling effects while holding core architectural principles constant. 
-Second, cross-family comparisons (CNN vs.\ Transformer) are treated as comparisons across practical model complexity regimes. 
-In these comparisons, parameter count, architectural inductive bias, and pretraining objectives may co-vary; thus, cross-family results are interpreted descriptively rather than as isolated causal effects of capacity alone.
-This structured design ensures that capacity effects are analyzed both within and across architectural families without conflating scaling and structural differences.
-
-
-\subsubsection{Model Selection Rationale}
-
-Models were selected to operationalize controlled capacity scaling within two architectural families.
-Within each family, small, base, and large variants were chosen to span approximately one order of magnitude in parameter count (e.g., tens of millions to several hundred million parameters).
-This logarithmic separation enables detection of potential diminishing returns or saturation effects.
-
-CNN-based models were selected from a unified convolutional lineage in which scaling is achieved primarily through increased depth and channel width under comparable training objectives.
-This ensures that parameter growth reflects increased representational capacity under consistent architectural principles.
-
-Transformer-based models were selected from publicly released self-supervised audio representation frameworks with clearly documented parameter tiers.
-These models reflect contemporary large-scale representation learning paradigms emphasizing general-purpose audio embeddings.
-The largest transformer model was intentionally chosen to represent an upper bound of practical model capacity.
-
-All selected models provide publicly available pretrained checkpoints and allow extraction of fixed-dimensional embeddings under a standardized inference pipeline.
-
-
-
-\subsection{Model Zoo}
-
-We evaluate multiple embedding models across two architectural families: CNN-based and Transformer-based models.
-Within the CNN family, model capacity is approximated by network depth, using Cnn6, Cnn10, and Cnn14 as small, medium, and large configurations, respectively.
-Within the Transformer family, we use MERT-based models with different capacity sizes to represent medium and large capacity settings.
-This design enables controlled comparison of capacity effects within each architectural family.
-
-\begin{table}[h]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{llll}
-\hline
-Family & Tier & Model \\ \hline
-CNN & Small & Cnn6  \\ \hline
-CNN & Medium & Cnn10  \\ \hline
-CNN & Large & Cnn14  \\ \hline
-Transformer & Medium & MERT-95M  \\ \hline
-Transformer & Large & MERT-330M  \\ \hline
-\end{tabular}
-}
-\label{tab:model_zoo}
-\end{table}
-
-Capacity effects are examined along two complementary axes:
-(i) controlled scaling within architectural families, and
-(ii) descriptive cross-family comparisons across practical model complexity regimes, where architectural differences and parameter scaling co-vary.
-
-For Transformer-based models, parameter count ($|\theta|$) is reported as a proxy for model capacity. 
-For CNN-based models, capacity is instead represented by network depth, as exact parameter counts are not directly comparable across configurations.
-
-
-\subsection{The Retrieval Pipeline}
-
-\subsubsection{Inference Engine}
-The retrieval system is implemented as a modular backend pipeline that isolates the embedding extraction process from downstream retrieval tasks. The system is built using the PyTorch and HuggingFace Transformers frameworks and executed on [TBD: Hardware Specs, e.g., NVIDIA A100 / RTX 3090] hardware to ensure efficient batch processing.
-
-\subsubsection{Similarity and Indexing}
-Although embedding dimensionality varies across models, cosine similarity is retained as a standardized similarity measure due to its scale invariance and widespread adoption in representation learning literature. 
-While high-dimensional spaces may exhibit concentration effects, all models are evaluated under identical similarity and ranking procedures. 
-Because all models are evaluated using the same similarity function and identical ranking procedure, observed differences are attributed to representational quality rather than downstream retrieval mechanics.
-Future extensions may include dimensionality normalization or projection (e.g., PCA alignment) to further disentangle capacity effects from embedding dimensionality. However, such transformations are excluded from the present study to preserve model-native representational characteristics.
-
-
-
-\subsection{Evaluation Protocol (Dependent Variables)}
-Each track in the archive is used as a query in a leave-one-out retrieval setting, where the query item itself is excluded from the candidate pool.
-Performance metrics are averaged across all query instances to obtain corpus-level estimates.
-
-\subsubsection{Relevance Judgments (Ground Truth)}
-Relevance is determined by metadata matching as defined earlier in this section. The first proxy task, the Sanity Proxy, defines relevance based on shared composer identity; a retrieved item is considered relevant only if it shares the same composer as the query item. The second task, the Primary Musical Proxy, defines relevance based on abstract musical character labels; items are relevant if they share the same descriptive character (e.g., ``Energetic'') as the query.
-
-\subsubsection{Performance Metrics}
-
-Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across all models.
-
-Performance is primarily assessed using NDCG@10 and Precision@10. Given the limited dataset size, interpretation focuses on consistent scaling patterns across capacity tiers rather than marginal numerical differences between models.
-
-
-\subsection{Experimental Design}
-The empirical evaluation proceeds in three structured stages.
-
-\textbf{Stage I: Composer-Based Sanity Retrieval.} This stage evaluates whether models can retrieve items sharing the same composer identity, establishing a functional baseline.
-Failure to perform above chance on this proxy would indicate issues in preprocessing, indexing, or metadata integrity, and would invalidate subsequent proxy-based interpretations.
-Chance-level performance is defined relative to a random ranking baseline under identical evaluation conditions.
-
-\textbf{Stage II: Musical Character Retrieval.} This stage evaluates retrieval performance under abstract musical-character constraints, directly testing the core hypothesis under domain-specific similarity definitions.
-
-\textbf{Stage III: Capacity--Performance Analysis.} This stage analyzes the relationship between model capacity and retrieval metrics, examining whether performance trends exhibit monotonic growth, saturation, or degradation across capacity tiers.
-
-
-
-
-\subsubsection{Failure Modes and Boundary Conditions}
-These boundary scenarios function as structural tests of the central hypothesis rather than unexpected empirical outcomes.
-If performance differences align strictly with architectural class rather than parameter count within the same family, this would suggest that inductive bias, rather than raw capacity, governs retrieval effectiveness under the tested domain conditions.
-We explicitly define three failure scenarios and their implications for the hypothesis:
-
-\begin{enumerate}
-    \item \textbf{Strict Monotonic Improvement:} If retrieval performance improves linearly or log-linearly with model capacity across all proxies, the condition-dependence hypothesis is weakened, suggesting that capacity and modern large-scale pretraining strategies may act as dominant drivers under the tested domain conditions.
-    \item \textbf{No Performance Variation:} If all models perform at comparable levels across proxy tasks, it implies that either the proxy definitions or the dataset scale are insufficient to reveal meaningful differences in embedding quality. Such an outcome would represent a limitation of the evaluation setting rather than confirmation of capacity irrelevance.
-    \item \textbf{Performance Degradation:} If higher-capacity models perform worse than compact baselines, it provides strong evidence for the hypothesis, suggesting overfitting or domain mismatch (e.g., pretraining bias) in the larger models.
-\end{enumerate}
-
-
-
-
-
-% 
-
-% 
-
-% 
 
 % Section 4 Experimental Setup
 \section{Experimental Setup}\label{sec:experimental-setup}
