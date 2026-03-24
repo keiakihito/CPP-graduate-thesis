@@ -37,16 +37,12 @@
 \maketitle
 
 \begin{abstract}
-Learned audio embeddings are increasingly used to support music recommendation and similarity search, yet most existing work and deployed systems are optimized for large, heterogeneous, often pop-centric catalogs.
-In contrast, curated classical music archives such as the iPalpiti collection lack large-scale user interaction data and exhibit different structural properties, raising questions about how alternative audio embedding models behave in this domain.
-This thesis investigates the performance of multiple backend audio embedding model families on classical music similarity and retrieval tasks, focusing on convolutional, recurrent, hybrid, and transformer-based architectures.
-Using a consistent offline evaluation pipeline, raw audio from the iPalpiti archive is transformed into embeddings, indexed for nearest-neighbor search, and evaluated on metadata-defined proxy tasks (e.g., retrieving tracks from the same work or performer).
-Ranking quality is assessed with standard information retrieval metrics, including NDCG, Precision@K, and Recall@K.
+This study investigates the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive. 
+While larger models are often assumed to provide superior representations, their effectiveness in limited, single-domain settings remains unclear.
+We evaluate multiple CNN-based and Transformer-based embedding models across different capacity tiers using two proxy tasks: composer-based retrieval as a structured baseline and musical-character retrieval as a semantic task. Retrieval performance is assessed using standard ranking metrics, including NDCG, precision, recall, and F1.
+The results show that increasing model capacity does not consistently improve retrieval performance. While higher-capacity models provide some benefit for structured tasks, these gains are limited and tend to saturate. For abstract semantic retrieval, performance differences across capacity levels are minimal, indicating weak or absent scaling effects.
+These findings support a condition-dependent view of model scaling, where the effectiveness of increased capacity depends on task structure, label quality, and dataset characteristics. In small-scale archival settings, lightweight or mid-sized models can offer competitive performance with lower computational cost.
 
-The experimental study, conducted at modest scale, compares families of pretrained models rather than exhaustively tuning any single architecture.
-Results indicate that certain lightweight convolutional and hybrid models can achieve competitive or superior ranking performance to more complex architectures in this classical setting, though differences vary across proxy tasks and evaluation cutoffs.
-The analysis highlights architectural and representational choices that most influence ranking quality in this domain, while also illustrating the limitations of offline proxy evaluation.
-The thesis concludes with practical recommendations for backend embedding selection in classical music archives and identifies directions for future extension.
 \end{abstract}
 
 
@@ -249,6 +245,7 @@ with $r_q(x_i)=0$ when labels do not match. This study assumes that such metadat
 provide a controlled, though coarse, approximation of musical similarity.
 
 \subsection{Retrieval Pipeline}
+
 The backend evaluation pipeline consists of four stages: audio preprocessing, embedding extraction,
 similarity computation, and ranking. All components other than embedding extraction are held constant
 to isolate the effect of embedding capacity.
@@ -259,9 +256,12 @@ labels used in the proxy tasks.
 
 Each complete track serves as the retrieval unit, and embeddings are computed directly from
 full-length audio inputs without segmentation. Cosine similarity is used for ranking across all
-models.
+models. This controlled design ensures that performance differences are attributable primarily to
+the embedding representations.
+
 
 \subsection{Model Setup}
+
 Models are selected to represent discrete capacity tiers within two architectural families: CNN-based
 and Transformer-based models. Within each family, small, medium, and large variants enable controlled
 scaling comparisons, while cross-family comparisons are interpreted descriptively because
@@ -272,11 +272,29 @@ primarily through increased depth under comparable training objectives. Specific
 (small), Cnn10 (medium), and Cnn14 (large) to represent controlled capacity scaling within the CNN
 family.
 
-Transformer-based models are selected from a self-supervised audio representation framework with
-documented parameter tiers. We use MERT-95M (medium) and MERT-330M (large) to represent different
-capacity levels within the transformer family.
+Transformer-based models are selected from a self-supervised audio representation framework
+pretrained on large-scale music data. We use MERT-95M (medium) and MERT-330M (large) to represent
+different capacity levels within the transformer family.
 
 All selected models provide pretrained checkpoints and support standardized embedding extraction.
+
+
+\subsection{Label Construction}
+
+Relevance labels for the proxy tasks are derived from metadata and a semi-automatic annotation pipeline.
+
+For the sanity proxy, composer labels are normalized to a canonical form to ensure consistent
+matching across recordings. This normalization is performed during pseudo-label generation and
+stored as a stable evaluation field.
+
+For the primary musical proxy, character labels are constructed using a semi-automatic pipeline.
+Initial label candidates are generated using a pretrained music emotion model, which maps audio
+into a continuous arousal–valence space \cite{eerola2011}. These representations are then
+discretized into a small set of interpretable categories (e.g., ``Energetic'', ``Calm'', ``Lyrical'')
+based on prior work in music emotion recognition \cite{yang2012}.
+
+Ambiguous cases are manually reviewed to ensure consistency across the dataset.
+The resulting pseudo-labels are fixed prior to evaluation and reused across all experiments.
 
 
 \subsection{Evaluation Protocol}
@@ -288,8 +306,10 @@ defined above, and performance metrics are averaged across all query instances.
 Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when
 multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a
 consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across
-all models. Performance is primarily assessed using NDCG@10 and Precision@10, with interpretation
-focused on consistent scaling patterns rather than small numerical differences.
+all models.
+
+Performance is primarily assessed using NDCG@10 and Precision@10, with interpretation focused on
+consistent scaling patterns rather than small numerical differences.
 
 
 
@@ -297,30 +317,7 @@ focused on consistent scaling patterns rather than small numerical differences.
 
 
 
-
-
-
-
-% Section 4 Experimental Setup
-\section{Experimental Setup}\label{sec:experimental-setup}
-This section presents the empirical results of the retrieval experiments defined in Section~\ref{sec:method}. The analysis focuses on the relationship between embedding-model capacity and retrieval performance across two proxy tasks. The primary objective is to determine whether increased model capacity yields monotonic performance gains or exhibits saturation and degradation within the constrained context of a small-scale classical music archive.
-
-\subsection{Experimental Setup Recap}
-
-The experiments were conducted on the full dataset of $N$ tracks from the iPalpiti archive. 
-A total of five embedding models were evaluated across two architectural families and three capacity tiers (small, medium, and large).
-
-\begin{itemize}
-    \item CNN-Based Family: Convolutional architectures spanning compact to high-capacity variants.
-    \item Transformer-Based Family: Transformer architectures spanning medium to large pretrained checkpoints.
-\end{itemize}
-
-Performance is primarily evaluated using ranking-based metrics, including Normalized Discounted Cumulative Gain at rank 5 (NDCG@5) and Recall@10. Precision@10 is also reported to reflect the purity of retrieved results at the top ranks. To summarize the trade-off between Precision and Recall, we additionally report F1@10 as the harmonic mean of the two metrics. However, because F1@10 does not account for rank position, it is interpreted as a complementary metric rather than the primary retrieval indicator. 
-Given the relatively small dataset size, interpretation focuses on consistent scaling patterns across capacity tiers rather than marginal numerical differences.
-
-
-
-% Section 5 Results
+% Section 4 Results
 \section{Results}\label{sec:results}\label{ch:results}
 \subsection{Sanity Proxy Results}
 
@@ -339,22 +336,27 @@ Table~\ref{tab:sanity_results} presents retrieval performance grouped by archite
 \hline
 \multicolumn{5}{c}{\textbf{CNN Family}} \\
 \hline
-CNN-Small & -- & -- & -- & -- \\
-CNN-Medium  & -- & -- & -- & -- \\
-CNN-Large & -- & -- & -- & -- \\
+CNN-Small & 0.2341 & 0.1 & 0.5 & 0.1667 \\
+CNN-Medium  & 0.4110 & 0.1667 & 0.8333 & 0.2778 \\
+CNN-Large & 0.4726 & 0.1667 & 0.8333 & 0.2778 \\
 \hline
 \multicolumn{5}{c}{\textbf{Transformer Family}} \\
 \hline
-Transformer-Medium  & -- & -- & -- & -- \\
-Transformer-Large & -- & -- & -- & -- \\
+Transformer-Medium  & 0.3552 & 0.1 & 0.5 & 0.1667 \\
+Transformer-Large & 0.6551 & 0.1667 & 0.8333 & 0.2778\\
 \hline
 \end{tabular}
 }
 \end{table}
 
+The Sanity Proxy results show that increased capacity can improve retrieval when relevance is defined
+by a relatively structured and objective criterion. Within the CNN family, performance improves from
+the small to the medium model and then largely saturates at the large model, indicating diminishing
+returns beyond the intermediate capacity tier. Within the Transformer family, performance improves
+substantially from the medium to the large model, suggesting that additional capacity remains
+beneficial for this task within the tested range.
 
-
-The observed trend suggests that [TBD: Description of monotonic/non-monotonic trends within families]. Within the CNN family, performance [increases/decreases/plateaus] as capacity increases. Within the Transformer family, performance [increases/decreases/plateaus] relative to parameter growth.
+However, gains are not proportional to model size, indicating diminishing returns at higher capacity.
 
 \subsection{Primary Musical Proxy Results}
 
@@ -373,9 +375,9 @@ Table~\ref{tab:musical_results} summarizes the performance across all models.
 \hline
 \multicolumn{5}{c}{\textbf{CNN Family}} \\
 \hline
-CNN-Small & 0.6425 & 0.3895 & 0.3487 & 0.3576 \\
-CNN-Medium & 0.6117 & 0.4211 & 0.3575 & 0.3809 \\
-CNN-Large & 0.6624 & 0.3579 & 0.3158 & 0.3245\\
+CNN-Small & 0.7341 & 0.3579 & 0.3136 & 0.3230 \\
+CNN-Medium & 0.5899 & 0.3474 & 0.2895 & 0.3095 \\
+CNN-Large & 0.6929 & 0.3579 & 0.3355 & 0.3315\\
 \hline
 \multicolumn{5}{c}{\textbf{Transformer Family}} \\
 \hline
@@ -388,64 +390,142 @@ Transformer-Large & 0.6813 & 0.4526 & 0.3618 & 0.3949 \\
 
 
 
-In contrast to the Sanity Proxy, trends in the Musical Proxy task suggest [TBD: Describe difference or similarity in trends]. The relationship between capacity and performance appears to be [stronger/weaker] for this more abstract retrieval task. Notably, the highest-capacity models [do/do not] strictly outperform mid-sized architectures.
+In contrast to the Sanity Proxy, the Musical Proxy results do not show a clear benefit from increased
+capacity. Within the CNN family, performance is non-monotonic, with the medium model performing worse
+than the small model rather than showing a consistent scaling trend. Within the Transformer family,
+the medium and large models perform at approximately the same level, indicating no meaningful
+improvement from additional capacity.
 
-\subsection{Capacity–Performance Trends Within Architectural Families}
-This section analyzes scaling behavior strictly within architectural families to isolate the effect of parameter count from architectural inductive bias.
-Taken together, the within-family scaling patterns described below provide the primary empirical test of the condition-dependent capacity hypothesis.
+This result suggests that capacity is not, by itself, sufficient to improve retrieval when relevance
+is defined by a more abstract semantic proxy. Unlike composer identity, musical-character labels
+impose a coarser and less structurally constrained notion of similarity. This indicates that scaling alone is insufficient for improving abstract semantic retrieval in this setting.
 
+\subsection{Capacity--Performance Trends Within Architectural Families}
+
+This section analyzes scaling behavior strictly within architectural families to isolate the effect
+of parameter count from architectural inductive bias. Taken together, the within-family scaling
+patterns described below provide the primary empirical test of the condition-dependent capacity
+hypothesis.
 
 \subsubsection{CNN Scaling Behavior}
-Within the CNN family, increasing parameter count from [Model A] to [Model C] results in a [monotonic improvement/saturation/degradation] in NDCG@10. 
-Specifically, performance improves from [--] to [--] between the small and base tiers, and from [--] to [--] between the base and large tiers.
+
+Within the CNN family, capacity scaling is task-dependent. On the Sanity Proxy, performance improves
+from the small to the medium tier and then saturates at the large tier, indicating that modest
+increases in capacity can help for structured retrieval but that further scaling yields limited
+gains. On the Musical Proxy, however, the pattern is non-monotonic: the medium model performs worse
+than the small model, and the large model does not establish a clear superior trend. This instability
+suggests that increased CNN capacity does not reliably improve retrieval under more abstract
+similarity definitions.
 
 \subsubsection{Transformer Scaling Behavior}
-Within the Transformer family, scaling from [Model D] to [Model F] exhibits a [monotonic/non-monotonic] trend. While [Model E] achieves a score of [--], the largest model [Model F] achieves [--]. This observation indicates that for transformer-based architectures in this domain, additional capacity [yields diminishing returns/continues to improve performance/degrades performance], consistent with the hypothesis of condition-dependent scaling.
+
+Within the Transformer family, the effect of scaling also depends on the proxy task. On the Sanity
+Proxy, the large transformer substantially outperforms the medium model, indicating that additional
+capacity can improve retrieval when the task is aligned with structured musical metadata. On the
+Musical Proxy, however, the medium and large transformer models perform comparably, indicating that
+increased capacity does not translate into improved abstract semantic retrieval. This contrast
+reinforces the view that transformer scaling benefits are conditional rather than universal in the
+present setting.
 
 \subsection{Cross-Family Descriptive Comparison}
 
-Comparing performance across families reveals distinct behavioral patterns. The best-performing CNN model ([Model Name]) achieves an NDCG@10 of [--], while the best-performing Transformer ([Model Name]) achieves [--].
+Comparing performance across families reveals that scaling effects depend more on task structure
+than on raw model size alone. On the Sanity Proxy, both families benefit from increased capacity,
+with stronger gains observed in the Transformer family. On the Musical Proxy, however, neither
+family exhibits consistent improvement, and performance differences remain small.
 
-It is observed that [Compact CNNs/Large Transformers] tend to perform [better/worse/comparably] in the Sanity Proxy task, whereas in the Musical Proxy task, the performance gap [widens/narrows/reverses]. These comparisons are descriptive and do not imply causal superiority of one architecture over another, as parameter count, architecture, and pretraining data scale co-vary between families. However, the data demonstrates that [Low/High] capacity models from the [CNN/Transformer] family are sufficient to achieve competitive retrieval performance in this specific archival setting.
+These comparisons are descriptive and do not imply causal superiority of one architecture over
+another, since architecture, parameter count, and pretraining regime co-vary across families.
+The narrow performance range across models suggests limited representational separability under
+the current retrieval setting, regardless of capacity tier.
 
-Given the limited scale of the dataset, minor variations in metric values are expected. Therefore, emphasis is placed on consistent trends across capacity tiers rather than isolated numerical differences.
+Given the small dataset size, absolute differences should be interpreted cautiously, with emphasis placed on consistent trends rather than isolated values.
 
 \subsection{Summary of Empirical Findings}
 
-The experimental results yield the following key observations:
+The experimental results yield three main observations. First, increasing model capacity does not
+guarantee monotonic performance improvement. On the Sanity Proxy, capacity helps to some extent, but
+the gains either saturate or remain task-specific; on the Musical Proxy, scaling is weak or absent.
+Second, scaling behavior differs clearly by task. Structured composer retrieval benefits more from
+increased capacity than abstract character retrieval, indicating that scaling is condition-dependent.
+Third, performance values cluster within a narrow band across models, suggesting that capacity is not
+the primary driver of retrieval quality in this small-scale dataset.
 
-\begin{enumerate}
-    \item Within-Family Scaling: Increasing model capacity [does/does not] guarantee monotonic performance improvement. Saturation effects were observed in the [CNN/Transformer] family beyond [--] parameters.
-    \item Task Dependence: Capacity scaling behavior [varies/remains consistent] between the Sanity Proxy and the Musical Proxy tasks.
-    \item Efficiency: Compact models [competitively match/lag behind] larger models, challenging the assumption that massive parameter counts are strictly necessary for this domain.
-\end{enumerate}
-
-Collectively, these findings indicate that embedding-model capacity does not operate as a simple monotonic driver of retrieval quality in small-scale, single-domain archives. Instead, performance patterns vary by task definition and architectural family, supporting a condition-dependent interpretation of scaling behavior.
+Collectively, these findings support a condition-dependent interpretation of scaling behavior.
+Embedding-model capacity can improve retrieval when relevance is tied to structured musical
+attributes, but it does not reliably improve performance for abstract semantic proxies in a small
+archival collection. In this setting, task definition and dataset scale appear to govern retrieval
+behavior more strongly than capacity alone.
 
 
-% Section 6 Discussion
-\section{Discussion}\label{sec:discussion}
-\subsection{Overview of Findings}
-% Briefly restate the purpose of the study and summarize the main findings
-% from Chapter 5 at a high level, without repeating numerical results.
+
+
+
+
+
+
+% Section 5 Discussion
+\section{Discussion}
+
+\subsection{RQ1: Capacity Effects in Small-Scale Retrieval}
+
+The results indicate that embedding-model capacity does not consistently improve retrieval performance in a small-scale classical music archive.
+
+This can be explained by the limited diversity and scale of the dataset.
+In such settings, the representational space required to separate items is relatively low-dimensional,
+reducing the benefit of high-capacity models.
+
+Furthermore, classical music within a single archive exhibits strong stylistic coherence,
+which may lead to embedding compression, where different pieces are mapped to similar regions
+regardless of model capacity.
+
+\subsection{RQ2: Conditions for Capacity Benefits}
+
+The results suggest that higher-capacity models provide measurable benefits only when the retrieval task is aligned with structured and well-defined attributes, such as composer identity.
+
+In contrast, for abstract semantic tasks such as musical character retrieval,
+the benefit of scaling diminishes.
+This may be due to the coarse and subjective nature of the labels,
+which limits the ability of larger models to learn more discriminative representations.
+
+\subsection{Hypothesis Evaluation}
+
+The experimental results support the hypothesis that increasing embedding-model capacity does not necessarily improve retrieval performance in a small-scale, single-domain archive, reinforcing a condition-dependent view of model scaling.
 
 \subsection{Implications for Backend Design in Classical Music Archives}
-% Discuss what the observed results imply for designing
-% embedding-based backends in classical music archives such as iPalpiti.
-% Focus on model family selection and practical trade-offs.
+
+The results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance.
+Instead, lightweight or mid-sized models may provide comparable performance at lower computational cost.
+
+These findings indicate that system design should prioritize task definition, label quality, and dataset curation over model scaling.
+In practical archival systems such as iPalpiti, this supports the use of efficient models for real-time retrieval and deployment-constrained environments.
 
 \subsection{Limitations}
 
+This study has several limitations.
+First, the dataset is small and limited to a single-domain classical music archive, which may restrict generalizability.
+Second, the musical-character labels used in the proxy task are coarse and partially subjective, which may limit the ability to evaluate fine-grained semantic retrieval.
+Third, the evaluation is based on proxy tasks rather than real user interaction, and therefore may not fully reflect practical recommendation quality.
 
 \subsection{Directions for Future Work}
 
+Future work should investigate larger and more diverse music datasets to evaluate whether the observed capacity limitations persist at scale.
+In addition, incorporating richer and more fine-grained semantic labels may improve the evaluation of abstract musical similarity.
+
+Finally, integrating user interaction data and conducting user studies would provide a more direct assessment of retrieval effectiveness in real-world archival systems.
 
 
-% Section 7 Conclusion
-\section{Conclusion}\label{sec:conclusion}
-% Provide a concise concluding statement.
-% Revisit Research Question 1 and summarize how it was addressed.
-% Emphasize the contribution and potential impact of the work.
+
+% Section 6 Conclusion
+\section{Conclusion}
+This study investigated the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive.
+Through controlled experiments across CNN and Transformer models with varying capacity levels, the results showed that increasing model capacity does not guarantee consistent improvements in retrieval performance. While higher-capacity models provided some benefit in structured tasks such as composer-based retrieval, these gains were limited and often saturated. 
+For abstract semantic tasks based on musical character, scaling effects were weak or absent.
+
+These findings support a condition-dependent view of model scaling, where the effectiveness of increased capacity depends on task structure, label quality, and dataset characteristics. In small, single-domain archives, factors such as dataset size and semantic definition play a more significant role than model capacity alone.
+
+From a practical perspective, the results suggest that lightweight or mid-sized models are often sufficient for deployment in classical music archival systems, offering competitive performance with lower computational cost. Overall, this work highlights the importance of aligning model complexity with task requirements and dataset constraints, rather than assuming that larger models will universally yield better retrieval performance across all settings.
+
 
 % For BibTeX users:
 \bibliography{../Draft-legacy/v2-0213-2026/V2-latex/bibliography/references}
