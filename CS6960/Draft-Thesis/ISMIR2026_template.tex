@@ -38,10 +38,10 @@
 
 \begin{abstract}
 This study investigates the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive. 
-While larger models are often assumed to provide superior representations, their effectiveness in limited, single-domain settings remains unclear.
-We evaluate multiple CNN-based and Transformer-based embedding models across different capacity tiers using two proxy tasks: composer-based retrieval as a structured baseline and musical-character retrieval as a semantic task. Retrieval performance is assessed using standard ranking metrics, including NDCG, precision, recall, and F1.
-The results show that increasing model capacity does not consistently improve retrieval performance. While higher-capacity models provide some benefit for structured tasks, these gains are limited and tend to saturate. For abstract semantic retrieval, performance differences across capacity levels are minimal, indicating weak or absent scaling effects.
-These findings support a condition-dependent view of model scaling, where the effectiveness of increased capacity depends on task structure, label quality, and dataset characteristics. In small-scale archival settings, lightweight or mid-sized models can offer competitive performance with lower computational cost.
+While larger models are often assumed to provide superior retrieval representations, their effectiveness in limited, single-domain settings remains unclear.
+We evaluate multiple CNN-based and Transformer-based embedding models across different capacity tiers using two proxy tasks: composer-based retrieval as a structured baseline and musical-character retrieval as a semantic task. Retrieval performance is assessed using standard ranking metrics (NDCG, precision, recall, and F1).
+The results show that increasing model capacity does not consistently improve retrieval performance. While higher-capacity models yield limited gains for structured tasks, these gains are limited and tend to saturate. For abstract semantic retrieval, performance differences across capacity levels are minimal, indicating weak or absent scaling effects.
+These findings suggest that the effectiveness of model scaling depends on the task and dataset, where the effectiveness of increased capacity depends on task structure, label quality, and dataset characteristics. In small-scale archival settings, lightweight or mid-sized models may offer comparable performance within this setting.
 
 \end{abstract}
 
@@ -356,7 +356,7 @@ returns beyond the intermediate capacity tier. Within the Transformer family, pe
 substantially from the medium to the large model, suggesting that additional capacity remains
 beneficial for this task within the tested range.
 
-However, gains are not proportional to model size, indicating diminishing returns at higher capacity.
+
 
 \subsection{Primary Musical Proxy Results}
 
@@ -392,13 +392,13 @@ Transformer-Large & 0.6813 & 0.4526 & 0.3618 & 0.3949 \\
 
 In contrast to the Sanity Proxy, the Musical Proxy results do not show a clear benefit from increased
 capacity. Within the CNN family, performance is non-monotonic, with the medium model performing worse
-than the small model rather than showing a consistent scaling trend. Within the Transformer family,
-the medium and large models perform at approximately the same level, indicating no meaningful
+than the small model. Within the Transformer family,
+the medium and large models perform similarly, indicating no meaningful
 improvement from additional capacity.
 
 This result suggests that capacity is not, by itself, sufficient to improve retrieval when relevance
 is defined by a more abstract semantic proxy. Unlike composer identity, musical-character labels
-impose a coarser and less structurally constrained notion of similarity. This indicates that scaling alone is insufficient for improving abstract semantic retrieval in this setting.
+impose a coarser and less structurally constrained notion of similarity.
 
 \subsection{Capacity--Performance Trends Within Architectural Families}
 
@@ -444,7 +444,7 @@ Given the small dataset size, absolute differences should be interpreted cautiou
 \subsection{Summary of Empirical Findings}
 
 The experimental results yield three main observations. First, increasing model capacity does not
-guarantee monotonic performance improvement. On the Sanity Proxy, capacity helps to some extent, but
+guarantee monotonic performance improvement. On the Sanity Proxy, capacity shows limited gains, but
 the gains either saturate or remain task-specific; on the Musical Proxy, scaling is weak or absent.
 Second, scaling behavior differs clearly by task. Structured composer retrieval benefits more from
 increased capacity than abstract character retrieval, indicating that scaling is condition-dependent.
@@ -469,11 +469,7 @@ behavior more strongly than capacity alone.
 
 \subsection{RQ1: Capacity Effects in Small-Scale Retrieval}
 
-The results indicate that embedding-model capacity does not consistently improve retrieval performance in a small-scale classical music archive.
-
-This can be explained by the limited diversity and scale of the dataset.
-In such settings, the representational space required to separate items is relatively low-dimensional,
-reducing the benefit of high-capacity models.
+The results indicate that embedding-model capacity does not consistently improve retrieval performance in a small-scale classical music archive.This pattern may be explained by the limited diversity and scale of the dataset.
 
 Furthermore, classical music within a single archive exhibits strong stylistic coherence,
 which may lead to embedding compression, where different pieces are mapped to similar regions
@@ -481,7 +477,7 @@ regardless of model capacity.
 
 \subsection{RQ2: Conditions for Capacity Benefits}
 
-The results suggest that higher-capacity models provide measurable benefits only when the retrieval task is aligned with structured and well-defined attributes, such as composer identity.
+The results suggest that higher-capacity models tend to provide measurable benefits when the retrieval task is aligned with structured and well-defined attributes, such as composer identity.
 
 In contrast, for abstract semantic tasks such as musical character retrieval,
 the benefit of scaling diminishes.
@@ -490,15 +486,15 @@ which limits the ability of larger models to learn more discriminative represent
 
 \subsection{Hypothesis Evaluation}
 
-The experimental results support the hypothesis that increasing embedding-model capacity does not necessarily improve retrieval performance in a small-scale, single-domain archive, reinforcing a condition-dependent view of model scaling.
+The results are consistent with the hypothesis that increasing embedding-model capacity does not necessarily improve retrieval performance in this setting.
 
 \subsection{Implications for Backend Design in Classical Music Archives}
 
 The results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance.
 Instead, lightweight or mid-sized models may provide comparable performance at lower computational cost.
 
-These findings indicate that system design should prioritize task definition, label quality, and dataset curation over model scaling.
-In practical archival systems such as iPalpiti, this supports the use of efficient models for real-time retrieval and deployment-constrained environments.
+These findings indicate that system design may benefit from prioritizing task definition, label quality, and dataset curation over model scaling.
+In practical archival systems such as iPalpiti, this suggests that efficient models may be sufficient for real-time retrieval and deployment-constrained environments.
 
 \subsection{Limitations}
 
@@ -518,13 +514,14 @@ Finally, integrating user interaction data and conducting user studies would pro
 
 % Section 6 Conclusion
 \section{Conclusion}
-This study investigated the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive.
+This study examines the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive.
 Through controlled experiments across CNN and Transformer models with varying capacity levels, the results showed that increasing model capacity does not guarantee consistent improvements in retrieval performance. While higher-capacity models provided some benefit in structured tasks such as composer-based retrieval, these gains were limited and often saturated. 
 For abstract semantic tasks based on musical character, scaling effects were weak or absent.
 
-These findings support a condition-dependent view of model scaling, where the effectiveness of increased capacity depends on task structure, label quality, and dataset characteristics. In small, single-domain archives, factors such as dataset size and semantic definition play a more significant role than model capacity alone.
+These findings support a condition-dependent view of model scaling, where the effectiveness of increased capacity depends on task structure, label quality, and dataset characteristics. In small, single-domain archives, factors such as dataset size and task formulation play a more significant role than model capacity alone.
 
-From a practical perspective, the results suggest that lightweight or mid-sized models are often sufficient for deployment in classical music archival systems, offering competitive performance with lower computational cost. Overall, this work highlights the importance of aligning model complexity with task requirements and dataset constraints, rather than assuming that larger models will universally yield better retrieval performance across all settings.
+From a practical perspective, the results suggest that lightweight or mid-sized models are often sufficient for deployment in classical music archival systems, offering competitive performance within the scope of this study.
+Overall, this work emphasizes the importance of aligning model complexity with task requirements and dataset constraints, rather than assuming that larger models will universally yield better retrieval performance across all settings.
 
 
 % For BibTeX users:
