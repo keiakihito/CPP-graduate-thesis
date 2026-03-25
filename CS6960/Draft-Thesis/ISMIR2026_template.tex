@@ -72,7 +72,7 @@ This raises a fundamental design question for content-based recommendation syste
 contexts: does increasing embedding-model capacity meaningfully improve similarity retrieval
 performance, or does it introduce diminishing returns under constrained conditions?
 
-This thesis addresses this question by focusing exclusively on the backend: the stage that maps audio
+This reseach addresses this question by focusing exclusively on the backend: the stage that maps audio
 recordings to embeddings and supports similarity search, independent of end-to-end user modeling.
 Specifically,the study adopts a hypothesis-driven, iterative experimental design.
 Rather than assuming that larger models necessarily yield better retrieval performance, we begin with
@@ -87,7 +87,7 @@ sanity-check retrieval task (composer-based) and a musical-character-based proxy
 Ranking quality is evaluated using standard information-retrieval metrics (e.g., NDCG, Precision@K, Recall@K).
 Experimental conditions are progressively expanded to examine whether higher-capacity models provide
 consistent improvements, exhibit diminishing returns, or fail to deliver measurable gains under
-constrained archival settings.This thesis is guided by two research questions:
+constrained archival settings.This research is guided by two research questions:
 
 \smallskip
 \noindent\textbf{RQ1:} In a small-scale classical music archive (iPalpiti), how does embedding-model
@@ -108,15 +108,6 @@ conditions under which retrieval improvements are meaningful. Third, through a h
 experimental design, it analyzes how embedding-model capacity behaves under constrained archival
 conditions, clarifying the practical limits of model complexity in small, single-domain
 recommendation settings.
-\subsection{Thesis Organization}
-The remainder of the thesis is organized as follows.
-Chapter~2 reviews related work on audio embeddings, evaluation strategies, and system design for
-music recommendation.
-Chapter~3 formalizes the problem setting and describes the overall backend pipeline.
-Chapter~4 details the methodology and experimental design.
-Chapter~5 presents and analyzes the results.
-Chapter~6 discusses implications, limitations, and directions for future work.
-
 
 
 
@@ -145,7 +136,7 @@ Prior work has explored a broad range of audio representation architectures, inc
 neural networks (CNNs), recurrent neural networks (RNNs), transformer-based models, and hybrid
 architectures \cite{zaman2023}. Historically, CNN and hybrid CNN–RNN models have dominated supervised
 music tasks \cite{jiang2024}, while more recent transformer-based approaches use self-attention to
-model longer-range structure \cite{zaman2023}. In this thesis, however, the experimental design
+model longer-range structure \cite{zaman2023}. In this reseach, however, the experimental design
 focuses specifically on pure CNN-based and pure transformer-based model families.
 CNN-based models remain attractive because their inductive biases support efficient learning of local
 spectral structure, and compact CNN architectures have shown strong performance in music detection
@@ -173,11 +164,11 @@ background concerns in music recommendation, particularly in settings where expl
 
 Broader recommender-system work addresses personalization through user modeling, sequential
 interaction modeling, and contextual signals \cite{lin2025, abbattista2024, schedl2021}, but those
-concerns are outside the scope of this thesis, which isolates backend embedding quality from user
+concerns are outside the scope of this research, which isolates backend embedding quality from user
 modeling and large-scale deployment constraints. Overall, prior work has established that larger and
 more complex models often improve performance in data-rich settings, yet it remains unclear whether
 embedding-model capacity provides comparable gains in small, single-domain classical archives. This
-thesis addresses that gap by examining how capacity interacts with retrieval-oriented evaluation
+research addresses that gap by examining how capacity interacts with retrieval-oriented evaluation
 under constrained archival conditions \cite{tamm2024, krichene2020, canamares2020}.
 
 
@@ -525,7 +516,7 @@ From a practical perspective, the results suggest that lightweight or mid-sized 
 Overall, this work emphasizes the importance of aligning model complexity with task requirements and dataset constraints, rather than assuming that larger models will universally yield better retrieval performance across all settings.
 
 
-% For BibTeX users:
-\bibliography{../Draft-legacy/v2-0213-2026/V2-latex/bibliography/references}
+% Manual bibliography source:
+\input{ISMIR2026_template.bbl}
 
 \end{document}
