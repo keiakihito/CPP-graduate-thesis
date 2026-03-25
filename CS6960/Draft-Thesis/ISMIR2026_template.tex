@@ -140,22 +140,22 @@ model longer-range structure \cite{zaman2023}. In this reseach, however, the exp
 focuses specifically on pure CNN-based and pure transformer-based model families.
 CNN-based models remain attractive because their inductive biases support efficient learning of local
 spectral structure, and compact CNN architectures have shown strong performance in music detection
-and related tasks \cite{reddy2022}. Hybrid architectures have also been explored, including CNN–RNN
+and related tasks \cite{kong2020panns}. Hybrid architectures have also been explored, including CNN–RNN
 models for temporal modeling \cite{lin2024} and CNN–Transformer models for combining local and long-
 range representations \cite{pourmoazemi2024}, but they are treated here as background rather than as
 primary comparison targets.
 
 Transformer-based models provide a contrasting representation regime: AST applies self-attention
-directly to spectrograms \cite{gong2021ast}, and newer large-scale self-supervised systems such as
-BEATs rely on pretraining objectives designed to learn general-purpose audio representations from
-unlabeled corpora \cite{chen2023beats}. Although these models can deliver strong downstream
+directly to spectrograms \cite{gong2021ast}. Although these models can deliver strong downstream
 performance, their advantages are typically established on large and diverse datasets, leaving open
 the question of how well such capacity transfers to small, domain-constrained classical archives.
 Evaluation strategy is equally important. Classification benchmarks remain common for audio
-embeddings \cite{gong2021ast, lin2024}, but strong classification accuracy does not guarantee well-
+embeddings \cite{gong2021ast, zaman2023}, but strong classification accuracy does not guarantee well-
 structured neighborhoods for similarity retrieval \cite{tamm2024}. For retrieval-oriented settings,
 ranking metrics such as NDCG, Precision@K, and Recall@K are more appropriate because they evaluate
-the ordering of relevant items directly \cite{krichene2020}. At the same time, these metrics are
+the ordering of relevant items directly \cite{krichene2020}. This limitation is consistent with 
+prior observations in MIR research, where datasets are often small or domain-specific, posing challenges 
+for generalizable evaluation \cite{urbano2013}.At the same time, these metrics are
 sensitive to evaluation design: constrained candidate pools can reduce discriminative power, increase
 ties, and even alter comparative conclusions \cite{krichene2020, canamares2020}; this is especially
 important in small archival collections. Diversity and long-tail considerations also remain relevant
@@ -259,13 +259,14 @@ scaling comparisons, while cross-family comparisons are interpreted descriptivel
 architecture, parameter count, and pretraining objectives may co-vary.
 
 CNN-based models are drawn from a unified convolutional lineage in which scaling is achieved
-primarily through increased depth under comparable training objectives. Specifically, we use Cnn6
-(small), Cnn10 (medium), and Cnn14 (large) to represent controlled capacity scaling within the CNN
-family.
+primarily through increased depth under comparable training objectives. 
+Specifically, we use Cnn6 (small), Cnn10 (medium), and Cnn14 (large), following the PANNs framework proposed by Kong et al. \cite{kong2020panns}, to represent controlled capacity scaling within the CNN family.
 
 Transformer-based models are selected from a self-supervised audio representation framework
-pretrained on large-scale music data. We use MERT-95M (medium) and MERT-330M (large) to represent
-different capacity levels within the transformer family.
+pretrained on large-scale music data. 
+We use MERT-95M (medium) and MERT-330M (large) 
+to represent different capacity levels within the transformer family, 
+following the MERT framework \cite{li2023mert}.
 
 Note that parameter counts are not strictly aligned across architectural families; therefore, cross-family comparisons are interpreted descriptively rather than as direct capacity-matched evaluations.
 All selected models provide pretrained checkpoints and support standardized embedding extraction.
@@ -279,10 +280,10 @@ matching across recordings. This normalization is performed during pseudo-label 
 stored as a stable evaluation field.
 
 For the primary musical proxy, character labels are constructed using a semi-automatic pipeline.
-Initial label candidates are generated using a pretrained music emotion model, which maps audio
-into a continuous arousal–valence space \cite{eerola2011}. These representations are then
-discretized into a small set of interpretable categories (e.g., ``Energetic'', ``Calm'', ``Lyrical'')
-based on prior work in music emotion recognition \cite{yang2012}.
+Initial label candidates are defined based on the arousal–valence framework 
+\cite{eerola2011}, which represents emotion in a continuous dimensional space. 
+To support this process, pretrained music emotion recognition models are used as auxiliary tools 
+for generating candidate labels, grounded in recent advances in deep learning-based music emotion recognition \cite{jiang2024}.
 
 Ambiguous cases are manually reviewed to ensure consistency across the dataset.
 The resulting pseudo-labels are fixed prior to evaluation and reused across all experiments.
@@ -302,7 +303,10 @@ all models.
 Performance is primarily assessed using NDCG@5 and Precision@5, with interpretation focused on
 consistent scaling patterns rather than small numerical differences.
 
-
+Furthermore, small numerical differences in mean scores do not necessarily correspond 
+to meaningful differences in user experience. Prior work emphasizes the importance 
+of distinguishing between statistical and practical significance in IR evaluation 
+\cite{urbano2013}.
 
 
 
@@ -460,7 +464,10 @@ behavior more strongly than capacity alone.
 
 \subsection{RQ1: Capacity Effects in Small-Scale Retrieval}
 
-The results indicate that embedding-model capacity does not consistently improve retrieval performance in a small-scale classical music archive. This pattern may be explained by the limited diversity and scale of the dataset.
+The results indicate that embedding-model capacity does not consistently improve retrieval performance in a small-scale classical music archive. 
+
+This suggests that the benefits of scaling are highly task-dependent, particularly for abstract semantic tasks such as musical character retrieval. 
+This observation is consistent with prior work, which shows that pretrained audio models exhibit substantial performance variability across MIR and recommendation tasks, and that strong MIR performance does not necessarily translate to improved recommendation quality \cite{tamm2024}.
 
 Furthermore, classical music within a single archive exhibits strong stylistic coherence,
 which may lead to embedding compression, where different pieces are mapped to similar regions
