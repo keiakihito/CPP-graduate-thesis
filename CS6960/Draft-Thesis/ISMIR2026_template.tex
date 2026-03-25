@@ -276,8 +276,8 @@ Transformer-based models are selected from a self-supervised audio representatio
 pretrained on large-scale music data. We use MERT-95M (medium) and MERT-330M (large) to represent
 different capacity levels within the transformer family.
 
+Note that parameter counts are not strictly aligned across architectural families; therefore, cross-family comparisons are interpreted descriptively rather than as direct capacity-matched evaluations.
 All selected models provide pretrained checkpoints and support standardized embedding extraction.
-
 
 \subsection{Label Construction}
 
@@ -308,7 +308,7 @@ multiple relevant items share identical similarity scores. To ensure determinist
 consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across
 all models.
 
-Performance is primarily assessed using NDCG@10 and Precision@10, with interpretation focused on
+Performance is primarily assessed using NDCG@5 and Precision@5, with interpretation focused on
 consistent scaling patterns rather than small numerical differences.
 
 
@@ -327,7 +327,7 @@ Table~\ref{tab:sanity_results} presents retrieval performance grouped by archite
 
 \begin{table}[!htbp]
 \centering
-\caption{Sanity Proxy Results (Composer Retrieval). Metrics reported are corpus-level mean values at rank 10.}
+\caption{Sanity Proxy Results (Composer Retrieval). Metrics reported are corpus-level mean values at rank 5.}
 \label{tab:sanity_results}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
@@ -366,7 +366,7 @@ Table~\ref{tab:musical_results} summarizes the performance across all models.
 
 \begin{table}[!htbp]
 \centering
-\caption{Primary Musical Proxy Results (Character Retrieval). Metrics reported are corpus-level mean values at rank 10.}
+\caption{Primary Musical Proxy Results (Character Retrieval). Metrics reported are corpus-level mean values at rank 5.}
 \label{tab:musical_results}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
@@ -469,7 +469,7 @@ behavior more strongly than capacity alone.
 
 \subsection{RQ1: Capacity Effects in Small-Scale Retrieval}
 
-The results indicate that embedding-model capacity does not consistently improve retrieval performance in a small-scale classical music archive.This pattern may be explained by the limited diversity and scale of the dataset.
+The results indicate that embedding-model capacity does not consistently improve retrieval performance in a small-scale classical music archive. This pattern may be explained by the limited diversity and scale of the dataset.
 
 Furthermore, classical music within a single archive exhibits strong stylistic coherence,
 which may lead to embedding compression, where different pieces are mapped to similar regions
@@ -490,7 +490,7 @@ The results are consistent with the hypothesis that increasing embedding-model c
 
 \subsection{Implications for Backend Design in Classical Music Archives}
 
-The results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance.
+From a system design perspective, the results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance.
 Instead, lightweight or mid-sized models may provide comparable performance at lower computational cost.
 
 These findings indicate that system design may benefit from prioritizing task definition, label quality, and dataset curation over model scaling.
@@ -502,6 +502,7 @@ This study has several limitations.
 First, the dataset is small and limited to a single-domain classical music archive, which may restrict generalizability.
 Second, the musical-character labels used in the proxy task are coarse and partially subjective, which may limit the ability to evaluate fine-grained semantic retrieval.
 Third, the evaluation is based on proxy tasks rather than real user interaction, and therefore may not fully reflect practical recommendation quality.
+Fourth, the pseudo-labels used in the primary proxy task are partially derived from a pretrained emotion model, which may introduce bias or circularity in the evaluation.
 
 \subsection{Directions for Future Work}
 
