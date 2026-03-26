@@ -121,7 +121,7 @@ class CNNLargeEmbedder:
         if audio.size == 0:
             raise ValueError(f"Audio file contains no samples: {wav_path}")
         return _resample_audio(audio, sample_rate, self.target_sample_rate)
-
+    
     def extract_frames(self, wav_path: str) -> np.ndarray:
         """Expose PANNs clip embeddings in a shared 2D interface."""
         waveform = self.load_audio(wav_path)
@@ -131,13 +131,35 @@ class CNNLargeEmbedder:
             device=self.device,
         )
 
+        output_dict = None
         try:
             with self._torch.no_grad():
                 output_dict = self._model(batch_audio)
-        except Exception as exc:
-            raise RuntimeError(f"PANNs inference failed for: {wav_path}") from exc
 
-        clip_embeddings = _to_numpy(output_dict["embedding"])
+            if not isinstance(output_dict, dict):
+                raise RuntimeError(
+                    f"Expected dict model output, got {type(output_dict).__name__}"
+                )
+            if "embedding" not in output_dict:
+                raise RuntimeError(
+                    f"Missing 'embedding' in model output keys: {sorted(output_dict.keys())}"
+                )
+
+            clip_embeddings = _to_numpy(output_dict["embedding"])
+
+        except Exception as exc:
+            raise RuntimeError(
+                f"PANNs inference failed for: {wav_path} | "
+                f"{type(exc).__name__}: {exc}"
+            ) from exc
+
+        finally:
+            del batch_audio
+            if output_dict is not None:
+                del output_dict
+            if self.device.startswith("cuda"):
+                self._torch.cuda.empty_cache()
+
         if clip_embeddings.ndim != 2 or clip_embeddings.shape[0] == 0:
             raise RuntimeError(f"PANNs returned no embeddings for: {wav_path}")
 

@@ -61,6 +61,35 @@ def _iter_wav_segments(wav_path: str, segment_length_sec: float = 30.0):
             yield params, segment_frames
 
 
+def _extract_segment_embedding(
+    segment_path: Path,
+    extractor: Any,
+    track_path: str,
+    segment_index: int,
+) -> np.ndarray | None:
+    """Extract one segment embedding, logging and skipping invalid segment outputs."""
+    try:
+        segment_embedding = np.asarray(
+            extractor.extract(str(segment_path)),
+            dtype=np.float32,
+        )
+    except Exception as exc:
+        print(
+            f"Segment failed: track={track_path}, segment_index={segment_index}, "
+            f"error={exc}"
+        )
+        return None
+
+    if segment_embedding.ndim != 1:
+        print(
+            f"Segment failed: track={track_path}, segment_index={segment_index}, "
+            f"error=Expected 1D segment embedding, got shape {segment_embedding.shape}"
+        )
+        return None
+
+    return segment_embedding
+
+
 def extract_track_embedding(
     wav_path: str,
     extractor: Any,
@@ -80,18 +109,19 @@ def extract_track_embedding(
                 segment_file.setparams(params)
                 segment_file.writeframes(segment_frames)
 
-            segment_embedding = np.asarray(
-                extractor.extract(str(segment_path)),
-                dtype=np.float32,
+            segment_embedding = _extract_segment_embedding(
+                segment_path=segment_path,
+                extractor=extractor,
+                track_path=wav_path,
+                segment_index=segment_index,
             )
-            if segment_embedding.ndim != 1:
-                raise ValueError(
-                    f"Expected 1D segment embedding, got shape {segment_embedding.shape}"
-                )
+            if segment_embedding is None:
+                continue
+
             segment_embeddings.append(segment_embedding)
 
     if not segment_embeddings:
-        raise ValueError(f"Audio file contains no segments: {wav_path}")
+        raise ValueError(f"All segments failed for track: {wav_path}")
 
     return np.mean(np.stack(segment_embeddings, axis=0), axis=0).astype(np.float32)
 
