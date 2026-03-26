@@ -26,7 +26,10 @@ def compute_tag_jaccard(tags_a: np.ndarray, tags_b: np.ndarray) -> float:
 
 def extract_composer(track: Dict) -> str:
     """Return the composer name or 'unknown' if it is missing."""
-    composer = track.get("composer", track.get("composers", "unknown"))
+    composer = track.get(
+        "composer_eval",
+        track.get("composer", track.get("composers", "unknown")),
+    )
     if composer is None:
         return "unknown"
 

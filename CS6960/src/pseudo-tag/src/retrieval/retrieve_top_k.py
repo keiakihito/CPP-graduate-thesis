@@ -14,6 +14,7 @@ from src.models.cnn_medium import CNNMediumEmbedder
 from src.models.cnn_small import CNNSmallEmbedder
 from src.models.transformer_large import TransformerLargeEmbedder
 from src.models.transformer_medium import TransformerMediumEmbedder
+from src.pipeline.build_embeddings import extract_track_embedding
 from src.retrieval.similarity import pairwise_cosine_similarity
 
 
@@ -57,6 +58,43 @@ def _normalize_path(path_str: str) -> str:
     return str(Path(path_str).expanduser().resolve(strict=False))
 
 
+def _extract_track_id(value: str) -> str | None:
+    """Extract a track id from names like 'track_30_name.wav'."""
+    stem = Path(str(value)).stem
+    parts = stem.split("_")
+
+    if len(parts) >= 2 and parts[0].lower() == "track" and parts[1].isdigit():
+        return parts[1]
+
+    return None
+
+
+def _find_query_index(metadata: list[dict[str, Any]], query_wav_path: str) -> int | None:
+    """Find a query item in corpus metadata so retrieval can reuse a precomputed embedding."""
+    query_path = _normalize_path(query_wav_path)
+    query_file_id = Path(query_wav_path).stem
+    query_track_id = _extract_track_id(query_wav_path)
+
+    for index, item in enumerate(metadata):
+        item_path = item.get("path")
+        if item_path is not None and _normalize_path(str(item_path)) == query_path:
+            return index
+
+        item_file_id = item.get("file_id")
+        if item_file_id is not None and str(item_file_id) == query_file_id:
+            return index
+
+        if query_track_id is not None:
+            item_track_id = item.get("track_id")
+            if item_track_id is not None and str(item_track_id) == query_track_id:
+                return index
+
+            if item_file_id is not None and _extract_track_id(str(item_file_id)) == query_track_id:
+                return index
+
+    return None
+
+
 def _get_top_k_indices(
     scores: np.ndarray,
     top_k: int,
@@ -98,9 +136,17 @@ def retrieve_top_k(
     exclude_self: bool = True,
 ) -> list[dict[str, Any]]:
     """Retrieve the top-k most similar corpus items for one query WAV file."""
-    extractor = create_extractor(model_name)
     corpus_embeddings, metadata = load_corpus_artifacts(embeddings_path, metadata_path)
-    query_embedding = np.asarray(extractor.extract(query_wav_path), dtype=np.float32)
+    query_index = _find_query_index(metadata, query_wav_path)
+
+    if query_index is not None:
+        query_embedding = np.asarray(corpus_embeddings[query_index], dtype=np.float32)
+    else:
+        extractor = create_extractor(model_name)
+        query_embedding = np.asarray(
+            extract_track_embedding(query_wav_path, extractor),
+            dtype=np.float32,
+        )
 
     if query_embedding.ndim != 1:
         raise ValueError(f"Query embedding must be 1D, got shape {query_embedding.shape}")

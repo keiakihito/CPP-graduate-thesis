@@ -98,7 +98,8 @@
 
   ———
 
-  # 4. Batch Evaluation
+  # 4. Batch Evaluation (Proxy task 2)
+  if I want to run Proxy task 1, change tag_overlap to composer
   Transformer medium
   ```
   python -m src.evaluation.run_batch_eval \

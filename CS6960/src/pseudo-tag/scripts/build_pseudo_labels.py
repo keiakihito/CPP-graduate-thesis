@@ -5,6 +5,8 @@ import csv
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import re
+import unicodedata
 
 import boto3
 import numpy as np
@@ -66,6 +68,48 @@ def safe_stem(track_id: Any, title: str) -> str:
     cleaned = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in title)
     cleaned = cleaned[:80].strip("_")
     return f"track_{track_id}_{cleaned}"
+
+
+def normalize_composer_name(composer: Any) -> str:
+    """Normalize composer names into a stable evaluation field."""
+    if composer is None:
+        return "unknown"
+
+    composer_str = str(composer).strip()
+    if not composer_str or composer_str.lower() == "nan":
+        return "unknown"
+
+    normalized = unicodedata.normalize("NFKD", composer_str)
+    normalized = normalized.encode("ascii", "ignore").decode("ascii")
+    normalized = normalized.lower().strip()
+    normalized = normalized.replace("&", " and ")
+    normalized = re.sub(r"[\.\-_,/]+", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+
+    aliases = {
+        "george enesco": "george enescu",
+        "georges enesco": "george enescu",
+        "georges enescu": "george enescu",
+        "edvard greig": "edvard grieg",
+        "frederic chopin": "frederic chopin",
+        "w a mozart": "wolfgang amadeus mozart",
+        "mozart": "wolfgang amadeus mozart",
+        "j s bach": "johann sebastian bach",
+        "bach": "johann sebastian bach",
+        "piotr tchaikovsky": "pyotr ilyich tchaikovsky",
+        "p i tchaikovsky": "pyotr ilyich tchaikovsky",
+        "peter i tchaikovsky": "pyotr ilyich tchaikovsky",
+        "tchaikovsky": "pyotr ilyich tchaikovsky",
+        "ludvig van beethoven": "ludwig van beethoven",
+        "ludwig van beethoven g mahler": "ludwig van beethoven gustav mahler",
+        "handel lerman": "handel lerman",
+        "handel halvorsen": "handel halvorsen",
+        "albinoni": "tomaso albinoni",
+        "tomaso vitali": "tommaso antonio vitali",
+        "vivaldi": "antonio vivaldi",
+    }
+
+    return aliases.get(normalized, normalized)
 
 
 
@@ -204,6 +248,7 @@ def process_track(s3_client, track: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "title": title,
         "album_name": track.get("album_name"),
         "composer": track.get("composers"),
+        "composer_eval": normalize_composer_name(track.get("composers")),
         "audio_s3_key": s3_key,
         "wav_path": str(wav_path),
         "valence": round(valence, 4),
@@ -225,6 +270,7 @@ def save_results_csv(rows: List[Dict[str, Any]], output_path: Path) -> None:
         "title",
         "album_name",
         "composer",
+        "composer_eval",
         "audio_s3_key",
         "wav_path",
         "valence",
