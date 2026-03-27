@@ -19,7 +19,7 @@
 \usepackage{color}
 \graphicspath{{../Draft-legacy/v2-0213-2026/V2-latex/figures/}}
 
-\title{COMPARATIVE ANALYSIS OF PRETRAINED AUDIO REPRESENTATIONS FOR SMALL-SCALE MUSIC ARCHIVES: A CASE STUDY ON THE IPALPITI COLLECTION}
+\title{Evaluating the Capacity of Pretrained Audio Representations for Content-Based Music Retrieval in Classical Archives}
 
 \oneauthor
   {Keita Katsumi}
@@ -254,23 +254,24 @@ Note that parameter counts are not strictly aligned across architectural familie
 All selected models provide pretrained checkpoints and support standardized embedding extraction.
 
 \subsubsection{Model Capacity Definition}
-
 In this study, model capacity is defined based on architectural depth and model scale within each family.
 
-For CNN-based models, capacity is controlled by the number of convolutional layers following the PANNs architecture:
+For CNN-based models, capacity is controlled by the number of convolutional layers following the PANNs architecture\cite{kong2020panns}:
 \begin{itemize}
-    \item CNN-Small: Cnn6 (6 layers)
-    \item CNN-Medium: Cnn10 (10 layers)
-    \item CNN-Large: Cnn14 (14 layers)
+  \item CNN-Small (Cnn6, 6 layers)
+  \item CNN-Medium (Cnn10, 10 layers)
+  \item CNN-Large (Cnn14, 14 layers)
 \end{itemize}
 
 For Transformer-based models, capacity is defined by pretrained parameter scale:
 \begin{itemize}
-    \item Transformer-Medium: MERT-95M
-    \item Transformer-Large: MERT-330M
+  \item Transformer-Medium (MERT-95M)
+  \item Transformer-Large (MERT-330M)
 \end{itemize}
 
+These variants differ primarily in network depth, which determines model capacity within the CNN family.
 Although exact parameter counts are not directly comparable across architectures, capacity is consistently defined within each family, enabling controlled within-family scaling comparisons.
+
 \subsection{Label Construction}
 Relevance labels for the proxy tasks are derived from metadata and a semi-automatic annotation pipeline.
 
@@ -467,13 +468,9 @@ it does not consistently improve performance for abstract semantic tasks such as
 Therefore, the hypothesis is refined to a condition-dependent form, 
 where the effectiveness of model scaling depends on task definition and dataset characteristics.
 
-\subsection{Implications for Backend Design in Classical Music Archives}
-From a system design perspective, the results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance.
+\subsection{Implications for Backend Design in Classical Music Archives} From a system design perspective, the results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance. 
 Instead, lightweight or mid-sized models may provide comparable performance at lower computational cost.
-This study further investigates whether the effect of model capacity is conditioned by the structure of the retrieval task itself.
-
-These findings indicate that system design may benefit from prioritizing task definition, label quality, and dataset curation over model scaling.
-In practical archival systems such as iPalpiti, this suggests that efficient models may be sufficient for real-time retrieval and deployment-constrained environments.
+These findings indicate that system design may benefit from prioritizing task definition, label quality, and dataset curation over model scaling. In practical archival systems such as iPalpiti, this suggests that efficient models may be sufficient for real-time retrieval and deployment-constrained environments.
 
 \subsection{Limitations}
 This study has several limitations.
