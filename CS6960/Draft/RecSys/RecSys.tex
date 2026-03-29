@@ -245,14 +245,12 @@ This result suggests that embedding capacity alone is insufficient to improve ra
 
 \subsection{Capacity--Performance Trends Within Architectural Families}
 
-This section analyzes scaling behavior strictly within architectural families to isolate the effect of parameter count from architectural inductive bias. Taken together, the within-family scaling
-patterns described below provide the primary empirical test of the condition-dependent capacity hypothesis. These findings further suggest that improvements in model capacity do not consistently 
+This section analyzes scaling behavior strictly within architectural families to isolate the effect of parameter count from architectural inductive bias. Taken together, the within-family scaling patterns described below provide the primary empirical test of the condition-dependent capacity hypothesis. These findings further suggest that improvements in model capacity do not consistently 
 translate into better candidate ranking quality in retrieval-based recommendation settings.
 
 \subsubsection{CNN Scaling Behavior}
 
-Within the CNN family, capacity scaling is task-dependent. On the Sanity Proxy, performance improves from the small to the medium tier and then saturates at the large tier, indicating that modest
-increases in capacity can help for structured retrieval but that further scaling yields limited gains. On the Musical Proxy, however, the pattern is non-monotonic: the medium model performs worse than the small model, and the large model does not establish a clear superior trend. These results suggest that scaling effects primarily influence candidate ranking quality rather than fundamentally altering the retrieval structure.
+Within the CNN family, capacity scaling is task-dependent. On the Sanity Proxy, NDCG@5 drops slightly from the small to the medium tier before showing notable improvement with the large tier, indicating that sufficient capacity scaling is required to see benefits for structured retrieval. On the Musical Proxy, however, the pattern is non-monotonic: while the medium model shows a slight improvement in NDCG@5, its Precision drops, and the large model does not establish a clear superior trend. These results suggest that scaling effects primarily influence candidate ranking quality rather than fundamentally altering the retrieval structure.
 
 \subsubsection{Transformer Scaling Behavior}
 
@@ -323,13 +321,12 @@ Finally, integrating user interaction signals and conducting user studies will b
 
 This study investigated the effect of embedding-model capacity on candidate ranking quality in a content-based music retrieval setting for a small-scale classical music archive. Through controlled experiments across CNN and Transformer models, we found that increasing model capacity does not consistently improve candidate ranking quality. While higher-capacity models provide limited gains for structured retrieval tasks, these benefits tend to saturate, and no clear improvements are observed for abstract semantic retrieval.
 
-These results support a condition-dependent view of scaling, where the effectiveness of model capacity depends on the structure of the relevance signal, label quality, and dataset characteristics. In small, single-domain archives, candidate ranking quality is influenced more by task formulation and dataset structure than by model capacity alone.
+These results support a condition-dependent view of scaling, where the effectiveness of model capacity depends on the structure of the relevance signal and label quality. In small, single-domain archives, candidate ranking quality is influenced more by task formulation than by model capacity alone.
 
 From a recommender systems perspective, our findings suggest that increasing embedding-model capacity is not the primary lever for improving candidate generation quality in data-constrained settings. Instead, lightweight or mid-sized models can offer competitive performance with lower computational cost. Overall, this work highlights the importance of aligning model capacity with task requirements and dataset constraints in retrieval-based recommender systems.
 
 % Manual bibliography workflow:
-% Edit RecSys.bbl directly, then compile RecSys.tex twice with pdflatex.
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{RecSys_manual}
+% Edit RecSys_refs.tex directly, then compile RecSys.tex twice with pdflatex.
+\input{RecSys_refs.tex}
 
 \end{document}
