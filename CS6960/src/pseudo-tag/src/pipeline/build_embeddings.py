@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import time
 from typing import Any
 import wave
 
@@ -142,11 +143,16 @@ def build_embeddings(input_dir: str, output_dir: str, model_name: str) -> None:
     embeddings: list[np.ndarray] = []
     metadata: list[dict[str, Any]] = []
     failures: list[dict[str, str]] = []
+    latencies: list[float] = []
 
     for i, wav_path in enumerate(wav_paths):
         print(f"[{i+1}/{len(wav_paths)}] Processing: {wav_path}")
         try:
+            start = time.time()
             embedding = extract_track_embedding(str(wav_path), extractor)
+            end = time.time()
+            latency_ms = (end - start) * 1000
+            latencies.append(latency_ms)
         except Exception as exc:
             failures.append(
                 {
@@ -188,6 +194,10 @@ def build_embeddings(input_dir: str, output_dir: str, model_name: str) -> None:
                 "model_name": model_name,
             }
         )
+
+    if latencies:
+        avg_latency = sum(latencies) / len(latencies)
+        print(f"Average latency per track: {avg_latency:.2f} ms")
 
     if embeddings:
         matrix = np.stack(embeddings).astype(np.float32)
