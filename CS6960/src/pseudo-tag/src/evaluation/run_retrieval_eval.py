@@ -51,12 +51,14 @@ def run_single_query_eval(
     relevant_in_top_k = sum(1 for value in relevance[:top_k] if value > 0)
 
     if total_relevant == 0:
-        print("No relevant items for this query. Skipping evaluation.")
         return {
-            "precision@k": None,
-            "recall@k": None,
-            "f1@k": None,
-            "ndcg@k": None,
+            f"precision@{top_k}": 0.0,
+            f"recall@{top_k}": 0.0,
+            f"f1@{top_k}": 0.0,
+            f"ndcg@{top_k}": 0.0,
+            f"hit@{top_k}": 0.0,
+            "total_relevant": 0.0,
+            "relevant_in_top_k": 0.0,
         }
 
     metrics = {
@@ -64,6 +66,9 @@ def run_single_query_eval(
         f"recall@{top_k}": recall_at_k(relevance, top_k, total_relevant=total_relevant),
         f"f1@{top_k}": f1_at_k(relevance, top_k, total_relevant=total_relevant),
         f"ndcg@{top_k}": ndcg_at_k(relevance, top_k),
+        f"hit@{top_k}": float(relevant_in_top_k > 0),
+        "total_relevant": float(total_relevant),
+        "relevant_in_top_k": float(relevant_in_top_k),
     }
 
     print("Top-k results:")

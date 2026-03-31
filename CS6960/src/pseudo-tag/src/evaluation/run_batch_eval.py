@@ -27,6 +27,7 @@ def run_batch_eval(
     model_name: str,
     top_k: int = 5,
     relevance_strategy: str = "composer",
+    debug: bool = False,
 ) -> dict[str, float]:
     """Run retrieval evaluation across all queries and average valid metrics."""
     wav_paths = collect_wav_paths(wav_dir)
@@ -35,12 +36,15 @@ def run_batch_eval(
     recall_key = f"recall@{top_k}"
     f1_key = f"f1@{top_k}"
     ndcg_key = f"ndcg@{top_k}"
+    hit_key = f"hit@{top_k}"
 
     precision_values: list[float] = []
     recall_values: list[float] = []
     f1_values: list[float] = []
     ndcg_values: list[float] = []
-    skipped_queries = 0
+    hit_values: list[float] = []
+    ndcg_samples: list[tuple[str, float]] = []
+    missing_label_queries = 0
 
     for wav_path in wav_paths:
         print(f"\n=== Query: {wav_path.name} ===")
@@ -56,40 +60,80 @@ def run_batch_eval(
             )
         except ValueError as exc:
             print(f"Skipping query due to missing label data: {exc}")
-            skipped_queries += 1
-            continue
-
-        if metrics is None:
-            skipped_queries += 1
+            missing_label_queries += 1
             continue
 
         precision = metrics.get(precision_key)
         recall = metrics.get(recall_key)
         f1 = metrics.get(f1_key)
         ndcg = metrics.get(ndcg_key)
+        hit = metrics.get(hit_key)
 
-        if precision is None or recall is None or ndcg is None or f1 is None:
-            skipped_queries += 1
+        if precision is None or recall is None or ndcg is None or f1 is None or hit is None:
+            missing_label_queries += 1
             continue
 
         precision_values.append(float(precision))
         recall_values.append(float(recall))
         f1_values.append(float(f1))
         ndcg_values.append(float(ndcg))
+        hit_values.append(float(hit))
+        ndcg_samples.append((wav_path.name, float(ndcg)))
 
-    valid_queries = len(precision_values)
+    total_queries = len(wav_paths)
+    evaluated_queries = len(precision_values)
+    queries_with_hit = int(sum(hit_values))
     average_metrics = {
-        precision_key: sum(precision_values) / valid_queries if valid_queries else 0.0,
-        recall_key: sum(recall_values) / valid_queries if valid_queries else 0.0,
-        f1_key: sum(f1_values) / valid_queries if valid_queries else 0.0,
-        ndcg_key: sum(ndcg_values) / valid_queries if valid_queries else 0.0,
+        precision_key: sum(precision_values) / evaluated_queries if evaluated_queries else 0.0,
+        recall_key: sum(recall_values) / evaluated_queries if evaluated_queries else 0.0,
+        f1_key: sum(f1_values) / evaluated_queries if evaluated_queries else 0.0,
+        ndcg_key: sum(ndcg_values) / evaluated_queries if evaluated_queries else 0.0,
+        hit_key: sum(hit_values) / evaluated_queries if evaluated_queries else 0.0,
+    }
+    raw_sums = {
+        precision_key: sum(precision_values),
+        recall_key: sum(recall_values),
+        f1_key: sum(f1_values),
+        ndcg_key: sum(ndcg_values),
+        hit_key: sum(hit_values),
     }
 
+    if average_metrics[ndcg_key] > average_metrics[hit_key] + 1e-12:
+        raise AssertionError(
+            f"Sanity check failed: {ndcg_key}={average_metrics[ndcg_key]:.6f} "
+            f"> {hit_key}={average_metrics[hit_key]:.6f}"
+        )
+    for metric_name, metric_value in average_metrics.items():
+        if not 0.0 <= metric_value <= 1.0:
+            raise AssertionError(
+                f"Range check failed: {metric_name}={metric_value:.6f} is outside [0, 1]"
+            )
+    if average_metrics[precision_key] == 0.0 and average_metrics[recall_key] == 0.0:
+        if average_metrics[f1_key] != 0.0:
+            raise AssertionError(
+                f"F1 sanity check failed: {f1_key}={average_metrics[f1_key]:.6f} "
+                f"while {precision_key}=0 and {recall_key}=0"
+            )
+
     print("\n=== Batch Evaluation Summary ===")
-    print(f"valid_queries: {valid_queries}")
-    print(f"skipped_queries: {skipped_queries}")
+    print(f"total_queries: {total_queries}")
+    print(f"evaluated_queries: {evaluated_queries}")
+    print(f"missing_label_queries: {missing_label_queries}")
+    print(f"queries_with_hit@{top_k}: {queries_with_hit}")
     for name, value in average_metrics.items():
         print(f"{name}: {value:.6f}")
+
+    if debug:
+        print("\n=== Debug ===")
+        print(f"normalization_denominator: {evaluated_queries}")
+        for metric_name in [precision_key, recall_key, f1_key, ndcg_key, hit_key]:
+            print(
+                f"{metric_name}_raw_sum: {raw_sums[metric_name]:.6f}"
+            )
+            print(
+                f"{metric_name}_normalized_value: {average_metrics[metric_name]:.6f}"
+            )
+        print(f"sample_ndcg_values: {ndcg_samples[:10]}")
 
     return average_metrics
 
@@ -122,6 +166,11 @@ def main() -> None:
         choices=["composer", "tag_overlap"],
         help="Binary relevance strategy to use.",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Print additional query-count and per-query NDCG debug information.",
+    )
     args = parser.parse_args()
 
     run_batch_eval(
@@ -132,6 +181,7 @@ def main() -> None:
         model_name=args.model_name,
         top_k=args.top_k,
         relevance_strategy=args.relevance_strategy,
+        debug=args.debug,
     )
 
 

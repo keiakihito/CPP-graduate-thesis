@@ -78,12 +78,7 @@ def extract_summary_blocks(path: Path) -> list[str]:
             model_name = line.split(": ", 1)[1]
             relevance_strategy = ""
             date = ""
-            valid_queries = ""
-            skipped_queries = ""
-            precision = ""
-            recall = ""
-            f1 = ""
-            ndcg = ""
+            summary_values: dict[str, str] = {}
 
             j = i + 1
             while j < len(lines):
@@ -93,30 +88,38 @@ def extract_summary_blocks(path: Path) -> list[str]:
                 elif current.startswith("date: "):
                     date = current.split(": ", 1)[1]
                 elif current == "=== Batch Evaluation Summary ===":
-                    if j + 6 >= len(lines):
-                        break
-                    valid_queries = lines[j + 1].strip().split(": ", 1)[1]
-                    skipped_queries = lines[j + 2].strip().split(": ", 1)[1]
-                    precision = lines[j + 3].strip().split(": ", 1)[1]
-                    recall = lines[j + 4].strip().split(": ", 1)[1]
-                    f1 = lines[j + 5].strip().split(": ", 1)[1]
-                    ndcg = lines[j + 6].strip().split(": ", 1)[1]
+                    k = j + 1
+                    while k < len(lines):
+                        entry = lines[k].strip()
+                        if not entry:
+                            break
+                        if entry.startswith("==="):
+                            break
+                        if entry.startswith("model_name: "):
+                            break
+                        if ": " in entry:
+                            key, value = entry.split(": ", 1)
+                            summary_values[key] = value
+                        k += 1
                     blocks.append(
                         "\n".join(
                             [
                                 f"model_name: {model_name}",
                                 f"relevance_strategy: {relevance_strategy}",
                                 f"date: {date}",
-                                f"valid_queries: {valid_queries}",
-                                f"skipped_queries: {skipped_queries}",
-                                f"precision@5: {precision}",
-                                f"recall@5: {recall}",
-                                f"f1@5: {f1}",
-                                f"ndcg@5: {ndcg}",
+                                f"total_queries: {summary_values.get('total_queries', '')}",
+                                f"evaluated_queries: {summary_values.get('evaluated_queries', '')}",
+                                f"missing_label_queries: {summary_values.get('missing_label_queries', '')}",
+                                f"queries_with_hit@5: {summary_values.get('queries_with_hit@5', '')}",
+                                f"precision@5: {summary_values.get('precision@5', '')}",
+                                f"recall@5: {summary_values.get('recall@5', '')}",
+                                f"f1@5: {summary_values.get('f1@5', '')}",
+                                f"ndcg@5: {summary_values.get('ndcg@5', '')}",
+                                f"hit@5: {summary_values.get('hit@5', '')}",
                             ]
                         )
                     )
-                    i = j + 6
+                    i = k
                     break
                 j += 1
         i += 1
