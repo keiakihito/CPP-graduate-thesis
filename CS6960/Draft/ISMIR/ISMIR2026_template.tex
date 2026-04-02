@@ -19,7 +19,7 @@
 \usepackage{color}
 \graphicspath{{../Draft-legacy/v2-0213-2026/V2-latex/figures/}}
 
-\title{Evaluating the Capacity of Pretrained Audio Representations for Content-Based Music Retrieval in Classical Archives}
+\title{When Does Model Capacity Matter? Evaluating Pretrained Audio Representations for Music Retrieval in Small-Scale Classical Archives}
 
 \oneauthor
   {Keita Katsumi}
@@ -37,8 +37,7 @@
 \maketitle
 
 \begin{abstract}
-This study investigates the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive. While larger models are often assumed to yield superior representations, their effectiveness in limited, single-domain settings remains unclear. We evaluate CNN-based and Transformer-based embedding models across multiple capacity tiers using two proxy tasks: composer-based retrieval and musical-character retrieval. Retrieval performance is assessed using NDCG, precision, recall, and F1.Results show that increasing model capacity 
-does not consistently improve retrieval performance. While higher-capacity models provide limited gains for structured tasks, these gains quickly saturate, and scaling effects are weak or absent for abstract semantic retrieval. These findings suggest that retrieval performance in small-scale archival settings depends more on the nature of the proxy task than on model size alone
+This study investigates the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive. While larger models are often assumed to yield superior representations, their effectiveness in limited, single-domain settings remains unclear. We evaluate CNN-based and Transformer-based embedding models across multiple capacity tiers using two proxy tasks: composer-based retrieval and musical-character retrieval. Retrieval performance is assessed using ranking-based metrics (NDCG, Hit@K) and set-based metrics (precision, recall, and F1). Results show that increasing model capacity does not consistently improve retrieval performance. While higher-capacity models may provide limited gains for structured tasks, these effects are not consistent across model families, and scaling effects are weak or absent for abstract semantic retrieval. Furthermore, we observe that evaluation outcomes are strongly influenced by the relationship between the number of relevant items and the evaluation cutoff. In particular, when a large number of relevant items exist per query, set-based metrics such as Recall and F1 provide limited signal at small cutoff values, while ranking-based metrics such as NDCG and Hit@K remain more stable. These findings suggest that retrieval performance in small-scale archival settings is governed more by task structure and evaluation design than by model capacity alone.
 \end{abstract}
 
 % Section 1 Introduction
@@ -48,14 +47,14 @@ Modern music streaming platforms rely heavily on machine learning to support sea
 In such environments, content-based recommendation driven by audio embeddings becomes central.
 Recent advances in pretrained audio models---including lightweight convolutional networks and large transformer-based architectures---enable the extraction of rich musical representations from raw audio. However, most evaluations of these models are conducted on large-scale, heterogeneous datasets, where increased model capacity often correlates with improved benchmark performance.
 It remains unclear whether this trend transfers to small, single-domain archives such as classical
-music collections. In small-scale settings, limited data diversity, constrained candidate sets, and coarse proxy definitions may reduce the practical benefit of increased model complexity. This raises a fundamental design question for content-based recommendation systems in archival contexts: does increasing embedding-model capacity meaningfully improve similarity retrieval performance, or does it introduce diminishing returns under constrained conditions? This study further investigates whether the effect of model capacity is conditioned by the structure of the retrieval task itself.
+music collections. In small-scale settings, limited data diversity, coarse proxy definitions, and the presence of large relevant item sets under multi-label similarity may reduce the practical benefit of increased model complexity. This raises a fundamental design question for content-based recommendation systems in archival contexts: does increasing embedding-model capacity meaningfully improve similarity retrieval performance, or does it introduce diminishing returns under constrained conditions? This study further investigates whether the effect of model capacity is conditioned by the structure of the retrieval task itself.
 
 This reseach addresses this question by focusing exclusively on the backend: the stage that maps audio recordings to embeddings and supports similarity search, independent of end-to-end user modeling. Specifically,the study adopts a hypothesis-driven, iterative experimental design.
 Rather than assuming that larger models necessarily yield better retrieval performance, we begin with the hypothesis that increased embedding-model capacity may not improve similarity retrieval in small-scale, single-domain archives.
 
 To evaluate this hypothesis, retrieval performance is systematically assessed across a spectrum of
 model capacities within two representative architectural families (CNN-based and Transformer-based
-models). Proxy retrieval tasks are formulated to approximate musically meaningful similarity, including both a sanity-check retrieval task (composer-based) and a musical-character-based proxy (e.g., contrasting musical characteristics such as \emph{energetic} vs.\ \emph{calm}) Ranking quality is evaluated using standard information-retrieval metrics (e.g., NDCG, Precision@K, Recall@K). Experimental conditions are progressively expanded to examine whether higher-capacity models provide consistent improvements, exhibit diminishing returns, or fail to deliver measurable gains under constrained archival settings.This research is guided by two research questions:
+models). Proxy retrieval tasks are formulated to approximate musically meaningful similarity, including both a sanity-check retrieval task (composer-based) and a musical-character-based proxy (e.g., contrasting musical characteristics such as \emph{energetic} vs.\ \emph{calm}) Ranking quality is evaluated using standard information-retrieval metrics, including both ranking-based metrics (e.g., NDCG, Hit@K) and set-based metrics (e.g., Precision@K, Recall@K). This distinction allows us to examine how evaluation design interacts with multi-label relevance and the relationship between the number of relevant items and the evaluation cutoff in small-scale retrieval settings. Experimental conditions are progressively expanded to examine whether higher-capacity models provide consistent improvements, exhibit diminishing returns, or fail to deliver measurable gains under constrained archival settings.This research is guided by two research questions:
 
 \smallskip
 \noindent\textbf{RQ1:} In a small-scale classical music archive (iPalpiti), how does embedding-model capacity influence content-based music similarity retrieval performance?
@@ -80,7 +79,7 @@ Prior work has explored a broad range of audio representation architectures, inc
 
 Transformer-based models provide a contrasting representation regime: AST applies self-attention
 directly to spectrograms \cite{gong2021ast}. Although these models can deliver strong downstream
-performance, their advantages are typically established on large and diverse datasets, leaving open the question of how well such capacity transfers to small, domain-constrained classical archives. Evaluation strategy is equally important. Classification benchmarks remain common for audio embeddings \cite{gong2021ast, zaman2023}, but strong classification accuracy does not guarantee well-structured neighborhoods for similarity retrieval \cite{tamm2024}. For retrieval-oriented settings, ranking metrics such as NDCG, Precision@K, and Recall@K are more appropriate because they evaluate the ordering of relevant items directly \cite{krichene2020}. This limitation is consistent with  prior observations in MIR research, where datasets are often small or domain-specific, posing challenges for generalizable evaluation \cite{urbano2013}.At the same time, these metrics are sensitive to evaluation design: constrained candidate pools can reduce discriminative power, increase ties, and even alter comparative conclusions \cite{krichene2020, canamares2020}; this is especially important in small archival collections. Diversity and long-tail considerations also remain relevant background concerns in music recommendation, particularly in settings where exploration is valued\cite{porcaro2022}.
+performance, their advantages are typically established on large and diverse datasets, leaving open the question of how well such capacity transfers to small, domain-constrained classical archives. Evaluation strategy is equally important. Classification benchmarks remain common for audio embeddings \cite{gong2021ast, zaman2023}, but strong classification accuracy does not guarantee well-structured neighborhoods for similarity retrieval \cite{tamm2024}. For retrieval-oriented settings, ranking metrics such as NDCG as well as set-based metrics such as Precision@K and Recall@K, are commonly used to evaluate ranking quality \cite{krichene2020}. However, these metrics can behave differently under multi-label relevance conditions: set-based metrics may provide limited or unstable signals when the number of relevant items per query is large relative to the evaluation cutoff, whereas ranking-based metrics tend to remain more robust. This limitation is consistent with  prior observations in MIR research, where datasets are often small or domain-specific, posing challenges for generalizable evaluation \cite{urbano2013}.At the same time, these metrics are sensitive to evaluation design: limited candidate pools can reduce discriminative power, increase ties, and even alter comparative conclusions, particularly when many relevant items exist per query but only a small top-K set is evaluated \cite{krichene2020, canamares2020}; this is especially important in small archival collections. Diversity and long-tail considerations also remain relevant background concerns in music recommendation, particularly in settings where exploration is valued\cite{porcaro2022}.
 
 Broader recommender-system work addresses personalization through user modeling, sequential
 interaction modeling, and contextual signals \cite{lin2025, abbattista2024, schedl2021}, but those
@@ -114,8 +113,7 @@ Higher similarity values indicate greater embedding-space proximity.
 
 Given a query item $x_q \in D$, all items in the collection except $x_q$ are ranked in descending
 order of similarity $s(z_q, z_i)$. Retrieval quality is evaluated with respect to a relevance
-function $r_q(x_i) \in \{0,1\}$ defined by proxy tasks, and ranking quality is measured using
-standard IR metrics including NDCG@K, Precision@K, Recall@K, and F1@K.
+function $r_q(x_i) \in \{0,1\}$ defined by proxy tasks, and ranking quality is measured using both ranking-based metrics (e.g., NDCG@K, Hit@K) and set-based metrics (e.g., Precision@K, Recall@K, and F1@K), enabling analysis of how different evaluation criteria behave under multi-label relevance and varying relationships between the number of relevant items and the evaluation cutoff.
 
 The primary independent variable is embedding-model capacity, operationalized mainly through
 parameter count ($|\theta|$), with architectural class treated as a separate categorical factor.
@@ -131,15 +129,14 @@ r_q(x_i) = 1 \quad \text{if} \quad g_{\text{composer}}(x_q) = g_{\text{composer}
 
 \textbf{Primary Musical Proxy.} Relevance is defined by shared character labels:
 \[
-r_q(x_i) = 1 \quad \text{if} \quad g_{\text{character}}(x_q) = g_{\text{character}}(x_i)
+r_q(x_i) = 1 \quad \text{if} \quad g_{\text{character}}(x_q) \cap g_{\text{character}}(x_i) \neq \emptyset
 \]
 
-For experimental tractability, relevance is treated as binary:
+For experimental tractability, relevance is treated as binary by projecting multi-label annotations into a match-based criterion:
 \[
 r_q(x_i) \in \{0,1\}
 \]
-with $r_q(x_i)=0$ when labels do not match. This study assumes that such metadata-derived labels
-provide a controlled, though coarse, approximation of musical similarity.
+where $r_q(x_i)=1$ if at least one label is shared between $x_q$ and $x_i$, and $r_q(x_i)=0$ otherwise. This formulation simplifies evaluation while preserving the underlying multi-label structure of the data. This study assumes that such metadata-derived labels provide a controlled, though coarse, approximation of musical similarity.
 
 \subsection{Retrieval Pipeline}
 The backend evaluation pipeline consists of four stages: audio preprocessing, embedding extraction, similarity computation, and ranking. All components other than embedding extraction are held constant to isolate the effect of embedding capacity.
@@ -181,7 +178,7 @@ For Transformer-based models, capacity is defined by pretrained parameter scale:
   \item Transformer-Large (MERT-330M)
 \end{itemize}
 
-These variants differ primarily in network depth, which determines model capacity within the CNN family. Although exact parameter counts are not directly comparable across architectures, capacity is consistently defined within each family, enabling controlled within-family scaling comparisons.
+These variants differ primarily in network depth, which determines model capacity within the CNN family. Although parameter counts could provide an alternative definition of capacity, we define capacity within each architectural family based on standard configurations (e.g., depth for CNNs and pretrained model scale for Transformers), as parameter counts are not directly comparable across architectures.
 
 \subsection{Label Construction}
 Relevance labels for the proxy tasks are derived from metadata and a semi-automatic annotation pipeline.
@@ -201,10 +198,9 @@ Each track in the archive is used as a query in a leave-one-out retrieval settin
 item itself is excluded from the candidate pool. Relevance is determined by metadata matching as
 defined above, and performance metrics are averaged across all query instances.
 
-Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied across all models.
+Because relevance labels are binary and the dataset is relatively small, ranking ties may occur when multiple relevant items share identical similarity scores. To ensure deterministic evaluation, a consistent tie-breaking strategy (e.g., lexicographic ordering by track identifier) is applied for determinism, although we acknowledge that tie-breaking may influence ranking-based metrics in small datasets.
 
-Performance is primarily assessed using NDCG@5 and Precision@5, with interpretation focused on
-consistent scaling patterns rather than small numerical differences.
+Performance is primarily assessed using ranking-based metrics (NDCG@5, Hit@5) alongside set-based metrics (Precision@5, Recall@5, F1@5), with interpretation focusing on consistent trends across metrics, particularly under conditions where the number of relevant items is large relative to the evaluation cutoff.
 
 Furthermore, small numerical differences in mean scores do not necessarily correspond 
 to meaningful differences in user experience. Prior work emphasizes the importance 
@@ -224,20 +220,20 @@ Table~\ref{tab:sanity_results} presents retrieval performance grouped by archite
 \caption{Sanity Proxy Results (Composer Retrieval). Metrics reported are corpus-level mean values at rank 5.}
 \label{tab:sanity_results}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \hline
-\textbf{Model} & \textbf{NDCG@5} & \textbf{Precision@5} & \textbf{Recall@5} & \textbf{F1@5} \\
+\textbf{Model} & \textbf{NDCG@5} & \textbf{Hit@5} & \textbf{Precision@5} & \textbf{Recall@5} & \textbf{F1@5} \\
 \hline
-\multicolumn{5}{c}{\textbf{CNN Family}} \\
+\multicolumn{6}{c}{\textbf{CNN Family}} \\
 \hline
-CNN-Small & 0.633 & 0.307 & 0.225 & 0.217 \\
-CNN-Medium  & 0.628 & 0.350 & 0.248 & 0.246 \\
-CNN-Large & 0.674 & 0.370 & 0.263 & 0.264 \\
+CNN-Small & 0.548 & 0.640 & 0.266 & 0.195 & 0.188 \\
+CNN-Medium & 0.545 & 0.640 & 0.303 & 0.215 & 0.214 \\
+CNN-Large & 0.585 & 0.660 & 0.321 & 0.228 & 0.229 \\
 \hline
-\multicolumn{5}{c}{\textbf{Transformer Family}} \\
+\multicolumn{6}{c}{\textbf{Transformer Family}} \\
 \hline
-Transformer-Medium  & 0.740 & 0.416& 0.303 & 0.306 \\
-Transformer-Large & 0.678 & 0.351 & 0.269 & 0.258\\
+Transformer-Medium & 0.642 & 0.709 & 0.361 & 0.263 & 0.265 \\
+Transformer-Large & 0.588 & 0.665 & 0.304 & 0.233 & 0.224 \\
 \hline
 \end{tabular}
 }
@@ -257,61 +253,51 @@ Table~\ref{tab:musical_results} summarizes the performance across all models.
 \caption{Primary Musical Proxy Results (Character Retrieval). Metrics reported are corpus-level mean values at rank 5.}
 \label{tab:musical_results}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \hline
-\textbf{Model} & \textbf{NDCG@5} & \textbf{Precision@5} & \textbf{Recall@5} & \textbf{F1@5} \\
+\textbf{Model} & \textbf{NDCG@5} & \textbf{Hit@5} & \textbf{Precision@5} & \textbf{Recall@5} & \textbf{F1@5} \\
 \hline
-\multicolumn{5}{c}{\textbf{CNN Family}} \\
+\multicolumn{6}{c}{\textbf{CNN Family}} \\
 \hline
-CNN-Small & 0.784 & 0.643 & 0.047 & 0.086 \\
-CNN-Medium & 0.789 & 0.634 & 0.046 & 0.084 \\
-CNN-Large & 0.771 & 0.634 & 0.045 & 0.084\\
+CNN-Small & 0.653 & 0.783 & 0.536 & 0.039 & 0.071 \\
+CNN-Medium & 0.656 & 0.768 & 0.528 & 0.038 & 0.070 \\
+CNN-Large & 0.642 & 0.749 & 0.528 & 0.038 & 0.070 \\
 \hline
-\multicolumn{5}{c}{\textbf{Transformer Family}} \\
+\multicolumn{6}{c}{\textbf{Transformer Family}} \\
 \hline
-Transformer-Medium  & 0.760 & 0.537 & 0.039 & 0.072 \\
-Transformer-Large & 0.758 & 0.582 & 0.043 & 0.079 \\
+Transformer-Medium & 0.632 & 0.778 & 0.447 & 0.033 & 0.060 \\
+Transformer-Large & 0.631 & 0.764 & 0.485 & 0.036 & 0.066 \\
 \hline
 \end{tabular}
 }
 \end{table}
 
-In contrast to the Sanity Proxy, the Musical Proxy results do not show a clear benefit from increased capacity. 
+In contrast to the Sanity Proxy, the Musical Proxy results do not show a clear benefit from increased capacity. While Recall@5 and F1@5 values are extremely low across all models (approximately 0.03--0.04), Hit@5 remains relatively high (around 0.75), and NDCG@5 remains stable. This indicates that relevant or partially relevant items are often retrieved within the top-ranked results, but do not fully match the strict set-based relevance criteria.
 
-Within the CNN family, scaling yields mixed results: while the medium model shows a slight improvement in NDCG@5 over the small model (0.789 vs. 0.784), its Precision@5 drops, and the large model subsequently declines across both metrics. Within the Transformer family, the medium and large models perform similarly, indicating no meaningful improvement from additional capacity.
+This behavior arises from the structure of the task: each query is associated with a relatively large set of relevant items due to multi-label tag assignments, while evaluation is performed at a small cutoff (K=5). As a result, even when relevant or partially relevant items are retrieved near the top ranks, only a small fraction of the total relevant set is captured, leading to low Recall and F1 scores.
 
-This result suggests that capacity is not, by itself, sufficient to improve retrieval when relevance is defined by a more abstract semantic proxy. Unlike composer identity, musical-character labels impose a coarser and less structurally constrained notion of similarity.
+Despite this evaluation characteristic, the overall trend remains consistent: increasing model capacity does not yield meaningful improvements across models. Both CNN and Transformer families exhibit similar performance ranges, supporting the hypothesis that capacity effects are strongly task-dependent in this setting.
 
 \subsection{Capacity--Performance Trends Within Architectural Families}
 This section analyzes scaling behavior strictly within architectural families to isolate the effect of parameter count from architectural inductive bias. Taken together, the within-family scaling patterns described below provide the primary empirical test of the condition-dependent capacity hypothesis.
 
 \subsubsection{CNN Scaling Behavior}
-Within the CNN family, capacity scaling is task-dependent. On the Sanity Proxy, performance improves from the small to the medium tier and then saturates at the large tier, indicating that modest increases in capacity can help for structured retrieval but that further scaling yields limited gains. On the Musical Proxy, however, the pattern is non-monotonic: while the medium model shows a slight improvement in NDCG@5, its Precision drops, and the large model does not establish a clear superior trend. This instability suggests that increased CNN capacity does not reliably improve retrieval under more abstract similarity definitions.
+Within the CNN family, capacity scaling is task-dependent. On the Sanity Proxy, performance remains comparable between the small and medium tiers and improves at the large tier, indicating that modest increases in capacity can help for structured retrieval but that further scaling yields limited gains. On the Musical Proxy, however, the pattern is non-monotonic.
 
 \subsubsection{Transformer Scaling Behavior}
-Within the Transformer family, the effect of scaling also depends on the proxy task. On the Sanity
-Proxy, the large transformer substantially outperforms the medium model, indicating that additional capacity can improve retrieval when the task is aligned with structured musical metadata. On the Musical Proxy, however, the medium and large transformer models perform comparably, indicating that increased capacity does not translate into improved abstract semantic retrieval. This contrast reinforces the view that transformer scaling benefits are conditional rather than universal in the present setting.
+Within the Transformer family, the effect of scaling also depends on the proxy task. On the Sanity Proxy, the medium transformer outperforms the large model, indicating that increased capacity does not necessarily lead to improved performance even when the task is aligned with structured musical metadata. On the Musical Proxy, however, the medium and large transformer models perform comparably, indicating that increased capacity does not translate into improved abstract semantic retrieval. This contrast reinforces the view that transformer scaling benefits are conditional rather than universal in the present setting.
 
 \subsection{Cross-Family Descriptive Comparison}
 Comparing performance across families reveals that scaling effects depend more on task structure
-than on raw model size alone. On the Sanity Proxy, both families benefit from increased capacity,
-with stronger gains observed in the Transformer family. On the Musical Proxy, however, neither
-family exhibits consistent improvement, and performance differences remain small.
+than on raw model size alone. On the Sanity Proxy, both families show some sensitivity to capacity scaling, although the effect is not strictly monotonic. In particular, improvements are observed within the CNN family, while the Transformer family does not exhibit consistent gains with increased capacity. On the Musical Proxy, however, neither family exhibits consistent improvement, and performance differences remain small.
 
 These comparisons are descriptive and do not imply causal superiority of one architecture over
 another, since architecture, parameter count, and pretraining regime co-vary across families.
 The narrow performance range across models suggests limited representational separability under
-the current retrieval setting, regardless of capacity tier.
-
-Given the small dataset size, absolute differences should be interpreted cautiously, 
-with emphasis placed on consistent trends rather than isolated values.
+the current retrieval setting, regardless of capacity tier. Given the small dataset size, absolute differences should be interpreted cautiously, with emphasis placed on consistent trends rather than isolated values.
 
 \subsection{Summary of Empirical Findings}
-The experimental results yield three main observations.
-First, increasing model capacity does not guarantee monotonic performance improvement. 
-While some gains are observed in the Sanity Proxy, these gains either saturate or remain limited to specific settings; on the Musical Proxy, scaling effects are weak or absent.
-Second, scaling behavior differs clearly by task. Structured composer retrieval benefits more from increased capacity, whereas abstract character-based retrieval does not show consistent improvements. Third, performance values cluster within a relatively narrow range across models, 
-suggesting limited separability under the current retrieval setup. Taken together, these findings indicate that the effect of embedding-model capacity is strongly task-dependent. While increased capacity can improve retrieval when relevance is defined by structured and well-constrained attributes, it does not reliably improve performance for abstract semantic similarity in small-scale archival settings.
+The experimental results yield three main observations. First, increasing model capacity does not guarantee monotonic performance improvement. While some gains are observed in the Sanity Proxy, these gains either saturate or remain limited to specific settings; on the Musical Proxy, scaling effects are weak or absent. Second, scaling behavior differs clearly by task. Structured composer retrieval benefits more from increased capacity, whereas abstract character-based retrieval does not show consistent improvements. Third, performance values cluster within a relatively narrow range across models, suggesting limited separability under the current retrieval setup. Taken together, these findings indicate that the effect of embedding-model capacity is strongly task-dependent. While increased capacity can improve retrieval when relevance is defined by structured and well-constrained attributes, it does not reliably improve performance for abstract semantic similarity in small-scale archival settings.
 
 
 
@@ -324,11 +310,10 @@ The results indicate that embedding-model capacity does not consistently improve
 This suggests that the benefits of scaling are highly task-dependent, particularly for abstract semantic tasks such as musical character retrieval. This observation is consistent with prior work, which shows that pretrained audio models exhibit substantial performance variability across MIR and recommendation tasks, and that strong MIR performance does not necessarily translate to improved recommendation quality \cite{tamm2024}.
 
 Furthermore, classical music within a single archive exhibits strong stylistic coherence,
-which may lead to embedding compression, where different pieces are mapped to similar regions
-regardless of model capacity.
+which may lead to reduced representational separability in the embedding space. We emphasize that this is a hypothesis rather than a directly validated property of the embeddings, as no explicit geometric analysis (e.g., pairwise distance statistics) is conducted in this study. Future work should investigate embedding-space structure more directly to validate this effect. This effect is further influenced by the relationship between the number of relevant items and the evaluation cutoff. In particular, when a large number of relevant items exist per query due to multi-label assignments, set-based metrics such as Recall and F1 become less informative at small cutoff values, as only a small fraction of the relevant set can be retrieved.
 
 \subsection{RQ2: Conditions for Capacity Benefits}
-The results suggest that higher-capacity models tend to provide measurable benefits when the retrieval task is aligned with structured and well-defined attributes, such as composer identity.
+The results suggest that higher-capacity models may provide limited benefits when the retrieval task is aligned with structured and well-defined attributes, such as composer identity. However, these effects are not consistent across model families.
 
 In contrast, for abstract semantic tasks such as musical character retrieval,
 the benefit of scaling diminishes. This may be due to the coarse and subjective nature of the labels, which limits the ability of larger models to learn more discriminative representations.
@@ -337,18 +322,22 @@ the benefit of scaling diminishes. This may be due to the coarse and subjective 
 The results partially support the initial hypothesis that increasing embedding-model capacity does not necessarily improve retrieval performance. However, the findings suggest a more nuanced interpretation: capacity effects are strongly conditioned by the structure of the retrieval task.
 While increased capacity provides measurable benefits for structured tasks such as composer-based retrieval, it does not consistently improve performance for abstract semantic tasks such as musical-character retrieval. Therefore, the hypothesis is refined to a condition-dependent form, where the effectiveness of model scaling is heavily governed by task definition, though future work is needed to determine how dataset characteristics mediate this relationship.
 
-\subsection{Implications for Backend Design in Classical Music Archives} From a system design perspective, the results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance. 
-Instead, lightweight or mid-sized models may provide comparable performance at lower computational cost. These findings indicate that system design may benefit from prioritizing task definition, label quality, and dataset curation over model scaling. In practical archival systems such as iPalpiti, this suggests that efficient models may be sufficient for real-time retrieval and deployment-constrained environments.
+\subsection{Implications for Backend Design in Classical Music Archives}
+From a system design perspective, the results suggest that, for small-scale classical music archives, increasing embedding-model capacity is not the most effective strategy for improving retrieval performance. Instead, lightweight or mid-sized models may provide comparable performance at lower computational cost. These findings indicate that system design may benefit from prioritizing task definition, label quality, and dataset curation over model scaling. In practical archival systems such as iPalpiti, this suggests that efficient models may be sufficient for real-time retrieval and deployment-constrained environments. While this study focuses on item-to-item similarity retrieval to isolate embedding quality, real-world recommender systems typically operate on user profiles rather than single query items. Therefore, future work should investigate how these representations perform when aggregated into user-level preference models in cold-start recommendation settings.
 
 \subsection{Limitations}
-This study has several limitations. First, the dataset is small and restricted to a single-domain classical music archive, which limits the generalizability of the findings. Second, the musical-character labels used in the primary proxy task are coarse and partially subjective, which constrains the evaluation of fine-grained semantic similarity. Third, the evaluation relies on offline proxy tasks rather than real user interaction, and therefore does not directly measure recommendation effectiveness in practical settings. Finally, the pseudo-labels used for the musical-character task are partially derived from a pretrained emotion recognition model. This introduces a potential circularity in the evaluation, as the same class of pretrained representations is used both to generate labels and to evaluate embedding quality. As a result, the observed performance may reflect alignment with the labeling model rather than true semantic similarity.
+This study has several limitations. First, the dataset is small and restricted to a single-domain classical music archive, which limits the generalizability of the findings. Additionally, the small size of the dataset (203 items) inherently limits the diversity of the candidate pool during retrieval, which may restrict the ability of high-capacity models to fully demonstrate their discriminative advantages. Second, the musical-character labels used in the primary proxy task are coarse and partially subjective, which constrains the evaluation of fine-grained semantic similarity. Third, the evaluation relies on offline proxy tasks rather than real user interaction, and therefore does not directly measure recommendation effectiveness in practical settings. Finally, the pseudo-labels used for the musical-character task are partially derived from a pretrained emotion recognition model. This introduces a potential circularity in the evaluation, as the same class of pretrained representations is used both to generate labels and to evaluate embedding quality. As a result, the observed performance may reflect alignment with the labeling model rather than true semantic similarity.
 
 \subsection{Directions for Future Work}
 Future work should investigate larger and more diverse music datasets to evaluate whether the observed capacity limitations persist at scale. In addition, incorporating richer and more fine-grained semantic labels may improve the evaluation of abstract musical similarity. Finally, integrating user interaction data and conducting user studies would provide a more direct assessment of retrieval effectiveness in real-world archival systems.
 
 % Section 6 Conclusion
 \section{Conclusion}
-This study examined the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive.The results show that increasing model capacity does not consistently improve retrieval performance. While higher-capacity models provide limited gains for structured tasks, these gains saturate, and scaling effects are weak or absent for abstract semantic retrieval. These findings suggest that retrieval performance in small-scale settings is governed more by the nature of the proxy task than by embedding-model capacity alone, highlighting the importance of aligning model complexity with the specific retrieval context.
+This study examined the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive. The results show that increasing model capacity does not consistently improve retrieval performance. While higher-capacity models may provide limited gains for structured tasks, these effects are not consistent across model families, and scaling effects are weak or absent for abstract semantic retrieval.
+
+These findings indicate that retrieval performance in small-scale settings is strongly conditioned by the structure of the retrieval task rather than by embedding-model capacity alone. In particular, we show that evaluation outcomes are highly sensitive to the relationship between the number of relevant items and the evaluation cutoff. When a large set of relevant items exists per query, set-based metrics such as Recall and F1 provide limited signal at small cutoff values, while ranking-based metrics such as NDCG and Hit@K remain more stable.
+
+Overall, this study highlights the importance of aligning model capacity, task definition, and evaluation design when developing content-based retrieval systems for data-constrained music archives.
 
 % Generate references from the BibTeX database.
 \bibliography{ISMIRtemplate}

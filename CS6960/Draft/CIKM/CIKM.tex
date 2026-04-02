@@ -10,7 +10,7 @@
 
 \begin{document}
 
-\title[Model Capacity in Data-Constrained Music Retrieval]{Revisiting Model Capacity in Data-Constrained Music Retrieval: Do Larger Audio Representations Improve Candidate Ranking Quality?}
+\title[Revisiting Model Capacity in Data-Constrained Music Retrieval]{Limited and Task-Dependent Gains in Candidate Ranking Quality}
 
 \author{Keita Katsumi}
 \affiliation{%
@@ -24,42 +24,45 @@
 \renewcommand{\shortauthors}{Katsumi}
 
 \begin{abstract}
-This paper investigates whether increasing embedding-model capacity improves candidate ranking quality in narrow-domain, data-constrained music retrieval settings. While large pretrained audio models have shown strong performance in benchmark tasks, their computational cost raises an important question: do larger models provide meaningful gains for retrieval-based systems when data are limited? We conduct a controlled evaluation of CNN-based and Transformer-based audio representations across capacity tiers on a small-scale classical music archive. Retrieval is formulated as an offline ranking task using metadata-derived proxy relevance labels, and performance is measured using standard information retrieval metrics. Our results show that increasing model capacity does not consistently improve ranking effectiveness within this setting. While larger models yield limited gains for structured retrieval tasks, these improvements tend to saturate and do not transfer to abstract semantic retrieval. These findings suggest that, in narrow-domain archival settings, ranking effectiveness is governed more by the structure of proxy relevance labels than by model capacity. From a system design perspective, the additional computational cost of large models does not translate into consistent performance gains, indicating that lightweight or mid-sized models offer a more efficient and scalable solution for content-based candidate generation.
+This paper investigates the effect of embedding-model capacity on candidate ranking quality in narrow-domain, data-constrained music retrieval settings. While large pretrained audio models have shown strong performance in benchmark tasks, their computational cost raises an important question: whether larger models provide meaningful gains for retrieval-based systems under limited data conditions. We conduct a controlled evaluation of CNN-based and Transformer-based audio representations across capacity tiers on a small-scale classical music archive. Retrieval is formulated as an offline ranking task using metadata-derived proxy relevance labels, and performance is measured using standard information retrieval metrics at multiple cutoff levels. Our results show that, within this constrained setting, increasing model capacity does not consistently improve ranking effectiveness. While capacity-related differences are observed for structured retrieval tasks, these improvements are limited in magnitude, saturate quickly, and remain consistent across ranking depths (K=5 and K=10). In contrast, no statistically significant differences are observed for more abstract, automatically-derived proxy tasks. These findings indicate that, in small-scale and domain-constrained retrieval scenarios, ranking performance is influenced more by the structure and reliability of proxy relevance labels than by model capacity alone. From a system perspective, increased model capacity introduces substantial computational overhead without consistent performance gains, suggesting that smaller or mid-sized models can provide a more favorable cost-performance trade-off. Overall, this study highlights the importance of aligning model capacity with task structure, relevance definition, and dataset characteristics when designing efficient and scalable retrieval systems.
 \end{abstract}
-
 \maketitle
 \pagestyle{plain}
 
 % Section 1: Introduction
 \section{Introduction}\label{sec:introduction}
-Modern music streaming platforms rely heavily on machine learning to support search, recommendation, and discovery. Much of the prior work in this area, as well as many industrial systems, is built around large-scale collaborative filtering and deep models trained on extensive user interaction logs. While effective for mainstream catalogs, these approaches are ill-suited to small, curated archives that lack dense user data and whose mission emphasizes exploration over pure popularity. Classical music archives such as the iPalpiti collection exemplify this setting: they contain high-quality, stylistically coherent recordings but limited usage data, and they require tools that can surface musically meaningful relationships among works, performances, and artists. However, beyond recommendation quality, deploying large-scale pretrained models introduces significant computational overhead, raising an important question of efficiency in data-constrained multimedia retrieval settings.
 
-In such environments, content-based recommendation driven by audio embeddings becomes central. Recent advances in pretrained audio models---including lightweight convolutional networks and large transformer-based architectures---enable the extraction of rich musical representations from raw audio. However, most evaluations of these models are conducted on large-scale, heterogeneous datasets, where increased model capacity often correlates with improved benchmark performance. It remains unclear whether this trend transfers to small, single-domain archives such as classical
-music collections. In small-scale settings, limited data diversity, constrained candidate sets, and coarse proxy definitions may reduce the practical benefit of increased model complexity. This raises a fundamental design question for content-based recommender systems in archival contexts: does increasing embedding-model capacity meaningfully improve ranking quality in similarity-based recommendation? 
+Modern music retrieval and recommendation systems are typically developed and evaluated using large-scale datasets with abundant user interaction signals. 
+However, many real-world applications operate in low-resource environments, such as curated music archives, where both dataset size and user feedback are inherently limited. 
+Classical music collections such as the iPalpiti archive exemplify this setting: they contain high-quality, stylistically coherent recordings but lack dense interaction data, requiring content-based approaches to support search and discovery.
 
-Under such constrained conditions, the problem can be viewed as an efficient multimedia retrieval task, where the goal is to mine useful representations for candidate generation under limited data and computational constraints. In practical recommender systems, content-based embeddings are often used as side information to support candidate generation in cold-start scenarios, making their efficiency and representational quality critical components of the overall system pipeline.
+In such scenarios, audio embeddings derived from pretrained models provide a practical basis for similarity-based retrieval. 
+Recent advances in pretrained audio representations, including convolutional and transformer-based architectures, have demonstrated strong performance on large-scale benchmark datasets. 
+However, it remains unclear whether the benefits of increased model capacity transfer to small, domain-constrained collections. In particular, limited data diversity and restricted candidate sets may reduce the effectiveness of higher-capacity models, raising an important design question: to what extent does increasing embedding-model capacity improve ranking quality under low-resource conditions?
 
-This research addresses this question by focusing exclusively on the backend: the stage that maps audio recordings to embeddings and supports similarity-based search, independent of end-to-end user modeling. Specifically, the study adopts a hypothesis-driven, iterative experimental design. Rather than assuming that larger models necessarily yield better ranking performance, we begin with the hypothesis that increased embedding-model capacity may not improve similarity retrieval in small-scale, single-domain archives.
+Under these constraints, the problem can be viewed as a multimedia retrieval task focused on efficient candidate generation, where both representational quality and computational cost are relevant considerations. In practical recommender systems, content-based embeddings are often used to support candidate generation in cold-start scenarios, making their behavior in data-constrained settings an important but underexplored issue.
 
-To evaluate this hypothesis, ranking performance is systematically assessed across a spectrum of model capacities within two representative architectural families (CNN-based and Transformer-based models). Proxy retrieval tasks are formulated to approximate musically meaningful similarity, including both a sanity-check retrieval task (composer-based) and a musical-character-based proxy (e.g., contrasting musical characteristics such as \emph{energetic} vs.\ \emph{calm}). Ranking quality is evaluated using standard information-retrieval metrics, with NDCG@K as the primary ranking metric and Hit Rate@K (HR@K) as a complementary measure. Experimental conditions are progressively expanded to examine whether higher-capacity models provide consistent improvements, exhibit diminishing returns, or fail to deliver measurable gains under constrained archival settings. This research is guided by two research questions:
+This work investigates this question by focusing on the backend embedding and retrieval stage, independent of end-to-end user modeling. Rather than assuming that larger models necessarily yield better performance, we adopt a hypothesis-driven approach to examine whether increasing embedding-model capacity leads to consistent improvements in similarity-based retrieval within a small-scale, single-domain dataset. The dataset represents an extreme low-resource setting, consisting of 203 tracks, and serves as a controlled micro-scale testbed for examining retrieval behavior under data-constrained conditions.
 
-\noindent\textbf{RQ1:} How does embedding-model capacity influence ranking quality in content-based recommendation?
+To this end, we evaluate ranking performance across multiple capacity tiers within two architectural families (CNN-based and Transformer-based models). 
+Retrieval is formulated as an offline ranking task using metadata-derived proxy relevance labels designed to approximate musically meaningful similarity. Two complementary proxy tasks are considered: a structured metadata-matching task based on composer identity, and a musical-character-based task capturing abstract attributes (e.g., \emph{energetic} vs.\ \emph{calm}). 
+Ranking quality is evaluated using standard information retrieval metrics, including NDCG@K and Hit Rate@K.
 
-\noindent\textbf{RQ2:} Under what conditions, if any, do higher-capacity embedding models provide meaningful gains over lighter architectures?
+The study is guided by the following research questions:
 
-\noindent\textbf{Hypothesis:} In a small-scale, single-domain classical music dataset, increasing embedding-model capacity does not necessarily improve retrieval effectiveness relative to its computational cost
+\noindent\textbf{RQ1:} How does embedding-model capacity influence ranking quality in content-based retrieval under low-resource conditions?
 
+\noindent\textbf{RQ2:} Under what conditions, if any, do higher-capacity models provide measurable gains over smaller architectures in such settings?
 
-This work makes three main contributions. 
-First, it provides a ranking-oriented evaluation of embedding models from a recommender systems perspective. Second, it establishes musically grounded evaluation criteria (via structured proxy retrieval tasks) that enable the identification of conditions under which ranking improvements are meaningful. Third, through a hypothesis-driven experimental design, it analyzes how embedding-model capacity behaves under constrained archival conditions, clarifying the practical limits of model complexity in small, single-domain
-recommendation settings.
+\noindent\textbf{Hypothesis:} In small-scale, single-domain datasets, increasing embedding-model capacity does not consistently improve retrieval effectiveness under the evaluated conditions.
+
+This work makes three main contributions. First, it provides an empirical analysis of embedding-model capacity in low-resource, single-domain retrieval settings. Second, it introduces musically grounded proxy retrieval tasks that enable controlled evaluation of ranking behavior across structured and abstract similarity dimensions. Third, it examines the trade-offs between model capacity and computational cost in constrained environments, providing practical insights into model selection for content-based candidate generation.
 
 
 % Section 2: Related Work
 \section{Related Work}\label{sec:related-work}
 
-Content-based recommendation is especially important in music recommender systems when user interaction data are sparse or unavailable, a setting in which collaborative signals are weak and cold-start effects become severe\cite{schedl2018}. In such cases, content-derived representations of music items provide a practical basis for similarity and recommendation \cite{deldjoo2024}. In such settings, item representations derived from content---including the audio signal itself---become a practical basis for similarity search, retrieval, and downstream recommendation, as content-based methods remain effective for new-item recommendation by relying directly on item descriptors extracted from the music itself \cite{deldjoo2024}.
-Recent work has shown the effectiveness of pretrained audio representations in music information retrieval while also identifying a gap in their systematic evaluation within music recommender systems \cite{tamm2024}. While end-to-end neural networks are common in recommender systems, recent work has specifically highlighted the utility of evaluating frozen pretrained representations. As a result, the intrinsic quality of backend embeddings is often underexplored. Therefore, an offline comparative analysis of pretrained audio representations is necessary to systematically evaluate their effectiveness in recommendation contexts, independent of downstream model complexity and user interaction noise. This work is closely related to retrieval-based recommendation, where item similarity is used to generate ranked candidate sets prior to downstream personalization. In such systems, embedding models play a key role in candidate generation, directly shaping the quality of retrieved items before any user-aware ranking is applied. This study focuses on the representation and retrieval stage of a two-stage recommender system pipeline, isolating the impact of item embeddings within the candidate generation stage, prior to downstream ranking or personalization models. By doing so, it enables a controlled evaluation of embedding quality in terms of ranking effectiveness.
+Content-based recommendation is especially important in music recommender systems when user interaction data are sparse or unavailable, a setting in which collaborative signals are weak and cold-start effects become severe\cite{schedl2018}. In such cases, content-derived representations of music items provide a practical basis for similarity and recommendation \cite{deldjoo2024}. In such settings, item representations derived from content---including the audio signal itself---become a practical basis for similarity search, retrieval, and downstream recommendation, as content-based methods remain effective for new-item recommendation by relying directly on item descriptors extracted from the music itself \cite{deldjoo2024}. Recent work has shown the effectiveness of pretrained audio representations in music information retrieval while also identifying a gap in their systematic evaluation within music recommender systems \cite{tamm2024}. While end-to-end neural networks are common in recommender systems, recent work has specifically highlighted the utility of evaluating frozen pretrained representations. As a result, the intrinsic quality of backend embeddings is often underexplored. Therefore, an offline comparative analysis of pretrained audio representations is necessary to systematically evaluate their effectiveness in recommendation contexts, independent of downstream model complexity and user interaction noise. This work is closely related to retrieval-based recommendation, where item similarity is used to generate ranked candidate sets prior to downstream personalization. In such systems, embedding models play a key role in candidate generation, directly shaping the quality of retrieved items before any user-aware ranking is applied. This study focuses on the representation and retrieval stage of a two-stage recommender system pipeline, isolating the impact of item embeddings within the candidate generation stage, prior to downstream ranking or personalization models. By doing so, it enables a controlled evaluation of embedding quality in terms of ranking effectiveness.
 
 Prior work has explored a broad range of audio representation architectures, including convolutional neural networks (CNNs), recurrent neural networks (RNNs), transformer-based models, and hybrid architectures \cite{zaman2023}. Historically, CNN and hybrid CNN–RNN models have been highly effective in specific supervised music tasks such as music emotion recognition (MER) \cite{jiang2024}. More broadly, convolutional architectures have played a central role in many music information retrieval tasks, while more recent transformer-based approaches leverage self-attention to model longer-range structure \cite{zaman2023}.In this study, however, the experimental design focuses specifically on pure CNN-based and pure transformer-based model families. CNN-based models remain attractive because their inductive biases support efficient learning of local spectral structure, and CNN-based architectures have demonstrated strong performance across a range of music detection and audio classification tasks, particularly when scaled to larger model capacities \cite{kong2020panns}. Hybrid architectures have also been explored, including CNN--RNN models for temporal modeling \cite{lin2024} and CNN--Transformer models for combining local and long-range representations \cite{pourmoazemi2024}, but they are treated here as background rather than as
 primary comparison targets.
@@ -109,7 +112,7 @@ The primary factor of interest is embedding-model capacity within each architect
 Relevance is defined through two metadata-based domain-specific relevance estimation tasks. Let $g(x)$ denote a metadata labeling
 function.
 
-\textbf{Sanity Proxy.} Relevance is defined by shared composer identity:
+\textbf{Composer Identity Proxy.} Relevance is defined by shared composer identity:
 \[
 r_q(x_i) = 1 \quad \text{if} \quad g_{\text{composer}}(x_q) = g_{\text{composer}}(x_i)
 \]
@@ -147,11 +150,11 @@ Note that parameter counts are not strictly aligned across architectural familie
 
 \subsection{Proxy Relevance Label Construction}
 
-In practical information retrieval systems, relevance is typically defined based on user interaction logs. However, such signals are unavailable in our setting. To address this limitation, we construct domain-specific proxy relevance labels to approximate ground truth for an ad-hoc retrieval task.
+In practical information retrieval systems, relevance is typically defined based on user interaction logs. However, such signals are unavailable in our setting. To address this limitation, we construct domain-specific proxy relevance labels to approximate ground truth for an item-to-item similarity retrieval task.
 
 Relevance labels for the domain-specific estimation tasks are derived from metadata and a semi-automatic annotation pipeline.
 
-For the sanity proxy, composer labels are normalized to a canonical form to ensure consistent matching across recordings. This normalization is performed during pseudo-label generation and stored as a stable evaluation field.
+For the Composer Identity Proxy, composer labels are normalized to a canonical form to ensure consistent matching across recordings. This normalization is performed during pseudo-label generation and stored as a stable evaluation field.
 
 For the primary musical proxy, character labels are constructed using a semi-automatic pipeline. Initial label candidates are defined based on the arousal--valence framework \cite{eerola2011}, which represents emotion in a continuous dimensional space. To support this process, pretrained music emotion recognition models are used as auxiliary tools for generating candidate labels, grounded in recent advances in deep learning-based music emotion recognition \cite{jiang2024}.
 
@@ -173,43 +176,43 @@ Performance is primarily assessed using NDCG@5 and Hit Rate@5 (HR@5), with inter
 Furthermore, small numerical differences in mean scores do not necessarily correspond to meaningful differences in user experience. Prior work emphasizes the importance of distinguishing between statistical and practical significance in IR evaluation\cite{urbano2013}. This evaluation setup approximates offline ranking evaluation commonly used in recommender systems when user interaction logs are unavailable, where ranking metrics serve as standard measures of retrieval effectiveness in the absence of user interaction data.
 
 \paragraph{Statistical Significance Testing}
-To assess whether observed differences between models are robust across queries, we perform paired t-tests on per-query NDCG@5 scores. For each proxy task, query-level scores are aligned across model pairs under a paired design. We report statistical significance at the p < 0.05 level. This analysis allows us to determine whether observed performance differences are consistent across queries rather than arising from random variation.
-
-
+To assess whether observed differences between models are robust across queries, we perform paired t-tests on per-query NDCG@5 scores. For each proxy task, query-level scores are aligned across model pairs under a paired design. We report statistical significance at the p < 0.05 level; unadjusted p-values are reported for these exploratory pairwise comparisons, and we acknowledge that this may inflate the risk of Type I errors. This analysis allows us to determine whether observed performance differences are consistent across queries rather than arising from random variation.
 
 % Section 4: Results
 \section{Results}\label{sec:results}\label{ch:results}
-\subsection{Sanity Proxy Results}
+On average, the Composer Identity Proxy contains 9.0 relevant tracks per query, while the Primary Musical Proxy contains 68.1 relevant tracks per query. This substantial difference in target density indicates that the musical-character proxy defines a significantly less selective retrieval task.
 
-The Sanity Proxy task evaluates the ability of embedding models to retrieve tracks sharing the same composer. This task serves as a controlled retrieval setting in which relevance is defined by a well-structured metadata attribute (composer identity), enabling verification that embedding models capture fundamental compositional structure.
+\subsection{Composer Identity Proxy Results}
+The Composer Identity Proxy task evaluates the ability of embedding models to retrieve tracks sharing the same composer. This task serves as a controlled retrieval setting in which relevance is defined by a well-structured metadata attribute (composer identity), enabling verification that embedding models capture fundamental compositional structure. We observe consistent trends at K=10, with no qualitative changes in model ranking or statistical significance patterns, indicating that the reported findings are not specific to shallow ranking cutoffs. Notably, the relative ordering of models remains stable between K=5 and K=10, further supporting the robustness of these observations.
 
 Table~\ref{tab:sanity_results} presents retrieval performance grouped by architectural family and ordered by capacity tier within each family.
 
 \begin{table}[!htbp]
 \centering
-\caption{Sanity Proxy Results (Composer Retrieval). Metrics reported are corpus-level mean values at rank 5, including NDCG@5 and Hit Rate@5 (HR@5).}
+\caption{Composer Identity Proxy Results (Composer Retrieval). Metrics reported are corpus-level mean values at rank 5 and rank 10, including NDCG@K and Hit Rate@K (HR@K).}
 \label{tab:sanity_results}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcc}
+\begin{tabular}{lcccc}
 \hline
-\textbf{Model} & \textbf{NDCG@5} & \textbf{HR@5} \\
+\textbf{Model} & \textbf{NDCG@5} & \textbf{NDCG@10} & \textbf{HR@5} & \textbf{HR@10} \\
 \hline
-\multicolumn{3}{c}{\textbf{CNN Family}} \\
-\hline
-CNN-Small & 0.633 & 0.225 \\
-CNN-Medium  & 0.628 & 0.248 \\
-CNN-Large & 0.674 & 0.263 \\
-\hline
-\multicolumn{3}{c}{\textbf{Transformer Family}} \\
-\hline
-Transformer-Medium  & 0.740 & 0.303 \\
-Transformer-Large & 0.678 & 0.269 \\
+CNN-Small & 0.548 & 0.549 & 0.640 & 0.700 \\
+CNN-Medium & 0.545 & 0.555 & 0.640 & 0.709 \\
+CNN-Large & 0.585$^{*\dagger}$ & 0.585$^{*\dagger}$ & 0.660$^{*\dagger}$ & 0.714$^{*\dagger}$ \\
+Transformer-Medium & 0.642$^{*}$ & 0.639$^{*}$ & 0.709$^{*}$ & 0.749$^{*}$ \\
+Transformer-Large & 0.588$^{\dagger}$ & 0.582$^{\dagger}$ & 0.665$^{\dagger}$ & 0.719$^{\dagger}$ \\
 \hline
 \end{tabular}
 }
+\vspace{2pt}
+\raggedright
+\footnotesize{
+$^{*}$ denotes statistically significant difference compared to the smallest model within the same architectural family.
+$^{\dagger}$ denotes statistically significant difference compared to the preceding capacity tier (paired t-test, $p < 0.05$).
+}
 \end{table}
 
-The Sanity Proxy results show that increased capacity can improve ranking quality when relevance is defined by a relatively structured and objective criterion. Within the CNN family, NDCG@5 drops slightly from the small to the medium model before showing notable improvement with the large model, suggesting that sufficient capacity scaling is required to see benefits. Conversely, within the Transformer family, performance degrades substantially from the medium to the large model in both NDCG@5 and HR@5. From a recommender systems perspective, these results suggest that the effect of increasing model capacity depends on both architectural family and task structure, rather than consistently improving candidate ranking quality.
+The Composer Identity Proxy results suggest that model capacity can influence ranking quality under structured relevance definitions when relevance is defined by a relatively structured and objective criterion. Within the CNN family, small differences in NDCG@5 are observed across capacity tiers, with the large model achieving the highest mean performance. However, these differences are relatively modest in magnitude. Within the Transformer family, the medium model achieves higher performance than the large model in both NDCG@5 and HR@5. Some of these differences are statistically significant (paired t-test, p < 0.05), particularly when compared to CNN-based models.
 
 On the composer proxy, Transformer-Medium achieves the highest mean NDCG@5 and outperforms all other models. These differences are statistically significant for several pairwise comparisons, particularly against CNN-based models (paired t-test, p < 0.05). This suggests that the observed improvements are consistent across queries rather than driven by a small number of examples, indicating robust ranking performance under this structured retrieval setting.
 
@@ -220,53 +223,55 @@ Table~\ref{tab:musical_results} summarizes the performance across all models.
 
 \begin{table}[!htbp]
 \centering
-\caption{Primary Musical Proxy Results (Character Retrieval). Metrics reported are corpus-level mean values at rank 5, including NDCG@5 and Hit Rate@5 (HR@5).}
+\caption{Primary Musical Proxy Results (Character Retrieval). Metrics reported are corpus-level mean values at rank 5 and rank 10, including NDCG@K and Hit Rate@K (HR@K).}
 \label{tab:musical_results}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcc}
+\begin{tabular}{lcccc}
 \hline
-\textbf{Model} & \textbf{NDCG@5} & \textbf{HR@5} \\
+\textbf{Model} & \textbf{NDCG@5} & \textbf{NDCG@10} & \textbf{HR@5} & \textbf{HR@10} \\
 \hline
-\multicolumn{3}{c}{\textbf{CNN Family}} \\
-\hline
-CNN-Small & 0.784 & 0.047 \\
-CNN-Medium & 0.789 & 0.046 \\
-CNN-Large & 0.771 & 0.045 \\
-\hline
-\multicolumn{3}{c}{\textbf{Transformer Family}} \\
-\hline
-Transformer-Medium  & 0.760 & 0.039 \\
-Transformer-Large & 0.758 & 0.043 \\
+CNN-Small & 0.652 & 0.649 & 0.783 & 0.798 \\
+CNN-Medium & 0.656 & 0.656 & 0.768 & 0.798 \\
+CNN-Large & 0.642 & 0.643 & 0.749 & 0.783 \\
+Transformer-Medium & 0.632 & 0.617 & 0.778 & 0.793 \\
+Transformer-Large & 0.631 & 0.626 & 0.763 & 0.783 \\
 \hline
 \end{tabular}
 }
+\vspace{2pt}
+\raggedright
+\footnotesize{
+No statistically significant differences are observed between model variants (paired t-test, $p > 0.05$).
+}
 \end{table}
 
-In contrast to the Sanity Proxy, the Musical Proxy results do not show a clear benefit from increased capacity. Within the CNN family, scaling yields mixed results: while the medium model shows a slight improvement in NDCG@5 over the small model (0.789 vs. 0.784), the large model subsequently declines. Within the Transformer family, the medium and large models perform similarly, suggesting no clear improvement from additional capacity.
+In contrast to the Composer Identity Proxy, the Musical Proxy results do not show a clear benefit from increased capacity. No statistically significant differences are observed across model variants in either the CNN or Transformer families (paired t-test, p > 0.05), 
+indicating that their performance is indistinguishable under this evaluation setting. 
+Although minor variations in mean scores are observed, these differences should not be interpreted as systematic improvements or declines.
 
-These results suggest that embedding capacity alone is insufficient to consistently improve ranking quality when relevance is defined by abstract semantic proxies. From a recommender systems perspective, this indicates that increasing model capacity does not necessarily improve candidate ranking quality when similarity is defined by weakly structured semantic attributes.
+These results suggest that, within this evaluation setting, embedding capacity alone does not consistently improve ranking quality when relevance is defined by proxy labels derived from abstract musical character annotations. From a recommender systems perspective, these findings indicate that increasing model capacity does not consistently improve candidate ranking quality under the evaluated conditions.
 
 For the Primary Musical Proxy, no pairwise differences are statistically significant (paired t-test, p > 0.05 for all comparisons), indicating that observed performance differences are not consistent across queries and are likely driven by variability rather than systematic model improvements.
 
 \subsection{Capacity--Performance Trends Within Architectural Families}
 
-This section analyzes scaling behavior strictly within architectural families to isolate the effect of parameter count from architectural inductive bias. Taken together, the within-family scaling patterns described below provide the primary empirical test of the condition-dependent capacity hypothesis. These findings suggest that improvements in model capacity do not consistently translate into better candidate ranking quality within the evaluated retrieval setting.
+This section analyzes scaling behavior strictly within architectural families to isolate the effect of parameter count from architectural inductive bias. Taken together, the within-family scaling patterns described below provide the primary empirical test of the condition-dependent capacity hypothesis. These findings suggest that improvements in model capacity do not consistently translate into improved candidate ranking quality within the evaluated retrieval setting
 
 \subsubsection{CNN Scaling Behavior}
 
-Within the CNN family, capacity scaling is task-dependent. On the Sanity Proxy, NDCG@5 drops slightly from the small to the medium tier before showing notable improvement with the large tier, indicating that sufficient capacity scaling is required to see benefits for structured retrieval. On the Musical Proxy, however, the pattern is non-monotonic: while the medium model shows a slight improvement in NDCG@5, its Precision drops, and the large model does not establish a clear superior trend. These results suggest that scaling effects primarily influence candidate ranking quality rather than fundamentally altering the retrieval structure.
+Within the CNN family, capacity scaling exhibits task-dependent behavior. On the Composer Identity Proxy, performance differences are observed across capacity tiers, with the large model achieving the highest mean NDCG@5. Some of these differences are statistically significant (p < 0.05), indicating that higher-capacity models can provide measurable gains under this structured retrieval setting. On the Musical Proxy, no statistically significant differences are observed across capacity tiers (p > 0.05), indicating that performance differences are not systematic under this evaluation setting. These results suggest that the effect of capacity scaling depends on the structure of the retrieval task within the evaluated dataset.
 
 \subsubsection{Transformer Scaling Behavior}
 
-Within the Transformer family, the effect of scaling also depends on the proxy task. On the Sanity Proxy, the large transformer substantially outperforms the medium model, indicating that additional capacity can improve ranking quality when the task is aligned with structured musical metadata. On the Musical Proxy, however, the medium and large transformer models perform comparably, indicating that increased capacity does not translate into improved performance when evaluated on this abstract semantic proxy. This contrast reinforces the view that transformer scaling benefits are conditional rather than universal in the present setting. These results suggest that scaling effects are more pronounced for structured retrieval criteria than for abstract semantic similarity, reinforcing the task-dependent nature of capacity scaling.
+Within the Transformer family, the effect of scaling also depends on the proxy task. On the Composer Identity Proxy, the medium model achieves higher performance than the large model, indicating that increased capacity does not necessarily lead to improved ranking quality even under structured retrieval conditions. On the Musical Proxy, however, the medium and large transformer models perform comparably, indicating that increased capacity does not translate into improved performance when evaluated on this abstract semantic proxy. This contrast reinforces the view that transformer scaling benefits are conditional rather than universal in the present setting. These results suggest that scaling effects differ between structured retrieval criteria and abstract semantic similarity tasks.
 
 \subsection{Cross-Family Descriptive Comparison}
 
-Comparing performance across families reveals that scaling effects depend more on task structure than on raw model size alone. On the Sanity Proxy, both families benefit from increased capacity, with stronger gains observed in the Transformer family. On the Musical Proxy, however, neither family exhibits consistent improvement, and performance differences remain small.
+Comparing performance across families reveals that scaling effects depend more on task structure than on raw model size alone. On the Composer Identity Proxy, performance differences are observed across capacity tiers in both families, although these effects are not consistently monotonic. On the Musical Proxy, however, neither family exhibits consistent improvement, and performance differences remain small.
 
 These comparisons are descriptive and do not imply causal superiority of one architecture over another, since architecture, parameter count, and pretraining regime co-vary across families. The narrow performance range across models suggests limited representational separability under the current retrieval setting, regardless of capacity tier.
 
-Given the small dataset size, absolute differences should be interpreted cautiously, with emphasis placed on consistent trends rather than isolated values. From a recommender systems perspective, these results indicate that architectural differences and scaling do not significantly alter candidate ranking quality under constrained retrieval conditions.
+Given the small dataset size, absolute differences should be interpreted cautiously, with emphasis placed on consistent trends rather than isolated values. From a recommender systems perspective, these results indicate that architectural differences and scaling do not substantially alter candidate ranking quality within the constraints of the current dataset
 
 \subsection{Embedding Extraction Cost}
 
@@ -292,49 +297,49 @@ Transformer-Large & 55724.24 \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:latency_results} shows that embedding extraction cost increases with model capacity, particularly for the Transformer family. Combined with the ranking results, these results suggest that larger models may not provide a favorable trade-off between computational cost and retrieval effectiveness under the current experimental setup and hardware conditions.
+Table~\ref{tab:latency_results} shows that embedding extraction cost increases with model capacity, particularly for the Transformer family. We emphasize that the reported latency corresponds to the offline embedding extraction process during catalog ingestion, rather than real-time retrieval latency. Once embeddings are computed and indexed, online candidate retrieval is performed via similarity search, which is independent of the underlying model used for feature extraction. Combined with the ranking results, these results suggest that larger models may not provide a favorable trade-off between computational cost and retrieval effectiveness under the current experimental setup and hardware conditions.
+
 
 \subsection{Summary of Empirical Findings}
 
-The experimental results yield three main observations. First, increasing model capacity does not guarantee monotonic performance improvement. On the Sanity Proxy, capacity shows limited gains, but the gains either saturate or remain task-specific; on the Musical Proxy, scaling is weak or absent. Second, scaling behavior differs clearly by task. Structured composer retrieval benefits more from increased capacity than abstract character retrieval, indicating that scaling is condition-dependent. Third, performance values cluster within a narrow band across models, suggesting that capacity is not the primary driver of retrieval quality in this small-scale dataset.
+The experimental results yield three main observations. First, increasing model capacity does not consistently improve ranking performance across tasks. On the Composer Identity Proxy, some statistically significant differences are observed between model variants, while on the Musical Proxy, no statistically significant improvements are observed across capacity tiers. Second, scaling behavior differs by task. Structured composer-based retrieval exhibits measurable differences across model capacities, whereas abstract semantic proxy tasks do not show statistically significant variation, indicating that the effect of scaling depends on the retrieval setting. Third, performance values cluster within a relatively narrow range across models, suggesting that model capacity is not the dominant factor influencing retrieval quality in this small-scale dataset.
 
-Collectively, these findings support a condition-dependent interpretation of scaling behavior. Embedding-model capacity can improve ranking quality when relevance is tied to structured musical
-attributes, but it does not reliably improve performance for abstract semantic proxies in a small archival collection. In this setting, task definition appears to govern ranking quality behavior more strongly than capacity alone. Overall, these findings suggest that in retrieval-based recommender settings without user interaction signals, candidate ranking quality is heavily dependent on the nature of the proxy task rather than embedding-model capacity alone. From an information retrieval perspective, these results highlight that ranking effectiveness, as measured by metrics such as NDCG, is strongly conditioned on the definition and reliability of proxy relevance labels rather than model capacity alone.
+Collectively, these findings support a condition-dependent interpretation of scaling behavior. The impact of embedding-model capacity varies depending on the structure of the retrieval task and the nature of the proxy relevance labels. In this evaluated setting, task formulation and label characteristics appear to play a more influential role than capacity alone in determining ranking quality. 
 
+From an information retrieval perspective, these results highlight that ranking effectiveness may be influenced by the definition and reliability of proxy relevance signals, in addition to model capacity.
 
 % Section 5: Discussion
 \section{Discussion}
 
 \subsection{RQ1: Capacity Effects in Small-Scale Retrieval}
 
-The results indicate that embedding-model capacity does not consistently improve candidate ranking quality in a small-scale classical music archive.
+The results suggest that, within this dataset and evaluation setting, embedding-model capacity does not consistently improve candidate ranking quality. This suggests that the benefits of scaling are highly task-dependent, particularly for abstract semantic tasks such as musical character retrieval. From a recommender systems perspective, this implies that improvements in representation capacity do not necessarily translate into improved ranking effectiveness when relevance signals are weakly structured.
 
-This suggests that the benefits of scaling are highly task-dependent, particularly for abstract semantic tasks such as musical character retrieval. From a recommender systems perspective, this implies that improvements in representation capacity do not necessarily translate into improved ranking effectiveness when relevance signals 
-are weakly structured.
+This observation is consistent with prior work showing that strong MIR performance does not necessarily translate to improved recommendation quality \cite{tamm2024}. In addition, the stylistic coherence of classical music within a single archive may lead to a limited degree of representational separability, where different pieces are mapped to similar regions of the representation space regardless of model capacity. From an information retrieval perspective, this indicates that ranking effectiveness may be influenced by the reliability and structure of proxy relevance labels, in addition to model capacity. Importantly, these trends remain consistent across ranking depths (K=5 and K=10), indicating that the observed effects are not sensitive to the choice of cutoff. A key factor underlying these observations is the difference in target density between the two proxy tasks. On average, the Composer Identity Proxy contains 9.0 relevant tracks per query, whereas the Primary Musical Proxy contains 68.1 relevant tracks per query. This substantial difference in target density indicates that the musical-character proxy defines a significantly less discriminative and less selective retrieval task.
 
-This observation is consistent with prior work showing that strong MIR performance does not necessarily translate to improved recommendation quality \cite{tamm2024}. In addition, the stylistic coherence of classical music within a single archive may lead to a limited degree of representational separability, where different pieces are mapped to similar regions of the representation space regardless of model capacity. From an information retrieval perspective, this indicates that ranking effectiveness is fundamentally constrained by the reliability and structure of proxy relevance labels rather than model capacity alone.
+The substantially higher number of relevant items in the musical-character proxy suggests that this task is less sensitive to differences in representation quality, which may partially explain the weaker sensitivity to model capacity observed in this setting. This highlights a key limitation of metadata-derived proxy tasks: when relevance definitions are broad, improvements in representation quality may not be reflected in ranking metrics.
 
 \subsection{RQ2: Conditions for Capacity Benefits}
 
-The results suggest that higher-capacity models provide measurable benefits primarily when the retrieval task is aligned with structured and well-defined attributes, such as composer identity.
+The results suggest that higher-capacity models may provide measurable benefits within this setting primarily when the retrieval task is aligned with structured and well-defined attributes, such as composer identity.
 
-In contrast, for abstract semantic tasks such as musical character retrieval, the benefit of scaling diminishes. This suggests that the effectiveness of capacity scaling depends on the alignment between representation space and the structure of the relevance signal.
+In contrast, for abstract semantic tasks such as musical character retrieval, clear benefits from scaling are not observed. This suggests that the effectiveness of capacity scaling depends on the alignment between representation space and the structure of the relevance signal.
 
-From a ranking perspective, larger models appear to improve separability when relevance is well-defined, but fail to provide additional discrimination when labels are coarse, subjective, or weakly informative.
+From a ranking perspective, larger models may provide improved separability when relevance is well-defined in some cases, but fail to provide additional discrimination when labels are coarse, subjective, or weakly informative.
 
 \subsection{Hypothesis Evaluation}
 
-The empirical results support the hypothesis that increasing embedding-model capacity does not necessarily improve candidate ranking quality in this setting. Instead, performance is governed by the interaction between model capacity and task definition, though future work is needed to determine how dataset characteristics mediate this relationship.
+The empirical results support the hypothesis that increasing embedding-model capacity does not necessarily improve candidate ranking quality in this setting. Instead, performance is primarily governed by the interaction between model capacity and the structure and reliability of proxy relevance signals rather than capacity alone. Importantly, this pattern remains consistent across ranking depths (K=5 and K=10), indicating that the observed effects are robust to the choice of evaluation cutoff. However, future work is needed to determine how dataset characteristics mediate this relationship.
 
 \subsection{Implications for Recommender System Design}
 
 Because our evaluation relies on metadata-derived proxy relevance labels rather than historical user interaction logs, these findings reflect constraints observed in offline retrieval evaluation settings commonly used in real-world systems when user interaction data are unavailable. They suggest that, absent collaborative signals, increasing embedding capacity may not reliably improve candidate generation in small-scale or data-constrained settings.
 
-Higher-capacity models introduce additional computational cost without proportional gains in ranking performance. In practical systems, this implies that lightweight or mid-sized models provide a more efficient and scalable solution for candidate generation. However, it is important to note that the reported latency measurements are obtained under CPU-bound, sequential inference on a Mac Mini M1 without hardware acceleration. Transformer-based models are known to benefit substantially from parallelized execution on GPUs or TPUs, as well as from batched inference. Consequently, the observed computational cost differences are specific to CPU-bound deployment settings and may differ in production environments with hardware acceleration.
+Higher-capacity models introduce additional computational cost without proportional gains in ranking performance. In practical systems, this implies that lightweight or mid-sized models may provide a favorable cost-performance trade-off under the evaluated conditions for candidate generation. However, it is important to note that the reported latency measurements are obtained under CPU-bound, sequential inference on a Mac Mini M1 without hardware acceleration. Transformer-based models are known to benefit substantially from parallelized execution on GPUs or TPUs, as well as from batched inference. Consequently, the observed computational cost differences are specific to CPU-bound deployment settings and may differ in production environments with hardware acceleration.
 
-Computational cost is explicitly evaluated in Section~4.5 (Table~\ref{tab:latency_results}), where embedding extraction latency increases with model capacity, particularly for Transformer-based models. Combined with the ranking results, this demonstrates that higher-capacity models do not provide a favorable trade-off between computational cost and retrieval effectiveness in this setting.
+Computational cost is explicitly evaluated in Section~4.5 (Table~\ref{tab:latency_results}), where embedding extraction latency increases with model capacity, particularly for Transformer-based models. Combined with the ranking results, this suggests that higher-capacity models may not provide a favorable trade-off under the current experimental setup and hardware conditions between computational cost and retrieval effectiveness in this setting. The consistency of these findings across multiple ranking depths further supports their robustness under different retrieval evaluation settings.
 
-More broadly, these results highlight that ranking quality is influenced more strongly by task formulation, label quality, and dataset structure than by model capacity alone. For archival systems such as iPalpiti, this suggests prioritizing metadata quality, semantic labeling, and dataset curation over scaling model size.
+More broadly, these results highlight that ranking quality may be influenced by factors such as task formulation, label quality, and dataset structure, in addition to model capacity. For archival systems such as iPalpiti, this suggests prioritizing metadata quality, semantic labeling, and dataset curation over scaling model size.
 
 \subsection{Limitations}
 This study has several limitations. First, the dataset is small and restricted to a single-domain classical music archive, which limits generalizability. Second, the musical-character labels used in the proxy task are coarse and partially subjective, which constrains the evaluation of fine-grained semantic similarity. Third, the evaluation is based on constructed proxy relevance labels rather than real user interaction data, and therefore may not fully reflect real-world recommendation effectiveness.
@@ -354,11 +359,11 @@ Finally, integrating user interaction signals and conducting user studies will b
 % Section 6: Conclusion
 \section{Conclusion}
 
-This study investigated the effect of embedding-model capacity on candidate ranking quality in a content-based music retrieval setting for a small-scale classical music archive. Through controlled experiments across CNN and Transformer models, we find that increasing model capacity does not consistently improve candidate ranking quality within the evaluated setting. While higher-capacity models provide measurable gains for structured retrieval tasks, these benefits are not consistently observed for more abstract semantic retrieval tasks.
+This study investigated the effect of embedding-model capacity on candidate ranking quality in a content-based music retrieval setting for a small-scale classical music archive. Through controlled experiments across CNN and Transformer models, we find that, within the evaluated setting, increasing model capacity does not consistently improve candidate ranking quality. While capacity-related differences are observable for structured retrieval tasks, these effects are limited in magnitude and remain consistent across ranking depths (K=5 and K=10), and are not consistently observed for more automatically-derived affective proxy tasks.
 
-These findings support a task-dependent view of scaling, where the effectiveness of model capacity is governed by the structure and reliability of proxy relevance labels rather than model size alone. In particular, statistically significant improvements are observed for the composer-based proxy, whereas no significant differences are found for the abstract musical-character proxy. In small, single-domain archives, ranking effectiveness is therefore influenced more by task formulation and label quality than by embedding capacity.
+These findings support a task-dependent view of scaling, where the effectiveness of model capacity is primarily governed by the structure and reliability of proxy relevance labels rather than model size alone. In particular, statistically significant differences are observed for the composer-based proxy, whereas no significant differences are found for the abstract musical-character proxy. In small, single-domain archives, ranking effectiveness is influenced more by task formulation and label quality than by embedding capacity alone.
 
-From a system design perspective, deploying large-scale pretrained models introduces substantial computational overhead. Our results demonstrate that, in narrow-domain and data-constrained archival retrieval settings, this additional cost does not translate into consistent improvements in ranking effectiveness. Instead, lightweight or mid-sized models provide a more efficient and scalable solution for content-based candidate generation, achieving competitive performance at a significantly lower computational cost. These findings highlight the importance of aligning model capacity with task requirements, relevance definition, and dataset characteristics when designing scalable retrieval systems.
+From a system design perspective, deploying large-scale pretrained models introduces additional computational overhead. Our results suggest that, under the evaluated CPU-bound and unaccelerated conditions, this additional cost does not consistently translate into improved ranking effectiveness. In such resource-constrained settings, smaller or mid-sized models may provide a favorable cost-performance trade-off for offline feature extraction and catalog ingestion.
 
 % Manual bibliography workflow:
 % Edit CIKM_refs.tex directly, then compile CIKM.tex twice with pdflatex.
