@@ -1,74 +1,114 @@
-% -----------------------------------------------
-% Template for ISMIR Papers
-% 2026 version, based on previous ISMIR templates
-
-% Requirements :
-% * 6+n page length maximum
-% * 10MB maximum file size
-% * Copyright note must appear in the bottom left corner of first page
-% * Clearer statement about citing own work in anonymized submission
-% (see conference website for additional details)
-% -----------------------------------------------
-
-\documentclass{article}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{ismir}
-\usepackage{amsmath,amssymb,cite}
-\usepackage[hyphens]{url}
+\documentclass[a4paper,12pt]{article}
+\pagestyle{plain}
+\usepackage{array}
+\usepackage{times}
 \usepackage{graphicx}
-\usepackage{color}
-\graphicspath{{../Draft-legacy/v2-0213-2026/V2-latex/figures/}}
+\usepackage{fullpage}
+\usepackage{amsfonts}
+\usepackage{amsmath,amssymb}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{setspace}
+\usepackage{tocbibind}
+\usepackage{enumerate}
+\usepackage{verbatim}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
-\title{When Does Model Capacity Matter? Evaluating Pretrained Audio Representations for Music Retrieval in Small-Scale Classical Archives}
+\newcommand\blank[1]{\rule[-.2ex]{#1}{.4pt}}
+\newcommand{\ttf}[1]{\begin{ttfamily}#1\end{ttfamily}}
 
-\twoauthors
-  {Keita Katsumi}
-  {California State Polytechnic University, Pomona\\\texttt{kkatsumi@cpp.edu}}
-  {Fatemeh Jamshidi}
-  {California State Polytechnic University, Pomona\\\texttt{fjamshidi@cpp.edu}}
+% -----------------------------------------------
+% Title and author information
+% -----------------------------------------------
+\title{When Does Model Capacity Matter?\\
+Evaluating Pretrained Audio Representations for\\
+Music Retrieval in Small-Scale Classical Archives}
 
-% Redefine \maketitle to render all four authors and add GitHub footnote.
-\renewcommand{\maketitle}{%
-  \twocolumn[{%
-    \begin{center}
-      {\Large \bf \MakeUppercase{When Does Model Capacity Matter? Evaluating
-      Pretrained Audio Representations for Music Retrieval in
-      Small-Scale Classical Archives} \par}
-      \vskip 2.0em
-      {\large
-        \textbf{Keita Katsumi} \qquad
-        \textbf{Fatemeh Jamshidi} \qquad
-        \textbf{Jay Wageni} \qquad
-        \textbf{Elena Hernandez}
-      \par}
-      \vskip 0.5em
-      {\normalsize
-        California State Polytechnic University, Pomona, CA, USA\\[0.3em]
-        \texttt{kkatsumi@cpp.edu, fjamshidi@cpp.edu,
-                jwageni@cpp.edu, ehernandez@cpp.edu}
-      \par}
-      \vskip 1.5em
-    \end{center}%
-  }]%
-  \permission
-  \footnotetext{Code available at \url{https://github.com/cpp-iPalpiti-pilot/iPalpiti-recsys-pipeline}}%
+\author{
+  Keita Katsumi\\[0.5em]
+  California State Polytechnic University, Pomona, CA, USA\\
+  \texttt{kkatsumi@cpp.edu}
 }
 
-\def\authorname{K. Katsumi, F. Jamshidi, J. Wageni, E. Hernandez}
-
-\setlength{\parskip}{0pt}
-\setlength{\parindent}{1em}
-
-\sloppy % please retain sloppy command for improved formatting
+\date{\today}
 
 \begin{document}
 
-\maketitle
+% -----------------------------------------------
+% Page 1: Committee Signature Page
+% -----------------------------------------------
+\thispagestyle{empty}
+\begin{center}
 
+  \vspace*{2cm}
+  {\large Thesis Proposal}
+
+  \vspace{1.3cm}
+  {\large\bfseries
+    When Does Model Capacity Matter?\\[0.3em]
+    Evaluating Pretrained Audio Representations for\\[0.3em]
+    Music Retrieval in Small-Scale Classical Archives
+  }
+
+  \vspace{1.3cm}
+  {\large Keita Katsumi}
+
+  \vspace{1.3cm}
+  {\large \today}
+
+\end{center}
+
+\vfill
+
+\noindent
+I have read the attached thesis proposal and, in my opinion, it proposes work which is adequate in depth and scope to serve as the culminating experience for the Master's Degree in Computer Science. I would agree to chair this committee or serve thereon.
+
+\vspace{1.5cm}
+
+\noindent
+\begin{tabular}{p{2.2cm}p{4.5cm}p{4.5cm}p{2.8cm}}
+Thesis Advisor
+  & \blank{4.2cm} & \blank{4.2cm} & \blank{2.5cm} \\[0.3em]
+  & \footnotesize printed & \footnotesize signed & \footnotesize date \\[1.4em]
+Possible Committee Member
+  & \blank{4.2cm} & \blank{4.2cm} & \blank{2.5cm} \\[0.3em]
+  & \footnotesize printed & \footnotesize signed & \footnotesize date \\[1.4em]
+Possible Committee Member
+  & \blank{4.2cm} & \blank{4.2cm} & \blank{2.5cm} \\[0.3em]
+  & \footnotesize printed & \footnotesize signed & \footnotesize date \\
+\end{tabular}
+
+\vspace{2cm}
+\newpage
+
+% -----------------------------------------------
+% Page 2: Title / Abstract
+% -----------------------------------------------
+\maketitle
+\thispagestyle{plain}
+
+% GitHub link centered below title block
+\begin{center}
+  \small Code: \url{https://github.com/cpp-iPalpiti-pilot/iPalpiti-recsys-pipeline}
+\end{center}
+
+\vspace{1em}
+
+% -----------------------------------------------
+% Abstract
+% -----------------------------------------------
+\doublespacing
 \begin{abstract}
+\setlength{\parindent}{1em}
 This study investigates the effect of embedding-model capacity on content-based music similarity retrieval in a small-scale classical music archive. While larger models are often assumed to yield superior representations, their effectiveness in limited, single-domain settings remains unclear. We evaluate CNN-based and Transformer-based embedding models across multiple capacity tiers using two proxy tasks: composer-based retrieval and musical-character retrieval. Retrieval performance is assessed using ranking-based metrics (NDCG, Hit@K) and set-based metrics (Precision, Recall, and F1). Notably, larger models do not consistently outperform medium-sized alternatives, despite substantial increases in parameter count. We further observe that evaluation outcomes are strongly influenced by the relationship between the number of relevant items and the evaluation cutoff. When many relevant items exist per query, set-based metrics such as Recall and F1 provide artificially capped signals at small cutoff values, whereas ranking-based metrics such as NDCG and Hit@K remain more robust. These findings indicate that retrieval performance in small-scale archival settings is governed more by task structure and evaluation design than by model capacity alone.
 \end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
 
 % -----------------------------------------------
 % Section 1: Introduction
@@ -83,14 +123,14 @@ This research addresses this question by focusing exclusively on the backend: th
 
 To evaluate this hypothesis, retrieval performance is systematically assessed across a spectrum of model capacities within two representative architectural families (CNN-based and Transformer-based models). Proxy retrieval tasks are formulated to approximate musically meaningful similarity, including both a sanity-check retrieval task (composer-based) and a musical-character-based proxy (e.g., contrasting musical characteristics such as \emph{energetic} vs.\ \emph{calm}). Ranking quality is evaluated using standard information-retrieval metrics, including both ranking-based metrics (e.g., NDCG, Hit@K) and set-based metrics (e.g., Precision@K, Recall@K). This distinction allows us to examine how evaluation design interacts with multi-label relevance and the relationship between the number of relevant items and the evaluation cutoff in small-scale retrieval settings. This study is guided by two research questions:
 
-\smallskip
+\bigskip
 \noindent\textbf{RQ1:} In a small-scale classical music archive (iPalpiti), how does embedding-model capacity influence content-based music similarity retrieval performance?
 
 \noindent\textbf{RQ2:} Under what conditions, if any, do higher-capacity embedding models provide meaningful gains over lighter architectures?
 
 \noindent\textbf{Hypothesis:} In a small-scale, single-domain classical music dataset, increasing embedding-model capacity does not necessarily improve music-similarity retrieval performance.
 
-\smallskip
+\bigskip
 This work makes three main contributions. First, it provides a systematic empirical investigation of the relationship between embedding-model capacity and content-based similarity retrieval performance in a small-scale, single-domain classical archive. Second, it establishes musically grounded evaluation criteria (via structured proxy retrieval tasks) that enable the identification of conditions under which retrieval improvements are meaningful. Third, through a hypothesis-driven experimental design, it reveals that the effectiveness of embedding-model capacity is strongly task-dependent in constrained archival settings.
 
 % -----------------------------------------------
@@ -109,78 +149,58 @@ Broader recommender-system work addresses personalization through user modeling,
 % -----------------------------------------------
 % Section 3: Method
 % -----------------------------------------------
-\section{Method}\label{sec:method}\label{ch:problem}\label{ch:methodology}
+\section{Method}\label{sec:method}
 
 This section formalizes the retrieval setting and experimental framework used to evaluate the effect of embedding-model capacity on similarity-based retrieval performance.
 
 \subsection{Problem Formulation}
 
-Let $D = \{x_1, x_2, \dots, x_N\}$ denote a collection of $N$ classical music recordings drawn from
-the iPalpiti archive. Each item $x_i$ represents a complete audio track.
+Let $D = \{x_1, x_2, \dots, x_N\}$ denote a collection of $N$ classical music recordings drawn from the iPalpiti archive. Each item $x_i$ represents a complete audio track.
 
 An embedding model is defined as a function:
 \[
 f_\theta : \mathcal{X} \rightarrow \mathbb{R}^d
 \]
-where $\theta$ denotes the model parameters and $d$ the embedding dimensionality. The embedding of
-item $x_i$ is:
+where $\theta$ denotes the model parameters and $d$ the embedding dimensionality. The embedding of item $x_i$ is:
 \[
 z_i = f_\theta(x_i)
 \]
 
-Similarity between two items is computed using a similarity function $s(\cdot,\cdot)$, such as cosine
-similarity:
+Similarity between two items is computed using a similarity function $s(\cdot,\cdot)$, such as cosine similarity:
 \[
 s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}
 \]
 Higher similarity values indicate greater embedding-space proximity.
 
-Given a query item $x_q \in D$, all items in the collection except $x_q$ are ranked in descending
-order of similarity $s(z_q, z_i)$. Retrieval quality is evaluated with respect to a relevance
-function $r_q(x_i) \in \{0,1\}$ defined by proxy tasks. Ranking quality is measured using both
-ranking-based metrics (e.g., NDCG@K, Hit@K) and set-based metrics (e.g., Precision@K, Recall@K,
-and F1@K), enabling analysis of how different evaluation criteria behave under multi-label relevance
-and varying relationships between the number of relevant items and the evaluation cutoff.
+Given a query item $x_q \in D$, all items in the collection except $x_q$ are ranked in descending order of similarity $s(z_q, z_i)$. Retrieval quality is evaluated with respect to a relevance function $r_q(x_i) \in \{0,1\}$ defined by proxy tasks. Ranking quality is measured using both ranking-based metrics (e.g., NDCG@K, Hit@K) and set-based metrics (e.g., Precision@K, Recall@K, and F1@K), enabling analysis of how different evaluation criteria behave under multi-label relevance and varying relationships between the number of relevant items and the evaluation cutoff.
 
-The primary independent variable is embedding-model capacity, operationalized mainly through
-parameter count ($|\theta|$), with architectural class treated as a separate categorical factor.
-Capacity effects are examined within architectural families via small, medium, and large variants
-under a controlled retrieval setting.
+The primary independent variable is embedding-model capacity, operationalized mainly through parameter count ($|\theta|$), with architectural class treated as a separate categorical factor. Capacity effects are examined within architectural families via small, base, and large variants under a controlled retrieval setting.
 
-Relevance is defined through two metadata-based proxy tasks. Let $g(x)$ denote a metadata labeling
-function.
+Relevance is defined through two metadata-based proxy tasks. Let $g(x)$ denote a metadata labeling function.
 
-\textbf{Sanity proxy.} Relevance is defined by shared composer identity:
+\textbf{Sanity Proxy.} Relevance is defined by shared composer identity:
 \[
 r_q(x_i) = 1 \quad \text{if} \quad g_{\text{composer}}(x_q) = g_{\text{composer}}(x_i)
 \]
 
-\textbf{Primary musical proxy.} Relevance is defined by shared character labels:
+\textbf{Primary Musical Proxy.} Relevance is defined by shared character labels:
 \[
 r_q(x_i) = 1 \quad \text{if} \quad g_{\text{character}}(x_q) \cap g_{\text{character}}(x_i) \neq \emptyset
 \]
-where $g_{\text{character}}(x)$ denotes the set of character labels associated with item $x$.
-This formulation allows multiple items to be relevant for a given query, reflecting the multi-label
-nature of semantic similarity in music.
+where $g_{\text{character}}(x)$ denotes the set of character labels associated with item $x$. This formulation allows multiple items to be relevant for a given query, reflecting the multi-label nature of semantic similarity in music.
 
-For experimental tractability, relevance is treated as binary by projecting multi-label annotations
-into a match-based criterion:
+For experimental tractability, relevance is treated as binary by projecting multi-label annotations into a match-based criterion:
 \[
 r_q(x_i) \in \{0,1\}
 \]
-where $r_q(x_i)=1$ if at least one label is shared between $x_q$ and $x_i$, and $r_q(x_i)=0$
-otherwise. This formulation simplifies evaluation while preserving the underlying multi-label
-structure, treating metadata-derived labels as a controlled, though coarse, approximation of
-musical similarity.
+where $r_q(x_i)=1$ if at least one label is shared between $x_q$ and $x_i$, and $r_q(x_i)=0$ otherwise. This formulation simplifies evaluation while preserving the underlying multi-label structure, treating metadata-derived labels as a controlled, though coarse, approximation of musical similarity.
 
 \subsection{Retrieval Pipeline}
 
 The backend evaluation pipeline consists of four stages: audio preprocessing, embedding extraction, similarity computation, and ranking. All components other than embedding extraction are held constant to isolate the effect of embedding capacity.
 
-The dataset is the iPalpiti classical music archive, comprising 203 tracks and 24.9 hours of
-audio. Relevance labels are derived from editorial metadata (composer identity) and a
-semi-automatic pseudo-label pipeline (character labels), as described in
-Section~\ref{sec:method}.
+The dataset is the iPalpiti classical music archive, comprising 203 tracks and 24.9 hours of audio. Relevance labels are derived from editorial metadata (composer identity) and a
+semi-automatic pseudo-label pipeline (character labels), as described in Section~\ref{sec:method}.
 
 Each track is segmented into non-overlapping 30-second segments; segment-level embeddings are extracted and mean-pooled to obtain a single track-level representation. Cosine similarity is used for ranking across all models. This controlled design ensures that performance differences are attributable primarily to the embedding representations.
 
@@ -188,15 +208,9 @@ Each track is segmented into non-overlapping 30-second segments; segment-level e
 
 Models are selected to represent discrete capacity tiers within two architectural families: CNN-based and Transformer-based models. Within each family, small, medium, and large variants enable controlled scaling comparisons, while cross-family comparisons are interpreted descriptively because architecture, parameter count, and pretraining objectives may co-vary.
 
-CNN-based models are drawn from a unified convolutional lineage in which scaling is achieved
-primarily through increased depth under comparable training objectives. Specifically, we use Cnn6
-(small), Cnn10 (medium), and Cnn14 (large), following the PANNs framework proposed by Kong et al.
-\cite{kong2020panns}, to represent controlled capacity scaling within the CNN family.
+CNN-based models are drawn from a unified convolutional lineage in which scaling is achieved primarily through increased depth under comparable training objectives. Specifically, we use Cnn6 (small), Cnn10 (medium), and Cnn14 (large), following the PANNs framework proposed by Kong et al.\ \cite{kong2020panns}, to represent controlled capacity scaling within the CNN family.
 
-Transformer-based models are selected from a self-supervised audio representation framework
-pretrained on large-scale music data. We use MERT-95M (medium) and MERT-330M (large)
-to represent different capacity levels within the Transformer family, following the MERT framework
-\cite{li2023mert}.
+Transformer-based models are selected from a self-supervised audio representation framework pretrained on large-scale music data. We use MERT-95M (medium) and MERT-330M (large) to represent different capacity levels within the Transformer family, following the MERT framework \cite{li2023mert}.
 
 All selected models provide pretrained checkpoints and support standardized embedding extraction.
 
@@ -221,44 +235,49 @@ For Transformer-based models, capacity is defined by pretrained parameter scale:
 
 Relevance labels differ in construction depending on the proxy task: composer labels are derived directly from editorial metadata, while character labels are generated through a semi-automatic, model-driven pipeline.
 
-\smallskip
 \noindent\textbf{Sanity proxy.}
-Composer labels are normalized to a canonical form using Unicode decomposition and a hand-curated
-alias table, ensuring consistent matching across recordings with variant spellings or abbreviations
+Composer labels are normalized to a canonical form using Unicode
+decomposition and a hand-curated alias table, ensuring consistent
+matching across recordings with variant spellings or abbreviations
 (e.g., \textit{Bach} $\to$ \textit{Johann Sebastian Bach}).
-This normalized field is stored as a stable evaluation key, separate from the raw metadata string.
+This normalized field is stored as a stable evaluation key, separate
+from the raw metadata string.
 
-\smallskip
 \noindent\textbf{Musical character proxy.}
-Character labels are constructed through a three-stage pipeline grounded in the arousal--valence
-(AV) framework \cite{eerola2011}.
+Character labels are constructed through a three-stage pipeline grounded
+in the arousal--valence (AV) framework \cite{eerola2011}.
 
 \textbf{Stage 1: VA prediction.}
-Each track is passed through Music2Emo \cite{jiang2024}, a pretrained music emotion recognition
-model, which outputs valence and arousal scores on a 1--9 scale. Scores are linearly normalized
-to $[0, 1]$ via $\hat{x} = (x - 1) / 8$.
+Each track is passed through Music2Emo \cite{jiang2024}, a pretrained
+music emotion recognition model, which outputs valence and arousal scores
+on a 1--9 scale. Scores are linearly normalized to $[0, 1]$
+via $\hat{x} = (x - 1) / 8$.
 
 \textbf{Stage 2: Dataset-relative thresholding.}
-Because our corpus is entirely classical music, predicted AV values concentrate in a narrow
-mid-range region, making fixed absolute thresholds unreliable. Instead, we compute per-dimension
-thresholds at the 33rd and 67th percentiles of the dataset's own distribution, then assign binary
-tags as follows:
+Because our corpus is entirely classical music, predicted AV values
+concentrate in a narrow mid-range region, making fixed absolute thresholds
+unreliable. Instead, we compute per-dimension thresholds at the 33rd and
+67th percentiles of the dataset's own distribution, then assign binary tags
+as follows:
 \begin{itemize}
   \item \textit{Energetic}: arousal $\geq$ 67th percentile
   \item \textit{Tense}: valence $\leq$ 33rd percentile
   \item \textit{Calm}: arousal $\leq$ 33rd percentile
-  \item \textit{Lyrical}: valence and arousal both within the 40th--60th percentile band
+  \item \textit{Lyrical}: valence and arousal both within the
+        40th--60th percentile band
 \end{itemize}
-The first three tags are axis-aligned (single-dimension criteria), while \textit{lyrical} is
-defined as the central intersection region, reflecting its ambiguous emotional character relative
-to the other three.
+The first three tags are axis-aligned (single-dimension criteria),
+while \textit{lyrical} is defined as the central intersection region,
+reflecting its ambiguous emotional character relative to the other three.
 
 \textbf{Stage 3: Pseudo-label fixation.}
-Because expert annotation was not feasible within the scope of this study, the model-generated
-tags are treated as pseudo-labels without professional validation. The output CSV includes
-\texttt{review\_flag} and \texttt{review\_corrected\_tags} fields reserved for future expert
-correction. The pseudo-labels are fixed prior to any evaluation and reused identically across all
-experiments, ensuring that label assignment does not interact with retrieval model selection.
+Because expert annotation was not feasible within the scope of this study,
+the model-generated tags are treated as pseudo-labels without professional
+validation. The output CSV includes \texttt{review\_flag} and
+\texttt{review\_corrected\_tags} fields reserved for future expert
+correction. The pseudo-labels are fixed prior to any evaluation and
+reused identically across all experiments, ensuring that label
+assignment does not interact with retrieval model selection.
 
 \subsection{Evaluation Protocol}
 
@@ -273,7 +292,7 @@ Furthermore, small numerical differences in mean scores do not necessarily corre
 % -----------------------------------------------
 % Section 4: Results
 % -----------------------------------------------
-\section{Results}\label{sec:results}\label{ch:results}
+\section{Results}\label{sec:results}
 
 \subsection{Sanity Proxy Results}
 
@@ -283,24 +302,22 @@ Table~\ref{tab:sanity_results} presents retrieval performance grouped by archite
 \centering
 \caption{Sanity Proxy Results (Composer Retrieval). Metrics reported are corpus-level mean values at rank 5.}
 \label{tab:sanity_results}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccccc}
 \hline
 \textbf{Model} & \textbf{NDCG@5} & \textbf{Hit@5} & \textbf{Precision@5} & \textbf{Recall@5} & \textbf{F1@5} \\
 \hline
 \multicolumn{6}{c}{\textbf{CNN Family}} \\
 \hline
-CNN-Small & 0.548 & 0.640 & 0.266 & 0.195 & 0.188 \\
+CNN-Small  & 0.548 & 0.640 & 0.266 & 0.195 & 0.188 \\
 CNN-Medium & 0.545 & 0.640 & 0.303 & 0.215 & 0.214 \\
-CNN-Large & 0.585 & 0.660 & 0.321 & 0.228 & 0.229 \\
+CNN-Large  & 0.585 & 0.660 & 0.321 & 0.228 & 0.229 \\
 \hline
 \multicolumn{6}{c}{\textbf{Transformer Family}} \\
 \hline
 Transformer-Medium & 0.642 & 0.709 & 0.361 & 0.263 & 0.265 \\
-Transformer-Large & 0.588 & 0.665 & 0.304 & 0.233 & 0.224 \\
+Transformer-Large  & 0.588 & 0.665 & 0.304 & 0.233 & 0.224 \\
 \hline
 \end{tabular}
-}
 \end{table}
 
 Within the CNN family, NDCG@5 drops slightly from the small to the medium model before showing notable improvement with the large model, suggesting that sufficient capacity scaling is required to see benefits. Conversely, within the Transformer family, performance degrades substantially from the medium to the large model across all metrics.
@@ -313,24 +330,22 @@ Table~\ref{tab:musical_results} summarizes the performance across all models.
 \centering
 \caption{Primary Musical Proxy Results (Character Retrieval). Metrics reported are corpus-level mean values at rank 5.}
 \label{tab:musical_results}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccccc}
 \hline
 \textbf{Model} & \textbf{NDCG@5} & \textbf{Hit@5} & \textbf{Precision@5} & \textbf{Recall@5} & \textbf{F1@5} \\
 \hline
 \multicolumn{6}{c}{\textbf{CNN Family}} \\
 \hline
-CNN-Small & 0.653 & 0.783 & 0.536 & 0.039 & 0.071 \\
+CNN-Small  & 0.653 & 0.783 & 0.536 & 0.039 & 0.071 \\
 CNN-Medium & 0.656 & 0.768 & 0.528 & 0.038 & 0.070 \\
-CNN-Large & 0.642 & 0.749 & 0.528 & 0.038 & 0.070 \\
+CNN-Large  & 0.642 & 0.749 & 0.528 & 0.038 & 0.070 \\
 \hline
 \multicolumn{6}{c}{\textbf{Transformer Family}} \\
 \hline
 Transformer-Medium & 0.632 & 0.778 & 0.447 & 0.033 & 0.060 \\
-Transformer-Large & 0.631 & 0.764 & 0.485 & 0.036 & 0.066 \\
+Transformer-Large  & 0.631 & 0.764 & 0.485 & 0.036 & 0.066 \\
 \hline
 \end{tabular}
-}
 \end{table}
 
 In contrast to the Sanity Proxy, the Musical Proxy results do not show a clear benefit from increased capacity. While Recall@5 and F1@5 values are extremely low across all models (approximately 0.03--0.04), Hit@5 remains relatively high (around 0.75), and NDCG@5 remains stable. This indicates that relevant items are often retrieved near the top ranks, but only a small fraction of the total relevant set is captured at $K=5$ due to the large number of relevant items per query under multi-label assignments.
@@ -365,19 +380,17 @@ All latency benchmarks were conducted on an Apple Mac Mini M1 (2020) with 16GB R
 \centering
 \caption{Embedding extraction cost, model size, and embedding dimensionality across model capacities. Parameter counts for CNN-based models are obtained from \cite{kong2020panns}, while Transformer parameter counts are based on publicly available pretrained checkpoints.}
 \label{tab:latency_results}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccc}
 \hline
 \textbf{Model} & \textbf{Params (M)} & \textbf{Emb.\ Dim} & \textbf{Latency (ms/track)} \\
 \hline
-CNN-Small (Cnn6)   & 4.8  & 512  & 2178.87  \\
-CNN-Medium (Cnn10) & 5.2  & 512  & 3108.93  \\
-CNN-Large (Cnn14)  & 80.8 & 2048 & 4217.94  \\
-Transformer-Medium & 95   & 768  & 23145.73 \\
-Transformer-Large  & 330  & 1024 & 55724.24 \\
+CNN-Small (Cnn6)   & 4.8  & 512  & 2178.87   \\
+CNN-Medium (Cnn10) & 5.2  & 512  & 3108.93   \\
+CNN-Large (Cnn14)  & 80.8 & 2048 & 4217.94   \\
+Transformer-Medium & 95   & 768  & 23145.73  \\
+Transformer-Large  & 330  & 1024 & 55724.24  \\
 \hline
 \end{tabular}
-}
 \end{table}
 
 Table~\ref{tab:latency_results} shows that embedding extraction cost increases with model capacity. Within the CNN family, latency rises from 2178.87~ms/track (CNN-Small) to 4217.94~ms/track (CNN-Large). The Transformer family incurs substantially higher latency: Transformer-Medium reaches 23145.73~ms/track, and Transformer-Large reaches 55724.24~ms/track---approximately $13\times$ and $25\times$ the cost of CNN-Small, respectively. These measurements indicate that the latency gap between CNN-based and Transformer-based models is considerably larger than the gap between capacity tiers within the CNN family. Embedding dimensionality varies across models, ranging from 512 (CNN-Small/Medium) to 2048 (CNN-Large) and 768--1024 for Transformer-based models.
@@ -397,7 +410,7 @@ Set-based metrics are further constrained by the relationship between the number
 
 \subsection{RQ2: Conditions for Capacity Benefits}
 
-Higher-capacity models provide no consistent benefit for abstract semantic tasks such as musical character retrieval, and even for structured tasks their advantage is limited and not consistent across model families. The benefit of scaling diminishes for abstract semantic tasks, which may be due to the coarse and subjective nature of the labels, limiting the ability of larger models to learn more discriminative representations.
+Higher-capacity models provide no consistent benefit for abstract semantic tasks such as musical character retrieval, and even for structured tasks their advantage is limited and not consistent across model families. In contrast, for abstract semantic tasks such as musical character retrieval, the benefit of scaling diminishes. This may be due to the coarse and subjective nature of the labels, which limits the ability of larger models to learn more discriminative representations.
 
 \subsection{Hypothesis Evaluation}
 
@@ -433,7 +446,10 @@ These findings should be interpreted as a case study within a specific archival 
 
 These results emphasize the importance of aligning model capacity, task definition, and evaluation design when developing content-based retrieval systems for data-constrained music archives.
 
-% Generate references from the BibTeX database.
-\bibliography{ISMIRtemplate}
+% -----------------------------------------------
+% References
+% -----------------------------------------------
+\bibliographystyle{IEEEtran}
+\bibliography{biblio}
 
 \end{document}
