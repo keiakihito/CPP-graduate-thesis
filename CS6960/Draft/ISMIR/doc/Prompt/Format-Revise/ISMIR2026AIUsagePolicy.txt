@@ -1,0 +1,25 @@
+ISMIR 2026: AI Usage Policy
+ISMIR 2026 AI Usage Policy for Authors
+
+Use of Large Language Models (LLMs): We welcome authors to use any tool that is suitable for preparing high-quality papers and research. However, we ask authors to keep in mind two important criteria. First, we expect authors to document their methodology clearly for upholding scientific rigorousness and transparency standards. For example, the use of LLMs in experimentation should be described if it is an important, original, or non-standard component of the approach. Similarly, the use of LLMs in literature review, result analysis, and other important aspects of research should also be declared. The use of programming aids, spell checkers, grammar correction tools for editing purposes does not need to be documented. Second, authors are responsible for the entire content of the paper, including all text, figures, and references. Therefore, while authors are welcome to use any tool they wish for preparing and writing the paper, they must ensure that all content is correct and original.
+
+All authors should take full responsibility to understand the advantages and limitations of using any tools and resources when preparing their scientific publications. Some (including free) tools may retain input data for further model training purposes, so authors should exercise caution to account for individual privacy considerations. High-level instructions could potentially result in hallucinations when generating plots, risking scientific integrity. It is the author’s responsibility to verify the tools are used in a scientifically responsible manner. 
+
+ISMIR 2026 reserves the right to investigate at any time whether this policy was adhered to, including during review, after paper acceptance, publication, or the conference. If an investigation determines a violation, ISMIR 2026 reserves the right to reject or revoke the paper. In particular, ISMIR 2026 pays special attention to hallucinated references as they may contaminate the literature permanently - if hallucinated references are found during the review process, the paper will be immediately rejected. If hallucinated references are found after paper acceptance, the paper will be revoked from the proceedings.
+
+FAQ
+
+1. Can I use Large Language Models (LLMs) while preparing my paper?
+
+Yes, you are welcome to use any tool, including LLMs, to prepare for your publications. However, you must describe the use of these tools clearly if they are part of your methodology. If you use LLMs to draft, summarize, or synthesize the Literature Review (Related Work), you must declare this as part of your methodology. If you use tools (including LLMs) for editing purposes (e.g., checking grammar), you do not need to declare it in your manuscript. 
+
+2. If I used LLMs to help me prepare my manuscript, can I add it as one of the Authors?
+
+No. Only humans are eligible to be authors. You, as an author, are fully responsible for all the content in your paper, including text, figures, and methodology, regardless of what tools (e.g., LLMs) you have used. You must ensure that:
+
+    All content is correct (e.g., no citations of non-existent material) and original (e.g., no plagiarism or self-plagiarism) 
+    The content adheres to ethical and academic standards
+
+3. Do I need to declare LLM usage if it’s just for writing or formatting?
+
+No, if the LLM is used only for spellchecking, grammar suggestions, editing, or formatting purposes and does not impact the core methodology, scientific rigorousness, or originality of the research, declaration is not required. However, using an LLM to write or structure your Literature Review is considered a contribution to the scientific rigor of the paper and must be declared. 
