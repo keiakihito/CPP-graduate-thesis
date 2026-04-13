@@ -4,3 +4,6 @@ cd ~/Dropbox/Academic/CalPolyPomona/Thesis/CPP-graduate-thesis/CS6960/Draft/ISMI
 # CPP Thesis
 cd ~/Dropbox/Academic/CalPolyPomona/Thesis/CPP-graduate-thesis/CS6960/Draft/CPP && rm -f document.aux document.bbl document.blg document.log document.out document.toc && pdflatex document.tex && bibtex document && pdflatex document.tex && pdflatex document.tex
 
+# RecSys
+cd ~/Dropbox/Academic/CalPolyPomona/Thesis/CPP-graduate-thesis/CS6960/Draft/RecSys && rm -f RecSys.aux RecSys.bbl RecSys.blg RecSys.log RecSys.out && pdflatex -interaction=nonstopmode -halt-on-error RecSys.tex && pdflatex -interaction=nonstopmode -halt-on-error RecSys.tex
+
