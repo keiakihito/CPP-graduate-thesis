@@ -95,7 +95,7 @@ where $g_{\text{character}}(x)$ is the set of character labels assigned to item 
 
 \subsection{Retrieval Pipeline}
 
-The iPalpiti archive comprises 203 tracks and 24.9 hours of audio. All pipeline components except the embedding model are held constant across experiments. Ground truth is derived from editorial metadata: composer identity for the sanity proxy and character labels for the musical proxy.
+The iPalpiti archive comprises 203 tracks and 24.9 hours of audio. All pipeline components except the embedding model are held constant across experiments. Ground truth is derived from editorial metadata for the composer proxy; character labels for the musical proxy are pseudo-labels generated via Music2Emo and fixed prior to evaluation.
 
 Each track is segmented into non-overlapping 30-second chunks; segment-level embeddings are extracted independently and mean-pooled into a single track-level representation. This accommodates variable-duration recordings and is consistent with standard catalog-ingestion pipelines for long-form audio. Cosine similarity over track-level embeddings is used for ranking. No personalization, collaborative signal, or learned re-ranking is applied.
 
@@ -240,7 +240,7 @@ An immediate next step is to evaluate whether the observed cost--quality trade-o
 
 We evaluated the effect of embedding-model capacity on candidate ranking quality for cold-start content-based music retrieval, using CNN-based and Transformer-based pretrained audio models across discrete capacity tiers. Capacity scaling is non-monotonic within both architectural families and task-dependent across them: structured composer retrieval shows measurable but inconsistent variation with capacity, while abstract character retrieval is largely insensitive to model size. In neither case do we observe consistent ranking gains from the largest model.
 
-The cost side of this trade-off is empirically clear. Embedding extraction latency grows from 2{,}179\,ms per track (CNN-Small) to 55{,}724\,ms (Transformer-Large)---a ${\sim}25{\times}$ increase---without a corresponding improvement in NDCG@5 or Hit@5. When relevant items are broadly distributed relative to the evaluation cutoff, set-based metrics such as Recall@5 can be suppressed regardless of ranking quality; ranking-based metrics appear to provide more reliable signals in this setting.
+The cost side of this trade-off is empirically clear. Embedding extraction latency grows from 2{,}179\,ms per track (CNN-Small) to 55{,}724\,ms (Transformer-Large)---a ${\sim}25{\times}$ increase---without a corresponding improvement in NDCG@5 or Hit@5. When relevant items are broadly distributed relative to the evaluation cutoff, set-based metrics such as Recall@5 and F1@5 can be suppressed regardless of ranking quality; ranking-based metrics appear to provide more reliable signals in this setting.
 
 For practitioners building content-based candidate generation pipelines under cold-start and resource-constrained conditions, these results indicate that mid-sized models offer the most favorable cost--quality profile. Defaulting to larger models is not justified by the evidence in this setting: the ingestion overhead is substantial, while ranking gains remain inconsistent. Code and evaluation scripts will be made publicly available upon acceptance.
 
