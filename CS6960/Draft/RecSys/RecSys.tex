@@ -47,9 +47,8 @@ We address the following research questions:
   \item \textbf{RQ2:} Under what conditions does the computational cost of higher-capacity models justify their deployment for content-based candidate generation?
 \end{itemize}
 
-\noindent\textbf{Hypothesis:} In a small-scale, single-domain classical music archive, increasing embedding-model capacity does not consistently improve candidate ranking quality, and the performance differences that do emerge are insufficient to justify the substantially higher extraction cost.
+To address these questions, we investigate the hypothesis that in a small-scale, single-domain classical music archive, increasing embedding-model capacity does not consistently improve candidate ranking quality, and that performance differences are insufficient to justify the substantially higher extraction cost. 
 
-\smallskip
 This work makes three main contributions. First, we provide a systematic evaluation of pretrained audio representations across capacity tiers framed as a cost--quality trade-off in a realistic cold-start archival candidate generation setting. Second, we demonstrate that capacity scaling is non-monotonic and task-dependent: structured retrieval based on composer identity exhibits greater sensitivity to capacity differences, while abstract semantic retrieval shows minimal variation across model sizes, and in neither case do we observe consistent ranking gains from the largest model. Third, we show that set-based metrics such as Recall@K and F1@K can be systematically suppressed when relevant items are broadly distributed, and that ranking-based metrics provide more reliable signals for evaluating candidate generation quality in this regime.
 
 % Section 2: Related Work
