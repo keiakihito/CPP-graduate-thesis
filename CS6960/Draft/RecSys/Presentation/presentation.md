@@ -99,6 +99,12 @@ style: |
     color: #7f8c8d;
     font-style: italic;
   }
+
+  .center-table table {
+    width: auto !important;
+    margin: 0 auto 24px auto !important;
+    display: table !important;
+  }
 ---
 
 <!-- Slide 1: Title -->
@@ -110,7 +116,31 @@ style: |
 
 **Keita Katsumi**
 **CS 6960 — Thesis Defence Presentation**
-**[Date]**
+**4/24/2026**
+
+---
+
+<!-- Agenda -->
+# Agenda
+
+1. **Introduction** — motivation, research questions, contributions
+2. **Related Work** — embeddings, architectures, evaluation pitfalls
+3. **Method** — pipeline, models, proxy tasks, label construction
+4. **Results** — ranking quality, extraction cost, ROI analysis
+5. **Discussion** — implications, limitations, future work
+6. **Conclusion**
+
+---
+
+<!-- Section: Introduction -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
+
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 1</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Introduction</div>
+<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Motivation · Research Questions · Contributions</div>
+</div>
 
 ---
 
@@ -126,8 +156,7 @@ style: |
 
 ![w:100](../diagram/Pictures/ipalpiti.jpg)
 
-</div>
-<div>
+</div><div>
 
 ![h:430](../diagram/Pictures/Albums.png)
 
@@ -139,7 +168,7 @@ style: |
 <!-- Slide 3: Background Story — The Constraint -->
 # The Real-World Constraint
 
-<div style="text-align: center;">
+<div style="display:flex; justify-content:center;">
 
 ![w:580](../diagram/Pictures/Playback.png)
 
@@ -150,7 +179,7 @@ style: |
 
 ---
 
-<!-- Slide 4: Motivation / Problem — Part 1 -->
+<!-- Slide 4: Motivation / Problem -->
 # The Cold-Start Problem in Music RecSys
 
 - No user history → no collaborative filtering
@@ -158,21 +187,6 @@ style: |
 - Candidate generation must rely **entirely** on content
 
 > **Embedding quality = ranking quality. No fallback.**
-
----
-
-<!-- Slide 5: Motivation / Problem — Part 2 -->
-# Why Scaling Seems Attractive
-
-- Larger models → better benchmarks (on large, diverse datasets)
-- Transformers with 330M params beat CNNs on MIR tasks
-- Natural assumption: **bigger model → better retrieval**
-
-<br/>
-
-- But: ingestion cost is paid **at every catalog update**
-- No GPU? → wall-clock time explodes
-- Is the gain worth it in **small, single-domain** settings?
 
 ---
 
@@ -218,6 +232,18 @@ style: |
 
 ---
 
+<!-- Section: Related Work -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
+
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 2</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Related Work</div>
+<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Embeddings · Architectures · Evaluation Pitfalls</div>
+</div>
+
+---
+
 <!-- Slide 9: Related Work — Content-Based RecSys -->
 # Related Work: Why Embeddings Matter Here
 
@@ -245,18 +271,15 @@ style: |
 
 ---
 
-<!-- Slide 11: Related Work — Evaluation Pitfalls -->
-# Why Recall@K Can Fail at Small K
+<!-- Section: Method -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
 
-- Standard offline metric: Recall@K = retrieved relevant / total relevant
-- Problem: if **many items are relevant**, K=5 can only ever capture a tiny fraction
-- Recall@5 stays structurally low **regardless of ranking quality**
-
-<br/>
-
-- [Insert figure: illustration of suppressed Recall when relevant set >> K]
-
-- → Rank-aware metrics (NDCG@K, Hit@K) are more reliable here [Urbano 2013; Canamares 2020]
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 3</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Method</div>
+<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Pipeline · Models · Proxy Tasks · Label Construction</div>
+</div>
 
 ---
 
@@ -299,6 +322,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 15: Method — Model Setup (3.3 in paper) -->
 # Models Evaluated
 
+<div class="center-table">
+
 | Family | Model | Params | Tier |
 |---|---|---|---|
 | CNN (PANNs) | Cnn6 | 4.8M | Small |
@@ -306,6 +331,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 | CNN (PANNs) | Cnn14 | 80.8M | Large |
 | Transformer (MERT) | MERT-95M | 95M | Medium |
 | Transformer (MERT) | MERT-330M | 330M | Large |
+
+</div>
 
 - Within-family comparison = primary analysis
 - Cross-family = descriptive only (architecture + pretraining differ)
@@ -321,6 +348,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 - Relevant = same composer
 - Clean categorical labels from editorial metadata
 
+<br>
+
 **Task 2 — Musical Character Proxy (Abstract)**
 - Relevant = share ≥1 affective label (Energetic, Calm, Tense, Lyrical)
 - Labels generated via Music2Emo [Kang & Herremans, 2025]
@@ -332,11 +361,16 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 17: Method — Label Construction (3.4 in paper) -->
 # How Character Labels Were Built
 
-<div style="display: flex; align-items: flex-start; gap: 32px;">
-<div style="flex: 1;">
+<div style="font-size:22px;">
 
 - **Music2Emo** outputs valence + arousal scores per track
 - Mapped to 4 binary tags via the AV framework [Eerola & Vuoskoski, 2011]
+- **Labels fixed before evaluation** → no model-dependent bias
+
+</div>
+
+<div style="display: flex; align-items: flex-start; gap: 32px; margin-top: 4px;">
+<div style="flex: 1;">
 
 | Label | Condition |
 |---|---|
@@ -345,17 +379,19 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 | Tense | Valence ≤ 33rd pct |
 | Lyrical | VA in 40–60th pct band |
 
-- **Labels fixed before evaluation** → no model-dependent bias
+<div style="font-size:20px;">
+
+> **Why percentiles?** Classical music clusters in a narrow mid-range VA space — fixed absolute thresholds would yield near-empty label classes.
 
 </div>
-<div style="flex: 1;">
 
-![w:420](../diagram/plots/va_scatter.png)
+</div>
+<div style="flex: 1.2;">
+
+![h:450](../diagram/plots/va_scatter.png)
 
 </div>
 </div>
-
-> **Why percentiles?** Classical music clusters tightly in the mid-range VA space (see scatter). Fixed absolute thresholds would yield near-empty label classes — percentile thresholds ensure balanced coverage across all 203 tracks.
 
 ---
 
@@ -368,6 +404,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 <br/>
 
+<div class="center-table">
+
 | Metric | Type | Role |
 |---|---|---|
 | NDCG@5 | Rank-aware | Primary |
@@ -375,10 +413,26 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 | Recall@5 | Set-based | Secondary / caution |
 | F1@5 | Set-based | Secondary / caution |
 
+</div>
+
+---
+
+<!-- Section: Results -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
+
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 4</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Results</div>
+<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Ranking Quality · Extraction Cost · ROI Analysis</div>
+</div>
+
 ---
 
 <!-- Slide 19: Results — Sanity Proxy Table -->
 # Results: Composer Retrieval (Structured Task)
+
+<div class="center-table">
 
 | Model | NDCG@5 | Hit@5 | Recall@5 | F1@5 |
 |---|---|---|---|---|
@@ -387,6 +441,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 | CNN-Large | 0.585 | 0.660 | 0.228 | 0.229 |
 | Transformer-Medium | **0.642** | **0.709** | **0.263** | **0.265** |
 | Transformer-Large | 0.588 | 0.665 | 0.233 | 0.224 |
+
+</div>
 
 - CNN: NDCG@5 dips Small → Medium, recovers at Large (**non-monotonic**)
 - Transformer: Large **underperforms** Medium on all metrics
@@ -414,6 +470,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 21: Results — Musical Character Proxy Table -->
 # Results: Character Retrieval (Abstract Task)
 
+<div class="center-table">
+
 | Model | NDCG@5 | Hit@5 | Recall@5 | F1@5 |
 |---|---|---|---|---|
 | CNN-Small | **0.653** | **0.783** | 0.039 | 0.071 |
@@ -421,6 +479,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 | CNN-Large | 0.642 | 0.749 | 0.038 | 0.070 |
 | Transformer-Medium | 0.632 | 0.778 | 0.033 | 0.060 |
 | Transformer-Large | 0.631 | 0.764 | 0.036 | 0.066 |
+
+</div>
 
 - NDCG@5 spread across all models: **< 0.025** — negligible
 - Hit@5 is high (≥ 0.749), yet Recall@5 is uniformly low (≤ 0.039)
@@ -436,8 +496,6 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 <br/>
 
-- [Insert figure: gap between Hit@5 and Recall@5 across models]
-
 - → Recall@5 / F1@5 give a **false negative** picture here
 - → NDCG@5 and Hit@5 are the reliable signals in this regime
 
@@ -446,6 +504,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 23: Results — Extraction Cost -->
 # The Cost Side of the Trade-Off
 
+<div class="center-table">
+
 | Model | Params (M) | Emb Dim | Latency (ms/track) |
 |---|---|---|---|
 | CNN-Small | 4.8 | 512 | **2,179** |
@@ -453,6 +513,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 | CNN-Large | 80.8 | 2,048 | 4,218 |
 | Transformer-Medium | 95 | 768 | 23,146 |
 | Transformer-Large | 330 | 1,024 | **55,724** |
+
+</div>
 
 - Transformer-Large = **~25× slower** than CNN-Small
 - **No ranking improvement** on either task
@@ -463,16 +525,39 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 24: Results — Cost vs. Quality -->
 # ROI Collapses at High Capacity
 
-| Model | Latency (ms) | NDCG@5 Composer | NDCG@5 Character |
+<div style="display: flex; align-items: center; gap: 24px;">
+<div style="flex: 0.8;">
+
+| Model | Latency (ms) | NDCG@5 Composer | NDCG@5 Char |
 |---|---|---|---|
 | CNN-Small | 2,179 | 0.548 | 0.653 |
 | CNN-Medium | 3,109 | 0.545 | 0.656 |
 | CNN-Large | 4,218 | 0.585 | 0.642 |
-| Transformer-Medium | 23,146 | **0.642** | 0.632 |
-| Transformer-Large | 55,724 | 0.588 | 0.631 |
+| Transformer-M | 23,146 | **0.642** | 0.632 |
+| Transformer-L | 55,724 | 0.588 | 0.631 |
 
-- Transformer-Large: **25× the cost** of CNN-Small, **worse** ranking than Transformer-Medium
-- CNN-Small: lowest cost, competitive ranking on both tasks
+- Transformer-Large: **25× the cost**, worse ranking
+- CNN-Small: lowest cost, competitive quality
+
+</div>
+<div style="flex: 1.6;">
+
+![h:390](../diagram/plots/cost_quality_scatter.png)
+
+</div>
+</div>
+
+---
+
+<!-- Section: Discussion -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
+
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 5</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Discussion</div>
+<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Implications · Limitations · Future Work</div>
+</div>
 
 ---
 
@@ -525,6 +610,18 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 ---
 
+<!-- Section: Conclusion -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
+
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 6</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Conclusion</div>
+<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Key Takeaways</div>
+</div>
+
+---
+
 <!-- Slide 29: Conclusion -->
 # Conclusion
 
@@ -540,8 +637,10 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 ---
 
-<!-- Slide 30: References — Part 1 -->
-# References (1/2)
+<!-- Slide 30: References -->
+# References
+
+<div style="font-size: 20px;">
 
 - Schedl et al. (2018). Current challenges and visions in music recommender systems. *IJMIR*.
 - Deldjoo et al. (2024). Content-driven music recommendation: Evolution, state of the art. *Computer Science Review*.
@@ -549,51 +648,20 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 - Kong et al. (2020). PANNs: Large-scale pretrained audio neural networks. *IEEE/ACM TASLP*.
 - Li et al. (2023). MERT: Acoustic Music Understanding Model with large-scale self-supervised training. *arXiv*.
 - Gong et al. (2021). AST: Audio Spectrogram Transformer. *arXiv*.
-
----
-
-<!-- Slide 31: References — Part 2 -->
-# References (2/2)
-
 - Zaman et al. (2023). A survey of audio classification using deep learning. *IEEE Access*.
 - Canamares & Castells (2020). On target item sampling in offline recommender system evaluation. *RecSys '20*.
 - Urbano, Schedl & Serra (2013). Evaluation in music information retrieval. *JIIS*.
 - Eerola & Vuoskoski (2011). Discrete and dimensional models of emotion in music. *Psychology of Music*.
 - Kang & Herremans (2025). Towards unified music emotion recognition. *arXiv*.
 
+</div>
+
 ---
 
-<!-- Slide 32: Q&A / Thank You -->
+<!-- Slide 31: Q&A / Thank You -->
 # Thank You
 
-**[Contact / Repository info]**
-
-*[Backup slides follow]*
-
----
-
-<!-- BACKUP Slide B1: CNN Architecture Details -->
-# Backup: PANNs Architecture Details
-
-| Model | Params | Emb Dim | Architecture |
-|---|---|---|---|
-| Cnn6 | 4.8M | 512 | 4-layer CNN |
-| Cnn10 | 5.2M | 512 | 6-layer CNN |
-| Cnn14 | 80.8M | 2048 | 14-layer CNN |
-
-- Pretrained on AudioSet (large-scale weakly labeled audio)
-- Fixed pretrained weights; no fine-tuning
-
----
-
-<!-- BACKUP Slide B2: MERT Architecture Details -->
-# Backup: MERT Architecture Details
-
-| Model | Params | Emb Dim | Pretraining |
-|---|---|---|---|
-| MERT-95M | 95M | 768 | Self-supervised, music data |
-| MERT-330M | 330M | 1024 | Self-supervised, music data |
-
-- No small-capacity MERT checkpoint available publicly
-- Cross-family comparisons are descriptive (architecture + pretraining differ)
+**Keita Katsumi**
+**CS 6960 — Thesis Defence**
+**4/24/2026**
 

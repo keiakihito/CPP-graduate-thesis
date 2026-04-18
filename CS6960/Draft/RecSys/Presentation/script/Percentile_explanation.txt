@@ -1,0 +1,26 @@
+⏺ Here's the verbal explanation you can use during the presentation when you're on the Label           
+  Construction slide:                                                                                  
+                                                                                                       
+  ---                                                                                                  
+  "We started with a simple, principled choice: split the VA space into even thirds using the 33rd and
+  67th percentiles. No tuning, no cherry-picking.                                                      
+                                                 
+  But we wanted to verify this wasn't arbitrary. When we plotted the actual VA scores for our 203      
+  tracks, the scatter showed the dataset clusters tightly in a narrow mid-range band — roughly 0.30 to 
+  0.50 on both axes. That's classical music: emotionally restrained, rarely extreme.
+                                                                                                       
+  What this confirmed is that our tertile boundaries land right at the edges of that dense region — not
+   cutting through the middle of it. So Energetic captures the high-arousal tail, Calm the low-arousal
+  tail, and Tense the low-valence tail.                                                                
+                                                                                                       
+  Lyrical is the special case — it targets the cross-section of mid-valence and mid-arousal, the 40th
+  to 60th percentile band on both axes. That's the dense center cluster that none of the other three   
+  labels would claim. Without it, the most common VA profile in our dataset would go unlabeled.
+                                                                                                       
+  So the percentile thresholds aren't arbitrary — the scatter plot validated that they carve the space
+  where the actual data lives."                                                                        
+                                                            
+  ---                                                                                                  
+  This gives you a clean 3-part arc: principled starting point → visual validation → Lyrical as the
+  intentional center. You can trim it to 30 seconds or expand depending on audience questions.         
+                                                    
