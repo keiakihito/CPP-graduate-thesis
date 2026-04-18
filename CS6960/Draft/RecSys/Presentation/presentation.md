@@ -437,7 +437,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 - CNN: NDCG@5 dips Small → Medium, recovers at Large (**non-monotonic**)
 - Transformer-Large **underperforms** Medium — more parameters → worse structured ranking
-- CNN-Large matches Transformer-Large at **17× fewer parameters**
+- CNN-Small (4.8M) is only 0.04 NDCG behind Transformer-Large (330M) — at **~70× fewer parameters**
 
 ---
 

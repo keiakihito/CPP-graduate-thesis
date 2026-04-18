@@ -1,0 +1,418 @@
+FULL PRESENTATION SCRIPT
+Does Model Capacity Justify the Cost?
+Evaluating Audio Embeddings for Cold-Start Candidate Generation
+CS 6960 Thesis Defence — Keita Katsumi
+Total target time: 30 minutes
+
+NOTE: Slides 1-3 (Title, Agenda, Section Cover: Introduction, Where This Research Comes From,
+The Real-World Constraint) are improvised as a narrative bridge from the real-world project
+to the research problem. Script begins at Slide 4.
+
+================================================================================
+SECTION 1 — INTRODUCTION (~6 minutes)
+================================================================================
+
+--- Slide 4: The Cold-Start Problem in Music RecSys ---
+
+So, when we talk about building a recommendation system for iPalpiti, the very
+first obstacle we run into is what's called the cold-start problem.
+
+There is no user history. No listening logs, no ratings, no "people who liked
+this also liked that." Collaborative filtering, which powers most modern
+recommendation systems, simply has nothing to work with.
+
+What we do have is the audio itself — over 200 tracks, each one a rich, full
+recording. And that means candidate generation has to rely entirely on content.
+We extract an embedding from each track, and the system ranks everything by
+similarity to that embedding.
+
+The implication is stark: embedding quality equals ranking quality. There is no
+fallback. If the embedding doesn't capture musical similarity well, the whole
+recommendation pipeline fails.
+
+--- Slide 5: "Bigger Models = Better Ranking?" ---
+
+This brings us to a natural question — and honestly, a natural assumption.
+
+If you look at Music Information Retrieval benchmarks, larger models almost
+always win. More parameters, better features, better accuracy. The natural
+instinct is to take the biggest model you can afford and put it in your pipeline.
+
+But our setting is different. We have 203 tracks, not a million. We're running
+on CPU, not a dedicated GPU cluster. And the pipeline re-ingests the catalog
+regularly.
+
+So the question we set out to answer is: does that assumption actually hold here?
+
+--- Slide 6: Research Questions ---
+
+We formalized that question into two research questions.
+
+RQ1 asks whether increasing model capacity consistently improves ranking quality
+in this cold-start setting. The word "consistently" is doing a lot of work there
+— we're not asking if a bigger model ever does better, we're asking if it
+reliably does better across tasks and metric types.
+
+RQ2 asks under what conditions the computational cost of a higher-capacity model
+actually justifies deploying it. This is the operational framing — if you're
+building a real system, you need to know when spending ten times more on
+extraction is worth it.
+
+Our hypothesis going in was that capacity scaling would be non-monotonic, and
+that the extraction overhead would be impossible to justify given the small
+dataset.
+
+--- Slide 7: Three Contributions ---
+
+Before moving to related work, let me briefly flag the three things this paper
+contributes.
+
+First, a systematic evaluation of pretrained audio embeddings as a cost-quality
+trade-off in cold-start candidate generation — something that, to our knowledge,
+hasn't been done in this exact framing.
+
+Second, a concrete empirical finding: capacity scaling is non-monotonic and
+task-dependent. Structured retrieval and abstract retrieval behave quite
+differently.
+
+And third, a metric mismatch warning that I think is practically important.
+Recall@K and F1@K can be structurally suppressed in settings where the relevant
+set per query is large — and ignoring that leads to misleading conclusions about
+model quality.
+
+================================================================================
+SECTION 2 — RELATED WORK (~3 minutes)
+================================================================================
+
+--- Slide 8: [Section Cover — no script, pause briefly] ---
+
+--- Slide 9: Related Work: Why Embeddings Matter Here ---
+
+The literature is clear on one thing: when interaction data is sparse,
+collaborative filtering breaks down. Schedl and colleagues established this in
+2018, and it's still the baseline assumption in cold-start research. The fallback
+is content-based retrieval — and for music, that means audio embeddings.
+
+Deldjoo and colleagues in 2024 surveyed content-driven music recommendation and
+confirmed that pretrained embeddings are now the dominant approach for cold-start
+candidate generation.
+
+But here's the gap that motivated our work: Tamm and Aljanaki in 2024 showed
+that pretrained embeddings are effective in RecSys pipelines — but their behavior
+in small, single-domain settings is largely unstudied. And critically, strong MIR
+benchmark accuracy does not automatically translate to well-structured retrieval
+neighborhoods. A model can win on a classification benchmark and still produce
+embeddings that rank irrelevant items above relevant ones.
+
+--- Slide 10: Related Work: CNN vs. Transformer ---
+
+On the architecture side, we're comparing two families.
+
+The CNN family, represented here by PANNs — Pretrained Audio Neural Networks —
+was introduced by Kong and colleagues in 2020. These models are strong at audio
+pattern recognition and scale reasonably with depth. Cnn6, Cnn10, and Cnn14
+represent small, medium, and large capacity within that family.
+
+The Transformer family, represented by MERT, uses self-attention over
+spectrograms to capture long-range dependencies. MERT-95M and MERT-330M give us
+medium and large capacity within that family.
+
+Prior benchmark work has compared these architectures on large, heterogeneous
+datasets. The gap in the literature is exactly our setting: a small, single-domain
+archival collection where stylistic homogeneity may fundamentally change how these
+models behave.
+
+================================================================================
+SECTION 3 — METHOD (~8 minutes)
+================================================================================
+
+--- Slide 11: [Section Cover — no script, pause briefly] ---
+
+--- Slide 12: Evaluation Pipeline Overview ---
+
+The pipeline is intentionally minimal. You can see the diagram here — there is no
+personalization layer, no collaborative filtering signal, no learned re-ranking
+stage. The only variable across all experiments is the embedding model.
+
+The dataset is the full iPalpiti catalog: 203 tracks, 24.9 hours of classical
+music. Each track is segmented into 30-second chunks, each chunk is embedded, and
+the chunks are mean-pooled into a single track-level vector. That vector is
+everything the ranker sees.
+
+Ranking is done by cosine similarity. Query track goes in, the system returns the
+top-K most similar tracks from the remaining 202. That's the entire retrieval
+pipeline.
+
+The design is deliberate — we want to isolate the embedding model as the single
+variable. Any difference in ranking quality across models is attributable to the
+embedding, nothing else.
+
+--- Slide 13: Formal Problem Setup ---
+
+For those who want the formal framing: we have a catalog D of 203 tracks. An
+embedding model maps each track to a vector in R^d. We rank by cosine similarity
+between the query embedding and all candidate embeddings.
+
+Relevance is binary — either a track is relevant to the query or it isn't —
+defined per proxy task. For the Sanity task, relevance means same composer. For
+the Character task, relevance means sharing at least one affective label. I'll
+explain both in a moment.
+
+--- Slide 14: Models Evaluated ---
+
+We evaluate five models across two architecture families and three capacity tiers.
+
+On the CNN side: Cnn6 at 4.8 million parameters, Cnn10 at 5.2 million, and Cnn14
+at 80.8 million. On the Transformer side: MERT-95M at 95 million parameters and
+MERT-330M at 330 million.
+
+The primary comparison is within-family — CNN-Small versus CNN-Medium versus
+CNN-Large, and Transformer-Medium versus Transformer-Large. This lets us ask
+directly: does more capacity within the same architecture improve ranking?
+
+Cross-family comparison is descriptive only. CNN and Transformer models differ in
+architecture and pretraining objective, so a fair head-to-head isn't the point.
+
+--- Slide 15: Two Proxy Retrieval Tasks ---
+
+Since we have no ground-truth human relevance judgments, we design two proxy
+tasks using metadata as the relevance signal.
+
+Task 1 is the Sanity Proxy — a structured task. A track is relevant if it shares
+the same composer. These labels come directly from editorial metadata and are
+clean and categorical. This is the easiest case for a retrieval system: same
+composer means similar stylistic DNA.
+
+Task 2 is the Musical Character Proxy — an abstract task. Relevance is defined
+by shared affective label: Energetic, Calm, Tense, or Lyrical. These labels are
+generated by Music2Emo, a pretrained music emotion recognition model, and then
+quantized via the arousal-valence framework. This task is harder because the
+relevant set per query is much larger — many tracks can share at least one label.
+
+The two tasks let us ask different questions: can the models rank structurally
+similar tracks? And can they rank emotionally similar ones?
+
+--- Slide 16: How Character Labels Were Built ---
+
+Let me walk through how the character labels were constructed, because the design
+choices here matter for interpreting the results.
+
+Music2Emo outputs a valence score and an arousal score for each track, on a
+normalized zero-to-one scale. We then threshold those scores to assign binary tags.
+
+We started with a principled, simple choice: split each dimension into even thirds
+using the 33rd and 67th percentiles. Energetic gets high arousal, Calm gets low
+arousal, Tense gets low valence.
+
+After plotting the actual VA scores for our 203 tracks — you can see the scatter
+on the right — we confirmed this was the right call. The data clusters tightly in
+a narrow mid-range band, roughly 0.25 to 0.55 on both axes. Fixed absolute
+thresholds would have cut through the densest region and produced highly
+imbalanced or near-empty label classes. The tertile boundaries land right at the
+edges of the dense cluster, not through the middle of it.
+
+Lyrical is the special case: it targets the inner bounding box — the 40th to
+60th percentile band on both axes — capturing the dense, emotionally restrained
+center of the distribution. Without it, the most common VA profile in our dataset
+would go unlabeled entirely.
+
+--- Slide 17: Evaluation Protocol ---
+
+The evaluation uses leave-one-out cross-validation over all 203 tracks. Each
+track serves as the query once, excluded from the candidate pool, and the
+remaining 202 are ranked. Metrics are averaged across all 203 queries.
+
+We use four metrics. NDCG@5 and Hit@5 are our primary signals — they're
+rank-aware and capture whether relevant items appear near the top of the list.
+Recall@5 and F1@5 are secondary, and I'll explain shortly why they need to be
+interpreted with caution in this setting.
+
+Ties are handled with averaged ranks to avoid order-dependence artifacts.
+
+================================================================================
+SECTION 4 — RESULTS (~7 minutes)
+================================================================================
+
+--- Slide 18: [Section Cover — no script, pause briefly] ---
+
+--- Slide 19: Results: Composer Retrieval (Structured Task) ---
+
+Let's look at the results for the Sanity Proxy — the structured task where
+relevance means same composer.
+
+The first thing to notice is the CNN family. Going from Small to Medium, NDCG@5
+actually drops slightly — from 0.548 to 0.545. Then at Large, it recovers to
+0.585. That's a non-monotonic pattern. More capacity doesn't reliably help, even
+within the same architecture family.
+
+The Transformer family is more striking. Transformer-Medium achieves the best
+NDCG@5 across all models at 0.642. But Transformer-Large — which has three times
+more parameters — drops to 0.588. More parameters made it worse on structured
+retrieval.
+
+And here's the punchline: CNN-Small, with just 4.8 million parameters, is only
+0.04 NDCG points behind Transformer-Large at 330 million parameters — nearly 70
+times fewer parameters for essentially the same ranking quality. The capacity
+investment buys you nothing.
+
+--- Slide 20: Results: Character Retrieval (Abstract Task) ---
+
+Now the Musical Character Proxy — the abstract task where relevance means sharing
+an affective label.
+
+The picture here is very different. The NDCG@5 spread across all five models is
+less than 0.025. That's essentially negligible — all models perform about the same
+on this task. The ranking quality is flat across the entire capacity range.
+
+Hit@5 is high for all models, at 0.749 or above. But Recall@5 is uniformly very
+low — 0.039 or below.
+
+That gap between Hit@5 and Recall@5 is not a model problem. It's a structural
+metric problem, and I want to explain what's happening there.
+
+--- Slide 21: Why Is Recall@5 So Low? (Metric Mismatch) ---
+
+In the Character task, many tracks share at least one affective label. The
+relevant set per query can be quite large — tens of tracks. When you only retrieve
+K equals 5, Recall@5 is structurally capped at a small fraction of the relevant
+items, no matter how good the ranking is.
+
+Think of it this way: if there are 40 relevant tracks for a given query, and you
+retrieve 5, perfect ranking gives you Recall@5 of 5/40, which is 0.125. Our
+models average 0.039, which means they're capturing fewer than 2 of those 40.
+Recall and F1 look terrible.
+
+But Hit@5 at 0.749 tells us that models are, in fact, ranking at least one
+relevant item in the top 5 three quarters of the time. The models are working —
+the metric is misleading.
+
+This is why we treat Recall@5 and F1@5 as secondary signals with caution in this
+setting. NDCG@5 and Hit@5 are the reliable signals here.
+
+--- Slide 22: ROI Collapses at High Capacity ---
+
+Now the cost side. This is where the argument becomes very concrete.
+
+Look at the table on the left. CNN-Small extracts an embedding in about 2,179
+milliseconds per track. Transformer-Large takes 55,724 milliseconds — that's
+approximately 25 times slower.
+
+And what do you get for that 25-fold increase in extraction time? On the Composer
+task, Transformer-Large scores 0.588 — worse than Transformer-Medium at 0.642.
+On the Character task, it scores 0.631 — essentially tied with CNN-Small at 0.653.
+
+The scatter plot on the right makes this visually clear. As you move right along
+the X-axis — increasing latency — the NDCG@5 on the Y-axis doesn't go up. For
+the Composer task, it actually peaks at Transformer-Medium and then falls. For
+the Character task, it's flat the whole way.
+
+CNN-Small sits at the bottom left: lowest cost, competitive quality on both tasks.
+
+This is the ROI collapse. The investment in extraction compute is not converting
+into ranking quality.
+
+================================================================================
+SECTION 5 — DISCUSSION (~5 minutes)
+================================================================================
+
+--- Slide 23: [Section Cover — no script, pause briefly] ---
+
+--- Slide 24: Discussion: What This Means ---
+
+So what do we take from these results?
+
+The first finding is that task structure matters more than model size. On the
+Composer task — a structured, categorical retrieval problem — there is variation
+across models and the Transformer-Medium performs best. On the Character task —
+an abstract, affective retrieval problem — all models converge to the same
+performance level. The embedding model's capacity simply doesn't change what it
+can capture about emotional character in a 203-track classical archive.
+
+The second finding is that the largest model never achieves the best ranking
+quality on either task. Not once, in either evaluation. That's a strong result.
+
+This aligns with what Tamm and Aljanaki found in 2024: MIR benchmark accuracy
+does not predict retrieval quality in RecSys settings. The iPalpiti archive is
+stylistically homogeneous — almost all classical chamber and orchestral music. We
+think this homogeneity compresses the embedding space, leaving very little room
+for additional capacity to provide a meaningful signal.
+
+--- Slide 25: System-Level Implications ---
+
+For anyone designing a real cold-start recommendation system, these findings have
+direct operational meaning.
+
+In cold-start settings, the embedding model is the ranking system. There is no
+collaborative signal to compensate for poor candidates. If your embeddings don't
+rank well, the user gets bad recommendations, period. That makes model selection
+a direct operational decision, not just a research hyperparameter.
+
+And the practical recommendation from our data is clear: mid-sized models offer
+the best cost-quality profile. CNN-Small and CNN-Medium are within 0.04 NDCG
+points of Transformer-Medium on the Composer task, at roughly ten times lower
+extraction latency.
+
+For a system like iPalpiti — no GPU infrastructure, catalog updates whenever new
+recordings are digitized — this difference is not academic. A 25-times extraction
+overhead is a real operational cost that needs to be justified by a real ranking
+improvement. We found no such justification.
+
+--- Slide 26: Limitations ---
+
+A few honest caveats.
+
+The dataset is small at 203 tracks. This is intentional — it's a controlled
+stress test — and we argue that if capacity scaling fails in a small setting, it
+likely fails in larger homogeneous archives too. But we haven't tested that claim
+directly.
+
+We evaluated the candidate generation stage in isolation. Downstream re-ranking
+was not evaluated. It's possible that small NDCG differences here compound or
+cancel at the system level.
+
+The character labels come from a pretrained model and carry whatever biases
+Music2Emo has. However, because the labels are fixed before evaluation and reused
+identically across all embedding models, the bias is shared equally — relative
+comparisons between models remain valid.
+
+And mean-pooling may dilute temporal information in longer recordings. More
+sophisticated aggregation might change the results.
+
+--- Slide 27: Future Work ---
+
+There are four directions we find most interesting.
+
+Scaling up to larger, heterogeneous catalogs is the most important next step.
+Does the non-monotonic pattern persist when the embedding space is more spread out?
+
+Richer labels — either expert annotations or listener-derived similarity — would
+improve the Character task's sensitivity and reduce dependence on pseudo-labels.
+
+Sequence-aware aggregation beyond mean-pooling would address the temporal
+limitation directly.
+
+And end-to-end evaluation — connecting candidate generation to downstream
+re-ranking — would tell us whether these NDCG differences actually matter at the
+system level for users.
+
+================================================================================
+SECTION 6 — CONCLUSION (~1 minute)
+================================================================================
+
+--- Slide 28: [Section Cover — no script, pause briefly] ---
+
+--- Slide 29: Conclusion ---
+
+To close: we evaluated five pretrained audio models across two architecture
+families and three capacity tiers in a cold-start classical music retrieval
+setting.
+
+The core finding is that capacity scaling is non-monotonic and task-dependent.
+No single model wins on both tasks. The largest Transformer carries 25 times the
+extraction overhead of the smallest CNN, with no ranking gain on either task.
+
+In small, cold-start settings, increasing model capacity does not reliably improve
+ranking quality — but it significantly increases cost. Model selection is a
+cost-quality trade-off, not a pure performance optimization problem.
+
+Thank you. I'm happy to take any questions.
