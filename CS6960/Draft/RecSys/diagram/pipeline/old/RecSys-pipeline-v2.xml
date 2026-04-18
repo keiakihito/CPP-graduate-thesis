@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="RecSys-Pipeline" id="recsys-pipeline-v2">
+    <mxGraphModel dx="1800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ── STAGE LABELS (top row) ── -->
+        <mxCell id="lbl1" value="① Raw Audio" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl2" value="② Segmentation" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="40" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl3" value="③ Embedding Model" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="40" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl4" value="④ Mean-Pool" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="40" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl5" value="⑤ Cosine Similarity" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="40" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl6" value="⑥ Proxy Tasks + Metrics" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="40" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl7" value="⑦ Results" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="40" width="120" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ── STAGE 1: Raw Audio ── -->
+        <mxCell id="s1" value="iPalpiti Archive&#xa;203 tracks&#xa;24.9 hrs audio" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- arrow 1→2 -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="s1" target="s2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ── STAGE 2: Segmentation ── -->
+        <mxCell id="s2" value="30-sec chunks&#xa;(non-overlapping)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="220" y="130" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- arrow 2→3 -->
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="s2" target="s3_group" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ── STAGE 3: Embedding Models (group box) ── -->
+        <mxCell id="s3_group" value="" style="swimlane;startSize=0;fillColor=#f5f5f5;strokeColor=#666666;rounded=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="420" y="90" width="200" height="280" as="geometry" />
+        </mxCell>
+
+        <!-- CNN family label -->
+        <mxCell id="s3_cnn_lbl" value="CNN (PANNs)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;fontStyle=2;" vertex="1" parent="s3_group">
+          <mxGeometry x="10" y="10" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_cnn6" value="Cnn6 (4.8M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="s3_group">
+          <mxGeometry x="10" y="35" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_cnn10" value="Cnn10 (5.2M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="s3_group">
+          <mxGeometry x="10" y="75" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_cnn14" value="Cnn14 (80.8M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="s3_group">
+          <mxGeometry x="10" y="115" width="170" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Transformer family label -->
+        <mxCell id="s3_tf_lbl" value="Transformer (MERT)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;fontStyle=2;" vertex="1" parent="s3_group">
+          <mxGeometry x="10" y="160" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_mert95" value="MERT-95M (95M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="s3_group">
+          <mxGeometry x="10" y="185" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_mert330" value="MERT-330M (330M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="s3_group">
+          <mxGeometry x="10" y="225" width="170" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- arrow 3→4 -->
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="s3_group" target="s4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ── STAGE 4: Mean-Pool ── -->
+        <mxCell id="s4" value="Mean-Pool&#xa;segment embeddings&#xa;→ track embedding" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="660" y="130" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- arrow 4→5 -->
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="s4" target="s5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ── STAGE 5: Cosine Similarity ── -->
+        <mxCell id="s5" value="Cosine Similarity&#xa;(query vs. catalog)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="130" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- arrow 5→6 -->
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="s5" target="s6" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ── STAGE 6: Proxy Tasks + Metrics ── -->
+        <mxCell id="s6" value="Proxy Tasks&#xa;① Composer (Sanity)&#xa;② Musical Character&#xa;&#xa;Metrics: NDCG@5, Hit@5&#xa;Recall@5, F1@5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="110" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- arrow 6→7 -->
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="s6" target="s7" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ── STAGE 7: Results ── -->
+        <mxCell id="s7" value="Results&#xa;Tables + Analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="130" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ── LATENCY NOTE (bottom) ── -->
+        <mxCell id="latency_note" value="Latency per track (CPU, offline ingestion):&#xa;Cnn6: 2,179ms  |  Cnn10: 3,109ms  |  Cnn14: 4,218ms  |  MERT-95M: 23,146ms  |  MERT-330M: 55,724ms" style="text;html=1;strokeColor=#b85450;fillColor=#f8cecc;align=center;verticalAlign=middle;fontSize=11;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="410" width="680" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── LEAVE-ONE-OUT NOTE (bottom) ── -->
+        <mxCell id="eval_note" value="Evaluation: leave-one-out per query · 203 queries · tie-aware ranking · within-family comparison primary" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=center;verticalAlign=middle;fontSize=11;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="260" width="410" height="40" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

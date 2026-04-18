@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="RecSys-Pipeline-v5" id="recsys-pipeline-v5">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ══════════════════════════════════════ -->
+        <!-- ROW 1: Audio Files → Segments → Embedding Model -->
+        <!-- ══════════════════════════════════════ -->
+
+        <!-- D1: Audio Files -->
+        <mxCell id="d1" value="&lt;b&gt;Audio Files&lt;/b&gt;&#xa;203 tracks (iPalpiti)&#xa;24.9 hrs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- D2: Segments -->
+        <mxCell id="d2" value="&lt;b&gt;Segments&lt;/b&gt;&#xa;30-sec chunks&#xa;per track" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="330" y="60" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- P1: Embedding Model box -->
+        <mxCell id="p1_box" value="&lt;b&gt;Embedding Model&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="590" y="30" width="230" height="240" as="geometry" />
+        </mxCell>
+        <!-- CNN label -->
+        <mxCell id="p1_cnn_lbl" value="CNN (PANNs)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontStyle=2;align=left;" vertex="1" parent="1">
+          <mxGeometry x="608" y="68" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_cnn6" value="Cnn6 — 4.8M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="605" y="90" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_cnn10" value="Cnn10 — 5.2M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="605" y="122" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_cnn14" value="Cnn14 — 80.8M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="605" y="154" width="200" height="26" as="geometry" />
+        </mxCell>
+        <!-- MERT label -->
+        <mxCell id="p1_tf_lbl" value="Transformer (MERT)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontStyle=2;align=left;" vertex="1" parent="1">
+          <mxGeometry x="608" y="186" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_mert95" value="MERT-95M — 95M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="605" y="208" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_mert330" value="MERT-330M — 330M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="605" y="240" width="200" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow D1 → D2: Segmentation -->
+        <mxCell id="e1" value="&lt;i&gt;Segmentation&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" source="d1" target="d2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow D2 → P1: into Embedding Model -->
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="d2" target="p1_box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════ -->
+        <!-- ROW 2: Embedding Model ↓ → Track Embeddings -->
+        <!-- ══════════════════════════════════════ -->
+
+        <!-- D3: Track Embeddings -->
+        <mxCell id="d3" value="&lt;b&gt;Track Embeddings&lt;/b&gt;&#xa;1 vector per track&#xa;(mean-pooled)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="590" y="370" width="230" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow P1 → D3: Mean-Pool -->
+        <mxCell id="e3" value="&lt;i&gt;Mean-Pool&lt;/i&gt;&#xa;&lt;i&gt;chunk vectors&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" source="p1_box" target="d3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════ -->
+        <!-- ROW 3: Track Embeddings → Cosine Sim → Ranked → Proxy → Results -->
+        <!-- ══════════════════════════════════════ -->
+
+        <!-- P2: Cosine Similarity -->
+        <mxCell id="p2_box" value="&lt;b&gt;Cosine Similarity&lt;/b&gt;&#xa;query vs. all catalog&#xa;leave-one-out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="530" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- D4: Ranked Candidates -->
+        <mxCell id="d4" value="&lt;b&gt;Ranked Candidates&lt;/b&gt;&#xa;top-K track list&#xa;per query" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="160" y="530" width="170" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- P3: Proxy Task Evaluation -->
+        <mxCell id="p3_box" value="&lt;b&gt;Proxy Task Evaluation&lt;/b&gt;&#xa;① Composer (Sanity)&#xa;② Musical Character&#xa;(Energetic·Calm·Tense·Lyrical)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="520" width="230" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- D5: Evaluation Results -->
+        <mxCell id="d5" value="&lt;b&gt;Evaluation Results&lt;/b&gt;&#xa;NDCG@5, Hit@5&#xa;Recall@5, F1@5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="590" y="700" width="230" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow D3 → P2: snake left then down -->
+        <mxCell id="e4" value="&lt;i&gt;Cosine Similarity&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="d3" target="p2_box" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="510" y="405" />
+              <mxPoint x="510" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow P2 → D4 -->
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="p2_box" target="d4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow D3 → P3: down -->
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="d3" target="p3_box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow P3 → D5 -->
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;" edge="1" source="p3_box" target="d5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════ -->
+        <!-- LATENCY callout -->
+        <!-- ══════════════════════════════════════ -->
+        <mxCell id="latency" value="&lt;b&gt;Extraction latency (CPU, offline):&lt;/b&gt;&#xa;Cnn6: 2,179ms · Cnn10: 3,109ms · Cnn14: 4,218ms&#xa;MERT-95M: 23,146ms · MERT-330M: 55,724ms" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="510" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="latency_link" style="dashed=1;rounded=0;html=1;endArrow=none;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="590" y="395" as="sourcePoint" />
+            <mxPoint x="550" y="395" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ══════════════════════════════════════ -->
+        <!-- LEGEND -->
+        <!-- ══════════════════════════════════════ -->
+        <mxCell id="leg_title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_data" value="Data / Artifact" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="725" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_proc" value="Key Process" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="175" y="725" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_eval" value="Evaluation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="725" width="120" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

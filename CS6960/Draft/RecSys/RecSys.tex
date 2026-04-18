@@ -1,6 +1,8 @@
 \documentclass[sigconf]{acmart}
 
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{graphicx}
 
 \AtBeginDocument{%
   \providecommand\BibTeX{{Bib\TeX}}}
@@ -94,6 +96,13 @@ where $g_{\text{character}}(x)$ is the set of character labels assigned to item 
 
 \subsection{Retrieval Pipeline}
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\columnwidth, height=0.85\textheight, keepaspectratio]{diagram/pipeline/RecSys-pipeline-v6.pdf}
+  \caption{Overview of the evaluation pipeline. Blue boxes denote data artifacts; orange boxes denote key processes (embedding model, cosine similarity); the pink box denotes the proxy task evaluation stage. The embedding model is the only variable across experiments; all other components are held constant.}
+  \label{fig:pipeline}
+\end{figure}
+
 The iPalpiti archive comprises 203 tracks and 24.9 hours of audio. All pipeline components except the embedding model are held constant across experiments. Ground truth is derived from editorial metadata for the composer proxy; character labels for the musical proxy are pseudo-labels generated via Music2Emo and fixed prior to evaluation.
 
 Each track is segmented into non-overlapping 30-second chunks; segment-level embeddings are extracted independently and mean-pooled into a single track-level representation. This accommodates variable-duration recordings and is consistent with standard catalog-ingestion pipelines for long-form audio. Cosine similarity over track-level embeddings is used for ranking. No personalization, collaborative signal, or learned re-ranking is applied.
@@ -111,6 +120,13 @@ Transformer-based models follow the MERT framework \cite{li2023mert}, pretrained
 \textbf{Composer labels.} Composer names are normalized to a canonical form using Unicode decomposition and a hand-curated alias table, ensuring consistent matching across variant spellings and abbreviations. The normalized field is stored as a stable evaluation key, separate from the raw metadata string.
 
 \textbf{Character labels.} Labels are derived using the arousal--valence (AV) framework \cite{eerola2011}. Each track is processed by Music2Emo \cite{music2emo2025}, a pretrained music emotion recognition model that outputs valence and arousal scores on a 1--9 scale. Scores are linearly normalized to $[0,1]$ via $\hat{x} = (x-1)/8$. Because AV predictions for classical music concentrate in a narrow mid-range region, fixed absolute thresholds are unreliable; per-dimension thresholds are set at the 33rd and 67th percentiles of the corpus distribution. This yields four binary tags: \textit{Energetic} (arousal $\geq$ 67th percentile), \textit{Calm} (arousal $\leq$ 33rd percentile), \textit{Tense} (valence $\leq$ 33rd percentile), and \textit{Lyrical} (valence and arousal both within the 40th--60th percentile band).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\columnwidth, keepaspectratio]{diagram/plots/va_scatter.pdf}
+  \caption{Valence--arousal scatter of the 203-track iPalpiti corpus. AV predictions concentrate in a narrow mid-range band (approximately $0.25$--$0.55$ on both axes), with a positive correlation between dimensions. Dashed lines mark the 33rd and 67th percentile thresholds used to assign the extreme character labels (\textit{Energetic}, \textit{Calm}, \textit{Tense}). The clustering motivates percentile-based thresholding: fixed absolute cut-points would yield highly imbalanced or empty label classes in this domain. An additional inner boundary at the 40th--60th percentiles (not shown) defines the neutral \textit{Lyrical} class.}
+  \label{fig:va_scatter}
+\end{figure}
 
 These pseudo-labels are fixed prior to evaluation and reused identically across all embedding models. Because the labeling pipeline is independent of the embedding models under study, it does not introduce model-dependent labeling bias; any effect on absolute metric values is shared equally across all experimental conditions.
 

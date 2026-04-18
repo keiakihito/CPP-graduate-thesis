@@ -4,23 +4,96 @@ theme: default
 paginate: true
 math: mathjax
 style: |
+  /* ── Cal Poly Pomona brand: white bg, dark green + gold accents ── */
+
   section {
-    font-size: 28px;
+    font-size: 26px;
+    background-color: #ffffff;
+    color: #1a1a1a;
+    font-family: Georgia, serif;
+    padding-top: 36px;
+    padding-left: 60px;
+    padding-right: 60px;
   }
-  h1 {
-    font-size: 40px;
-    color: #1a1a2e;
+
+  /* Gold + green top bar on every slide */
+  section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(to right, #1a4d2e 70%, #c9a84c 100%);
   }
-  h2 {
-    font-size: 32px;
-    color: #16213e;
-  }
-  .hook {
-    font-size: 48px;
+
+  /* Page number */
+  section::after {
+    color: #1a4d2e;
+    font-size: 15px;
     font-weight: bold;
-    color: #c0392b;
+  }
+
+  h1 {
+    font-size: 36px;
+    color: #1a4d2e;
+    border-bottom: 2px solid #c9a84c;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-size: 28px;
+    color: #1a4d2e;
+  }
+
+  strong {
+    color: #1a4d2e;
+  }
+
+  blockquote {
+    border-left: 4px solid #c9a84c;
+    background-color: #f5f0e8;
+    padding: 10px 16px;
+    color: #1a4d2e;
+    font-style: italic;
+    margin: 12px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 21px;
+  }
+
+  th {
+    background-color: #1a4d2e;
+    color: #ffffff;
+    padding: 6px 10px;
     text-align: center;
   }
+
+  td {
+    border: 1px solid #c9a84c;
+    padding: 5px 10px;
+    text-align: center;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #f5f0e8;
+  }
+
+  .hook {
+    font-size: 44px;
+    font-weight: bold;
+    color: #1a4d2e;
+    text-align: center;
+    border: 3px solid #c9a84c;
+    padding: 24px;
+    background-color: #f5f0e8;
+    border-radius: 8px;
+  }
+
   .label {
     font-size: 18px;
     color: #7f8c8d;
@@ -29,13 +102,15 @@ style: |
 ---
 
 <!-- Slide 1: Title -->
+![w:180](../diagram/Pictures/logo.png)
+
 # Does Model Capacity Justify the Cost?
 
 ## Evaluating Audio Embeddings for Cold-Start Candidate Generation
 
-**[Keita Katsumi]**
-**[CS 6960 Thesis Defence Presentation]**
-**[Date / Conference]**
+**Keita Katsumi**
+**CS 6960 — Thesis Defence Presentation**
+**[Date]**
 
 ---
 
@@ -43,19 +118,35 @@ style: |
 # Where This Research Comes From
 
 - Our team collaborates with **iPalpiti** — an international classical music archive
-- The team is building a **listening platform on AWS** for users to discover and stream recordings
-- One future goal: a **recommendation system** to help users find relevant music
-- But classical music is a cold-start domain — minimal user interaction data
+- Building a **listening platform on AWS** for users to discover and stream recordings
+- Classical music domain — minimal user interaction data
+
+<div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 12px;">
+<div style="flex-shrink: 0;">
+
+![w:100](../diagram/Pictures/ipalpiti.jpg)
+
+</div>
+<div>
+
+![h:430](../diagram/Pictures/Albums.png)
+
+</div>
+</div>
 
 ---
 
 <!-- Slide 3: Background Story — The Constraint -->
 # The Real-World Constraint
 
-- No user history → content-based retrieval is the only option
-- AWS infrastructure cost matters — embedding extraction runs at **catalog ingestion**
-- Bigger models = higher cost, paid **repeatedly** on every catalog update
-- Question: does the extra cost actually buy better recommendations?
+<div style="text-align: center;">
+
+![w:580](../diagram/Pictures/Playback.png)
+
+</div>
+
+> **Future goal:** add a recommendation panel here — *"You may also like..."*
+> But this requires a recommendation system. Where do we start?
 
 ---
 
@@ -67,8 +158,6 @@ style: |
 - Candidate generation must rely **entirely** on content
 
 > **Embedding quality = ranking quality. No fallback.**
-
-- [Insert figure: cold-start pipeline diagram]
 
 ---
 
@@ -174,7 +263,7 @@ style: |
 <!-- Slide 12: Method — Pipeline Overview -->
 # Evaluation Pipeline Overview
 
-[Insert figure: pipeline diagram — Audio → Segment (30s chunks) → Embedding Model → Mean-Pool → Track Embedding → Cosine Similarity → Ranked Candidates]
+![Pipeline diagram](../diagram/pipeline/Thesis-defence-pipeline.jpg)
 
 - No personalization, no collaborative signal, no re-ranking
 - Embedding model = the only variable across experiments
@@ -243,18 +332,30 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 17: Method — Label Construction (3.4 in paper) -->
 # How Character Labels Were Built
 
-- Music2Emo [Kang & Herremans, 2025] outputs arousal + valence scores
-- Mapped to 4 binary tags using the arousal-valence framework [Eerola & Vuoskoski, 2011]
-- Percentile thresholds (33rd / 67th) — not fixed absolute values *(speak: why)*
+<div style="display: flex; align-items: flex-start; gap: 32px;">
+<div style="flex: 1;">
+
+- **Music2Emo** outputs valence + arousal scores per track
+- Mapped to 4 binary tags via the AV framework [Eerola & Vuoskoski, 2011]
 
 | Label | Condition |
 |---|---|
 | Energetic | Arousal ≥ 67th pct |
 | Calm | Arousal ≤ 33rd pct |
 | Tense | Valence ≤ 33rd pct |
-| Lyrical | Valence + Arousal in 40–60th pct band |
+| Lyrical | VA in 40–60th pct band |
 
-- Labels fixed before evaluation → no model-dependent labeling bias
+- **Labels fixed before evaluation** → no model-dependent bias
+
+</div>
+<div style="flex: 1;">
+
+![w:420](../diagram/plots/va_scatter.png)
+
+</div>
+</div>
+
+> **Why percentiles?** Classical music clusters tightly in the mid-range VA space (see scatter). Fixed absolute thresholds would yield near-empty label classes — percentile thresholds ensure balanced coverage across all 203 tracks.
 
 ---
 
@@ -434,7 +535,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 <br/>
 
-> **Mid-sized models are the rational choice for cold-start candidate generation under resource constraints. Defaulting to larger models is not justified by evidence in this setting.**
+> In small, cold-start settings, increasing model capacity does not reliably improve ranking quality — but significantly increases cost.
+> **Model selection is a cost–quality trade-off, not a pure performance optimization problem.**
 
 ---
 
@@ -463,13 +565,6 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 <!-- Slide 32: Q&A / Thank You -->
 # Thank You
-
-**Core message:**
-
-> In small, cold-start settings, increasing model capacity does not reliably improve ranking quality — but significantly increases cost.
-> Model selection is a **cost–quality trade-off**, not a pure performance optimization problem.
-
-<br/>
 
 **[Contact / Repository info]**
 
