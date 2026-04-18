@@ -288,8 +288,10 @@ style: |
 
 ![Pipeline diagram](../diagram/pipeline/Thesis-defence-pipeline.jpg)
 
-- No personalization, no collaborative signal, no re-ranking
-- Embedding model = the only variable across experiments
+- **Dataset:** 203 tracks, 24.9 hours (iPalpiti classical music archive)
+- **Segmentation:** 30-second chunks → mean-pool → single track-level embedding
+- **Ranking:** cosine similarity — no personalization, no collaborative signal, no re-ranking
+- Only the embedding model changes across experiments
 
 ---
 
@@ -305,17 +307,6 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 - Relevance $r_q(x_i) \in \{0,1\}$ defined per proxy task:
   - **Sanity:** $r_q(x_i) = 1$ iff same composer
   - **Character:** $r_q(x_i) = 1$ iff $g_\text{char}(x_q) \cap g_\text{char}(x_i) \neq \emptyset$
-
----
-
-<!-- Slide 14: Method — Retrieval Pipeline (3.2 in paper) -->
-# Retrieval Pipeline
-
-- **Dataset:** 203 tracks, 24.9 hours (iPalpiti classical music archive)
-- **Segmentation:** 30-second chunks → mean-pool → single track-level embedding
-- **Ranking:** cosine similarity over track-level embeddings
-- No personalization, no collaborative signal, no learned re-ranking
-- All components held constant — only the embedding model changes
 
 ---
 
@@ -445,25 +436,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 </div>
 
 - CNN: NDCG@5 dips Small → Medium, recovers at Large (**non-monotonic**)
-- Transformer: Large **underperforms** Medium on all metrics
-
----
-
-<!-- Slide 20: Results — Composer Retrieval Deep Dive -->
-# Surprise: The Larger Transformer Is Worse
-
-- Transformer-Medium: NDCG@5 = **0.642**, Hit@5 = **0.709**
-- Transformer-Large: NDCG@5 = **0.588**, Hit@5 = **0.665**
-
-<br/>
-
-- More parameters → worse structured ranking
-- CNN-Large reaches 0.585 — comparable to Transformer-Large
-- At **17× fewer parameters**
-
-<br/>
-
-> *Within-family capacity scaling is non-monotonic.*
+- Transformer-Large **underperforms** Medium — more parameters → worse structured ranking
+- CNN-Large matches Transformer-Large at **17× fewer parameters**
 
 ---
 
@@ -498,27 +472,6 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 - → Recall@5 / F1@5 give a **false negative** picture here
 - → NDCG@5 and Hit@5 are the reliable signals in this regime
-
----
-
-<!-- Slide 23: Results — Extraction Cost -->
-# The Cost Side of the Trade-Off
-
-<div class="center-table">
-
-| Model | Params (M) | Emb Dim | Latency (ms/track) |
-|---|---|---|---|
-| CNN-Small | 4.8 | 512 | **2,179** |
-| CNN-Medium | 5.2 | 512 | 3,109 |
-| CNN-Large | 80.8 | 2,048 | 4,218 |
-| Transformer-Medium | 95 | 768 | 23,146 |
-| Transformer-Large | 330 | 1,024 | **55,724** |
-
-</div>
-
-- Transformer-Large = **~25× slower** than CNN-Small
-- **No ranking improvement** on either task
-- Cost paid at every catalog re-ingestion
 
 ---
 
@@ -564,7 +517,6 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 25: Discussion — Main Finding -->
 # Discussion: What This Means
 
-- Capacity scaling is **non-monotonic** in both families
 - Task structure matters more than model size for metric behavior
 - The largest model never achieves the best ranking quality
 
