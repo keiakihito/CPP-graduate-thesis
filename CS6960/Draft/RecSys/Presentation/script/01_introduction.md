@@ -33,23 +33,27 @@ So the question we set out to answer is: does that assumption actually hold here
 ## Slide 6 — Research Questions
 *(~1.5 min)*
 
-We formalized that question into two research questions.
+We formalized that question into three research questions.
 
-RQ1 asks whether increasing model capacity consistently improves ranking quality in this cold-start setting. The word "consistently" is doing a lot of work there — we're not asking if a bigger model ever does better, we're asking if it reliably does better across tasks and metric types.
+RQ1 asks how encoder capacity affects retrieval quality under cold-start conditions — specifically whether the effect is consistent across within-family parameter scaling, across categorical versus semantic retrieval tasks, and across CNN and Transformer architecture families. That last part matters because architecture and pretraining objectives co-vary, so we want to know if the pattern holds regardless.
 
-RQ2 asks under what conditions the computational cost of a higher-capacity model actually justifies deploying it. This is the operational framing — if you're building a real system, you need to know when spending ten times more on extraction is worth it.
+RQ2 asks how metric choice changes our conclusions. When the number of relevant items per query is large relative to the evaluation cutoff, position-insensitive metrics like Recall@K get structurally compressed — and that can hide genuine ranking differences. We want to understand when that's happening.
 
-Our hypothesis going in was that capacity scaling would be non-monotonic, and that the extraction overhead would be impossible to justify given the small dataset.
+RQ3 is the operational one: at what point does the marginal improvement in ranking quality drop below the marginal cost of extraction? This is where the cost-quality trade-off becomes a decision rule.
+
+Our hypothesis going in was that capacity scaling would be non-monotonic, and that performance differences would be too small to justify the extraction overhead.
 
 ---
 
-## Slide 7 — Three Contributions
+## Slide 7 — Four Contributions
 *(~1 min)*
 
-Before moving to related work, let me briefly flag the three things this paper contributes.
+Before moving to related work, let me briefly flag the four things this paper contributes.
 
-First, a systematic evaluation of pretrained audio embeddings as a cost-quality trade-off in cold-start candidate generation — something that, to our knowledge, hasn't been done in this exact framing.
+First, the cold-start scaling study itself — the first systematic evaluation of audio encoder capacity for candidate generation where no interaction signals are available to compensate for embedding quality. Prior scaling work focuses on heterogeneous benchmark performance; we isolate the regime where embedding quality alone determines ranking.
 
-Second, a concrete empirical finding: capacity scaling is non-monotonic and task-dependent. Structured retrieval and abstract retrieval behave quite differently.
+Second, the non-monotonic, task-dependent scaling finding. Across both families, the largest model never achieves the best ranking quality on either task — and the strength of capacity effects differs sharply between structured and abstract retrieval.
 
-And third, a metric mismatch warning that I think is practically important. Recall@K and F1@K can be structurally suppressed in settings where the relevant set per query is large — and ignoring that leads to misleading conclusions about model quality.
+Third, the metric mismatch characterization. When the relevant set is large relative to K, set-based metrics like Recall@K are bounded above by K divided by the number of relevant items — they compress genuine ranking differences. NDCG@K recovers those differences.
+
+And fourth, a concrete cost-quality trade-off result: extraction latency scales near-linearly with parameter count while ranking quality does not, and mid-capacity encoders Pareto-dominate larger variants under realistic latency budgets.

@@ -8,16 +8,16 @@
 
 ---
 
-## Slide 24 — Discussion: What This Means
+## Slide 24 — Discussion: RQ1 & Hypothesis
 *(~1.5 min)*
 
 So what do we take from these results?
 
-The first finding is that task structure matters more than model size. On the Composer task — a structured, categorical retrieval problem — there is variation across models and the Transformer-Medium performs best. On the Character task — an abstract, affective retrieval problem — all models converge to the same performance level. The embedding model's capacity simply doesn't change what it can capture about emotional character in a 203-track classical archive.
+On RQ1: capacity effects are non-monotonic and task-dependent. On the Composer task — a structured, categorical retrieval problem — there is variation across capacity tiers and the Transformer-Medium performs best. But on the Character task — an abstract, affective retrieval problem — all models converge to the same performance level, a spread of under 0.025 NDCG. The embedding model's capacity simply doesn't change what it can capture about emotional character in a 203-track classical archive.
 
-The second finding is that the largest model never achieves the best ranking quality on either task. Not once, in either evaluation. That's a strong result.
+On the hypothesis: the empirical results support it. The largest model in each family fails to achieve the best ranking quality on either proxy task. The 25-times latency increase from CNN-Small to Transformer-Large is not offset by any corresponding NDCG or Hit gain. The hypothesis holds across both structured and abstract tasks, though the mechanism differs — structured retrieval shows measurable but inconsistent capacity sensitivity, while abstract retrieval is essentially insensitive to model size at any tier.
 
-This aligns with what Tamm and Aljanaki found in 2024: MIR benchmark accuracy does not predict retrieval quality in RecSys settings. The iPalpiti archive is stylistically homogeneous — almost all classical chamber and orchestral music. We think this homogeneity compresses the embedding space, leaving very little room for additional capacity to provide a meaningful signal.
+This aligns with what Tamm and Aljanaki found in 2024: MIR benchmark accuracy does not predict retrieval quality in RecSys settings. The iPalpiti archive is stylistically homogeneous — almost all classical chamber and orchestral music. That homogeneity compresses the embedding space, leaving little room for additional capacity to provide a discriminative signal.
 
 ---
 

@@ -209,26 +209,32 @@ style: |
 <!-- Slide 7: Research Questions -->
 # Research Questions
 
-**RQ1:** Does increasing embedding-model capacity consistently improve candidate ranking quality in a cold-start classical music retrieval setting?
+**RQ1:** How does audio encoder capacity affect offline retrieval quality under strict cold-start conditions — across within-family scaling, categorical vs. semantic tasks, and CNN vs. Transformer families?
 
 <br/>
 
-**RQ2:** Under what conditions does the computational cost of higher-capacity models justify their deployment for content-based candidate generation?
+**RQ2:** How does metric choice — position-sensitive (NDCG@K) vs. position-insensitive (Recall@K, F1@K, Hit@K) — affect capacity-scaling conclusions when relevant items outnumber K?
 
 <br/>
 
-> *Hypothesis: Capacity scaling is non-monotonic and insufficient to justify extraction overhead.*
+**RQ3:** At what encoder capacity does marginal ranking improvement fall below marginal extraction cost?
+
+<br/>
+
+> *Hypothesis: Capacity scaling is non-monotonic and the extraction overhead is not justified.*
 
 ---
 
 <!-- Slide 8: Introduction — Contributions -->
-# Three Contributions
+# Four Contributions
 
-1. **Systematic evaluation** of audio embeddings as a cost–quality trade-off in cold-start candidate generation
+1. **Cold-start scaling study** — first systematic evaluation of audio encoder capacity for candidate generation where embedding quality alone determines ranking
 
-2. **Capacity scaling is non-monotonic and task-dependent** — structured vs. abstract retrieval behave differently
+2. **Non-monotonic, task-dependent scaling** — structured vs. abstract retrieval respond differently; largest model never wins
 
-3. **Metric mismatch warning** — Recall@K and F1@K can be structurally suppressed when relevant items outnumber K
+3. **Metric mismatch characterization** — Recall@K / F1@K bounded by K/|R| when |R| is large; NDCG@K recovers genuine differences
+
+4. **Cost–quality trade-off for deployment** — latency scales near-linearly with parameters; mid-capacity encoders Pareto-dominate larger variants
 
 ---
 
@@ -247,9 +253,9 @@ style: |
 <!-- Slide 9: Related Work — Content-Based RecSys -->
 # Related Work: Why Embeddings Matter Here
 
-- When interaction data is sparse → collaborative filtering breaks down [Schedl 2018]
-- Audio embeddings = primary fallback for cold-start candidate generation [Deldjoo 2024]
-- Recent work shows pretrained embeddings are effective **but understudied** within RecSys pipelines [Tamm 2024]
+- When interaction data is sparse → collaborative filtering breaks down [1]
+- Audio embeddings = primary fallback for cold-start candidate generation [2]
+- Recent work shows pretrained embeddings are effective **but understudied** within RecSys pipelines [3]
 
 <br/>
 
@@ -260,14 +266,15 @@ style: |
 <!-- Slide 10: Related Work — Architectures -->
 # Related Work: CNN vs. Transformer
 
-- **CNN family (PANNs):** strong audio pattern recognition, scales with depth [Kong 2020]
-- **Transformer family (AST, MERT):** self-attention on spectrograms, long-range dependencies [Gong 2021; Li 2023]
+- **CNN family (PANNs)** [4] — pretrained on AudioSet; Cnn6/10/14 scale via depth (6→14 layers); 4.8M–80.8M params = **17× spread** within one training regime
+- **Transformer family (MERT)** [5] — self-supervised on 160K hours of music; MERT-95M and MERT-330M = 3.5× increase; **no small checkpoint available**
+- **AST** [6] — attention directly on spectrogram patches, no CNN inductive bias; quadratic attention cost with patch count
 - Hybrid models exist but are outside scope
 
 <br/>
 
-- Prior work: benchmarks on large, heterogeneous datasets
-- **Gap:** small, single-domain archival settings are unexamined
+- Prior scaling studies [7]: classification accuracy on AudioSet / ESC-50 — **not retrieval in a constrained domain**
+- **Gap:** translating those conclusions to archival candidate generation is unreliable
 
 ---
 
@@ -343,7 +350,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 **Task 2 — Musical Character Proxy (Abstract)**
 - Relevant = share ≥1 affective label (Energetic, Calm, Tense, Lyrical)
-- Labels generated via Music2Emo [Kang & Herremans, 2025]
+- Labels generated via Music2Emo [11]
 - Broader relevance distribution — many items share at least one label
 - → Requires pseudo-label construction
 
@@ -355,7 +362,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <div style="font-size:22px;">
 
 - **Music2Emo** outputs valence + arousal scores per track
-- Mapped to 4 binary tags via the AV framework [Eerola & Vuoskoski, 2011]
+- Mapped to 4 binary tags via the AV framework [10]
 - **Labels fixed before evaluation** → no model-dependent bias
 
 </div>
@@ -470,8 +477,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 <br/>
 
-- → Recall@5 / F1@5 give a **false negative** picture here
-- → NDCG@5 and Hit@5 are the reliable signals in this regime
+- → Recall@5 / F1@5 give a **false negative** picture here [8]
+- → NDCG@5 and Hit@5 are the reliable signals in this regime [9]
 
 ---
 
@@ -515,15 +522,20 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 ---
 
 <!-- Slide 25: Discussion — Main Finding -->
-# Discussion: What This Means
+# Discussion: RQ1 & Hypothesis
 
-- Task structure matters more than model size for metric behavior
-- The largest model never achieves the best ranking quality
+**RQ1 — Capacity effects are non-monotonic and task-dependent**
+- Structured task (composer): measurable but inconsistent variation across tiers
+- Abstract task (character): negligible effect — all models within 0.025 NDCG
 
 <br/>
 
-- Consistent with Tamm 2024: MIR benchmark accuracy ≠ retrieval quality in RecSys
-- Stylistic homogeneity of the archive may compress embedding space → less room for capacity to help
+**Hypothesis supported:** largest model in each family fails to achieve the best ranking on either task; 25× latency penalty is not offset by ranking gain
+
+<br/>
+
+- Consistent with [3]: MIR benchmark accuracy ≠ retrieval quality in RecSys
+- Stylistic homogeneity compresses embedding space → less room for capacity to help
 
 ---
 
@@ -594,17 +606,17 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 <div style="font-size: 20px;">
 
-- Schedl et al. (2018). Current challenges and visions in music recommender systems. *IJMIR*.
-- Deldjoo et al. (2024). Content-driven music recommendation: Evolution, state of the art. *Computer Science Review*.
-- Tamm & Aljanaki (2024). Comparative analysis of pretrained audio representations in music recommender systems. *RecSys '24*.
-- Kong et al. (2020). PANNs: Large-scale pretrained audio neural networks. *IEEE/ACM TASLP*.
-- Li et al. (2023). MERT: Acoustic Music Understanding Model with large-scale self-supervised training. *arXiv*.
-- Gong et al. (2021). AST: Audio Spectrogram Transformer. *arXiv*.
-- Zaman et al. (2023). A survey of audio classification using deep learning. *IEEE Access*.
-- Canamares & Castells (2020). On target item sampling in offline recommender system evaluation. *RecSys '20*.
-- Urbano, Schedl & Serra (2013). Evaluation in music information retrieval. *JIIS*.
-- Eerola & Vuoskoski (2011). Discrete and dimensional models of emotion in music. *Psychology of Music*.
-- Kang & Herremans (2025). Towards unified music emotion recognition. *arXiv*.
+- [1] Schedl et al. (2018). Current challenges and visions in music recommender systems. *IJMIR*.
+- [2] Deldjoo et al. (2024). Content-driven music recommendation: Evolution, state of the art. *Computer Science Review*.
+- [3] Tamm & Aljanaki (2024). Comparative analysis of pretrained audio representations in music recommender systems. *RecSys '24*.
+- [4] Kong et al. (2020). PANNs: Large-scale pretrained audio neural networks. *IEEE/ACM TASLP*.
+- [5] Li et al. (2023). MERT: Acoustic Music Understanding Model with large-scale self-supervised training. *arXiv*.
+- [6] Gong et al. (2021). AST: Audio Spectrogram Transformer. *arXiv*.
+- [7] Zaman et al. (2023). A survey of audio classification using deep learning. *IEEE Access*.
+- [8] Canamares & Castells (2020). On target item sampling in offline recommender system evaluation. *RecSys '20*.
+- [9] Urbano, Schedl & Serra (2013). Evaluation in music information retrieval. *JIIS*.
+- [10] Eerola & Vuoskoski (2011). Discrete and dimensional models of emotion in music. *Psychology of Music*.
+- [11] Kang & Herremans (2025). Towards unified music emotion recognition. *arXiv*.
 
 </div>
 
