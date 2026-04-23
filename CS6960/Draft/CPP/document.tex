@@ -90,11 +90,6 @@ Possible Committee Member
 \maketitle
 \thispagestyle{plain}
 
-% GitHub link centered below title block
-\begin{center}
-  \small Code: \url{https://github.com/cpp-iPalpiti-pilot/iPalpiti-recsys-pipeline}
-\end{center}
-
 \vspace{1em}
 
 % -----------------------------------------------
@@ -103,7 +98,11 @@ Possible Committee Member
 \doublespacing
 \begin{abstract}
 \setlength{\parindent}{1em}
-In strict cold-start recommendation settings, candidate generation relies exclusively on content-based representations. This study investigates the return on investment (ROI) of embedding-model capacity scaling for candidate ranking quality, using a controlled classical music archive. We evaluate CNN- and Transformer-based audio embeddings across capacity tiers on both structured (composer-based) and abstract (musical-character) retrieval tasks. Empirical results show that increasing model capacity does not consistently improve candidate ranking. Scaling behavior is non-monotonic and task-dependent: structured retrieval is sensitive to capacity differences, whereas abstract semantic retrieval shows minimal variation across model sizes. We further identify a metric mismatch in offline evaluation: when the number of relevant items per query is large relative to the evaluation cutoff, set-based metrics (Recall@K, F1@K) can be structurally suppressed, while rank-aware metrics (NDCG@K, Hit@K) provide more stable signals. Finally, increasing model capacity introduces substantial embedding extraction latency overhead without consistent ranking gains. For candidate generation in data-constrained settings, lightweight or mid-sized models provide a more favorable cost--quality trade-off.
+In strict cold-start recommendation, candidate retrieval depends entirely on content-based embeddings, making the choice of audio encoder the dominant driver of downstream ranking quality. A common assumption is that scaling encoder capacity yields proportional gains in retrieval quality, justifying the additional compute cost. This thesis tests that assumption empirically in a classical music retrieval setting, using the iPalpiti archive (203 recordings, 24 composers) as a controlled testbed. We benchmark PANNs (Cnn6, Cnn10, Cnn14) and MERT (MERT-95M, MERT-330M) encoders across five capacity tiers spanning 4.8M to 330M parameters, evaluated on two retrieval tasks: a metadata-driven task using composer labels, and a semantic task using pseudo-label musical character similarity.
+
+Three findings emerge. First, capacity scaling does not produce consistent retrieval gains: behavior is non-monotonic and task-dependent. The metadata-driven task is moderately sensitive to capacity ($+$17\% NDCG@5 from smallest to best-performing tier), whereas the semantic task is effectively flat ($\Delta <$ 0.025 NDCG@5 across a 70$\times$ parameter range). Second, offline metric choice materially affects these conclusions. When the number of relevant items per query is large relative to the evaluation cutoff $K$, position-insensitive metrics (Recall@$K$, F1@$K$) are bounded above by $K/|R|$ and compress genuine ranking differences; position-sensitive metrics (NDCG@$K$, MAP@$K$) preserve them. Hit@$K$, by contrast, remains a reliable rank-aware signal in this regime because it asks only whether any relevant item appears in the top-$K$, independent of the size of the relevant set. Third, extraction latency scales near-linearly with parameter count (2{,}179\,ms for 4.8M parameters vs.\ 55{,}724\,ms for 330M parameters), so the capacity premium is paid in full regardless of whether retrieval quality improves.
+
+Taken together, these results argue that for candidate retrieval under realistic cold-start latency budgets, mid-capacity encoders (4.8M--80.8M parameters) Pareto-dominate larger variants in this domain. The broader contribution is a cautionary empirical account: the intuition that larger audio encoders produce better retrieval embeddings does not hold uniformly, and standard offline evaluation practices can obscure this when relevance sets are dense.
 \end{abstract}
 
 \newpage
@@ -117,32 +116,65 @@ In strict cold-start recommendation settings, candidate generation relies exclus
 
 In cold-start recommendation settings where user interaction data are unavailable, content-based audio embeddings serve as the primary mechanism for candidate generation. Classical music archives exemplify this constraint: they contain high-quality, stylistically coherent recordings but limited usage data, and retrieval quality depends directly on the structure of the embedding space. In such settings, system designers face a fundamental trade-off: larger pretrained audio models may produce richer representations, but they impose substantially higher embedding extraction cost during catalog ingestion---paid repeatedly on updates---and any gain in candidate ranking quality must justify that overhead. Recent advances in pretrained audio models have expanded the range of available architectures, from lightweight convolutional networks to large Transformer-based models with hundreds of millions of parameters. On large-scale, heterogeneous benchmarks, increased model capacity has been reported to improve performance in many settings. Whether this trend transfers to small, single-domain archival settings---where catalog size is limited, items are stylistically similar, and there are no interaction signals for re-ranking---remains underexplored. The practical implication is direct: deploying a larger model incurs a concrete, quantifiable overhead; if ranking quality does not improve proportionally, that overhead is not justified. This paper evaluates the effect of embedding-model capacity on candidate ranking quality in a cold-start content-based retrieval setting, using the iPalpiti classical music archive (203 tracks). We evaluate CNN-based (PANNs: Cnn6, Cnn10, Cnn14) and Transformer-based (MERT-95M, MERT-330M) pretrained audio models across discrete capacity tiers, measuring ranking quality and embedding extraction latency under controlled conditions. Model selection is treated as a cost--quality trade-off: the central question is whether capacity gains justify extraction overhead, not whether any individual model achieves peak performance. Two proxy retrieval tasks operationalize evaluation: a structured task based on composer identity and an abstract semantic task based on musical character (e.g., \emph{energetic} vs.\ \emph{calm}). These tasks probe qualitatively different aspects of the embedding space---structured categorical matching versus abstract affective similarity---and allow us to examine whether any capacity effect is uniform or task-dependent. Ranking quality is assessed using ranking-based metrics (NDCG@K, Hit@K) and set-based metrics (Recall@K, F1@K), with attention to how metric behavior shifts when relevant items are broadly distributed relative to the evaluation cutoff.
 
-We address the following research questions:
-
+We investigate three research questions in the context of strict cold-start content-based retrieval, using a controlled classical music archive as a testbed.
 \begin{itemize}
-  \item \textbf{RQ1:} Does increasing embedding-model capacity consistently improve candidate ranking quality in a cold-start classical music retrieval setting?
-  \item \textbf{RQ2:} Under what conditions does the computational cost of higher-capacity models justify their deployment for content-based candidate generation?
+    \item RQ1. How does audio encoder capacity affect offline retrieval quality under strict cold-start conditions, and is this effect consistent across (a) within-family parameter scaling, (b) categorical and semantic retrieval tasks, and (c) CNN and Transformer architecture families?
+    \item RQ2. How does the choice of offline evaluation metric — specifically, position-sensitive metrics (NDCG@K) versus position-insensitive metrics (Recall@K, F1@K, Hit@K) — affect conclusions drawn about capacity scaling when the number of relevant items per query is large relative to the evaluation cutoff?
+    \item RQ3. When extraction latency is included in the evaluation, at what encoder capacity does the marginal improvement in retrieval quality fall below the marginal increase in computational cost?
 \end{itemize}
 
-\noindent\textbf{Hypothesis:} In a small-scale, single-domain classical music archive, increasing embedding-model capacity does not consistently improve candidate ranking quality, and the performance differences that do emerge are insufficient to justify the substantially higher extraction cost.
 
-\smallskip
-This work makes three main contributions. First, we provide a systematic evaluation of pretrained audio representations across capacity tiers framed as a cost--quality trade-off in a realistic cold-start archival candidate generation setting. Second, we demonstrate that capacity scaling is non-monotonic and task-dependent: structured retrieval based on composer identity exhibits greater sensitivity to capacity differences, while abstract semantic retrieval shows minimal variation across model sizes, and in neither case do we observe consistent ranking gains from the largest model. Third, we show that set-based metrics such as Recall@K and F1@K can be systematically suppressed when relevant items are broadly distributed, and that ranking-based metrics provide more reliable signals for evaluating candidate generation quality in this regime.
+To address these questions, we investigate the hypothesis that in a small-scale, single-domain classical music archive, increasing embedding-model capacity does not consistently improve candidate ranking quality, and that performance differences are insufficient to justify the substantially higher extraction cost.
+
+This paper makes four contributions.
+
+\paragraph{A cold-start scaling study.}
+We present the first systematic evaluation of pretrained audio
+encoder capacity for candidate generation under strict cold-start
+conditions, where no interaction signals are available to compensate
+for embedding quality through reranking. Prior audio scaling analyses
+focus on heterogeneous benchmark performance; we isolate the regime
+in which embedding quality alone determines retrieval quality.
+
+\paragraph{Non-monotonic, task-dependent scaling.}
+Across CNN and Transformer families spanning 4.8M to 330M parameters,
+we find that retrieval quality is not monotonic in encoder capacity.
+The largest models in our evaluation do not produce the best
+retrieval quality on either task we study, and the strength of
+capacity effects differs sharply between categorical retrieval
+(composer identity) and semantic retrieval (musical character).
+
+\paragraph{A characterization of metric mismatch in dense-relevance retrieval.}
+We show that when the number of relevant items per query $|R|$ is
+large relative to the evaluation cutoff $K$, position-insensitive
+metrics (Recall@$K$, F1@$K$, Hit@$K$) are bounded above by $K/|R|$
+and compress genuine ranking differences between encoders.
+Position-sensitive metrics (NDCG@$K$) recover these differences.
+This has direct implications for how capacity-scaling conclusions
+should be drawn from offline audio-retrieval benchmarks.
+
+\paragraph{A cost--quality trade-off for deployment.}
+Extraction latency scales near-linearly with encoder parameter count
+in our measurements, while retrieval quality does not. We
+characterize the capacity range at which marginal quality gains fall
+below marginal latency cost, and find that mid-capacity encoders
+Pareto-dominate larger variants under latency budgets representative
+of candidate generation.
 
 % -----------------------------------------------
 % Section 2: Related Work
 % -----------------------------------------------
 \section{Related Work}\label{sec:related-work}
 
-Content-based audio embeddings address a fundamental gap in music recommendation: when user interaction data are sparse, collaborative filtering signals become unreliable, and retrieval quality depends directly on the embedding model \cite{schedl2018}. As noted by Deldjoo et al.\ \cite{deldjoo2024}, audio-derived representations serve as a crucial fallback mechanism for candidate generation in strict cold-start scenarios where collaborative signals are absent. Recent work has demonstrated the effectiveness of pretrained audio representations for music retrieval while also identifying a gap in their systematic evaluation within recommender system pipelines \cite{tamm2024}. In retrieval-based recommendation, embedding models function as candidate generation components: they map items to a representation space and rank candidates by similarity before any user-aware re-ranking is applied. The intrinsic quality of these embeddings is therefore a critical system design factor, yet the impact of embedding model capacity on candidate generation quality under data-constrained conditions remains poorly understood.
+Content-based audio embeddings address a fundamental gap in music recommendation: when user interaction data are sparse, collaborative filtering signals become unreliable, and retrieval quality depends directly on the embedding model \cite{schedl2018}. As noted by Deldjoo et al.\ \cite{deldjoo2024}, audio-derived representations serve as a crucial fallback mechanism for candidate generation in strict cold-start scenarios where collaborative signals are absent. Recent work has demonstrated the effectiveness of pretrained audio representations for music retrieval while also identifying a gap in their systematic evaluation within recommender system pipelines \cite{tamm2024}. Specifically, Tamm and Aljanaki \cite{tamm2024} found that pretrained representations vary substantially in how well they structure embedding neighborhoods for retrieval, and that this variation has not been benchmarked across model capacity tiers. In retrieval-based recommendation, embedding models function as candidate generation components: they map items to a representation space and rank candidates by similarity before any user-aware re-ranking is applied. The intrinsic quality of these embeddings is therefore a critical system design factor, yet the impact of embedding model capacity on candidate generation quality under data-constrained conditions remains poorly understood.
 
-The two architectural families evaluated in this study---CNN-based and Transformer-based models---represent distinct approaches to audio representation with different capacity scaling properties \cite{zaman2023}. CNN-based architectures have demonstrated strong performance across audio pattern recognition tasks and scale with increased model depth \cite{kong2020panns}. Transformer-based models such as AST apply self-attention directly to spectrograms and are designed to model long-range dependencies \cite{gong2021ast, zaman2023}. Hybrid approaches, including CNN--RNN models for temporal modeling \cite{lin2024} and CNN--Transformer models for combining local and global representations \cite{pourmoazemi2024}, have also been explored but are treated here as background. This study focuses on pure CNN-based and pure Transformer-based families as representative architectural design choices.
+The two architectural families evaluated in this study---CNN-based and Transformer-based models---represent distinct approaches to audio representation with different capacity scaling properties \cite{zaman2023}. CNN-based architectures have demonstrated strong performance across audio pattern recognition tasks and scale with increased model depth \cite{kong2020panns}. The PANNs framework \cite{kong2020panns}, pretrained on AudioSet, provides three capacity tiers via depth scaling---Cnn6 (6 layers, 4.8\,M parameters), Cnn10 (10 layers, 5.2\,M), and Cnn14 (14 layers, 80.8\,M)---a 17$\times$ parameter spread within a shared training regime, making within-family capacity comparisons controlled. Transformer-based models such as AST \cite{gong2021ast} apply self-attention directly to spectrogram patches without convolutional inductive bias, scaling quadratically in attention cost with patch count, and are designed to model long-range dependencies \cite{zaman2023}. MERT \cite{li2023mert}, trained via self-supervised learning on 160,000 hours of music, provides two capacity tiers---MERT-95M and MERT-330M, a 3.5$\times$ parameter increase---but no small-capacity checkpoint is publicly available, which limits the Transformer family to a narrower capacity range than the CNN family. Hybrid approaches, including CNN--RNN models for temporal modeling \cite{lin2024} and CNN--Transformer models for combining local and global representations \cite{pourmoazemi2024}, have also been explored but are treated here as background. This study focuses on pure CNN-based and pure Transformer-based families as representative architectural design choices with distinct inductive biases and pretraining regimes.
 
-Prior work establishes the importance of content-based representations for cold-start recommendation \cite{schedl2018, deldjoo2024} and identifies a gap in the systematic evaluation of pretrained audio embeddings within recommendation pipelines \cite{tamm2024}. However, the specific cost--quality trade-off of scaling embedding-model capacity in small, data-constrained archives---where higher-capacity models incur substantially greater extraction overhead---remains unexamined by existing evaluations.
+Prior work establishes the importance of content-based representations for cold-start recommendation \cite{schedl2018, deldjoo2024} and identifies a gap in the systematic evaluation of pretrained audio embeddings within recommendation pipelines \cite{tamm2024}. However, existing audio scaling studies \cite{zaman2023} report classification accuracy on heterogeneous benchmarks such as AudioSet and ESC-50, not retrieval quality within a single constrained domain; translating those conclusions to archival candidate generation is therefore unreliable. The specific cost--quality trade-off of scaling embedding-model capacity in small, data-constrained archives---where higher-capacity models incur substantially greater extraction overhead---remains unexamined by existing evaluations.
 
 Proper offline evaluation is a recognized challenge in music recommender systems \cite{schedl2018}. Classification benchmarks are commonly used to assess audio embeddings \cite{gong2021ast, zaman2023}, but strong classification accuracy does not necessarily imply well-structured neighborhoods for similarity-based retrieval \cite{tamm2024}.
 
-Furthermore, offline evaluation can be sensitive to the relevance distribution. When the number of relevant items is large relative to the evaluation cutoff $K$, standard set-based metrics such as Recall@K can exhibit structural suppression, underestimating true retrieval effectiveness even when ranking quality is reasonable \cite{canamares2020}. Rank-aware metrics such as NDCG are more appropriate for retrieval-oriented settings because they directly evaluate the ordering of relevant items, unlike binary set-based measures which ignore position \cite{urbano2013}.
+Furthermore, offline evaluation can be sensitive to the relevance distribution. When the number of relevant items is large relative to the evaluation cutoff $K$, standard set-based metrics such as Recall@K can exhibit structural suppression, underestimating true retrieval effectiveness even when ranking quality is reasonable \cite{canamares2020}. Rank-aware metrics such as NDCG are more appropriate for retrieval-oriented settings because they directly evaluate the ordering of relevant items, unlike binary set-based measures which ignore position \cite{urbano2013}. Urbano et al.\ \cite{urbano2013} show that the choice between set-based and rank-aware metrics can reverse system orderings in music retrieval; this effect is most pronounced when relevance is defined by shared categorical attributes---such as composer, genre, or mood---where many items qualify as relevant, making the ratio $|R|/K$ large.
 
 Broader recommender-system work addresses personalization through user modeling, sequential interaction modeling, and contextual signals \cite{lin2025, abbattista2024, schedl2021}, but those concerns are outside the scope of this study. This work isolates the candidate generation stage, evaluating embedding quality independently of downstream ranking and user modeling components.
 
@@ -178,7 +210,7 @@ where $g_{\text{character}}(x)$ is the set of character labels assigned to item 
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.55\textwidth, keepaspectratio]{../RecSys/diagram/pipeline/RecSys-pipeline-v6.pdf}
+  \includegraphics[width=0.55\textwidth, keepaspectratio]{diagram/pipeline/RecSys-pipeline-v6.pdf}
   \caption{Overview of the evaluation pipeline. Blue boxes denote data artifacts; orange boxes denote key processes (embedding model, cosine similarity); the pink box denotes the proxy task evaluation stage. The embedding model is the only variable across experiments; all other components are held constant.}
   \label{fig:pipeline}
 \end{figure}
@@ -221,10 +253,17 @@ Parameter counts are not aligned across families; cross-family comparisons are t
   \item \textit{Energetic}: arousal $\geq$ 67th percentile
   \item \textit{Calm}: arousal $\leq$ 33rd percentile
   \item \textit{Tense}: valence $\leq$ 33rd percentile
-  \item \textit{Lyrical}: valence and arousal both within the 40th--60th percentile band
+  \item \textit{Lyrical}: to capture the dense, emotionally restrained center of the classical music distribution, an inner bounding box (40th--60th percentiles on both axes) defines the neutral \textit{Lyrical} class, ensuring the most common VA profile in the dataset does not go unlabeled
 \end{itemize}
 
 These pseudo-labels are fixed prior to evaluation and reused identically across all embedding models. Because the labeling pipeline is independent of the embedding models under study, it does not introduce model-dependent labeling bias; any effect on absolute metric values is shared equally across all experimental conditions.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth, keepaspectratio]{diagram/plots/va_scatter.pdf}
+  \caption{Valence--arousal scatter of the 203-track iPalpiti corpus. AV predictions concentrate in a narrow mid-range band (approximately $0.25$--$0.55$ on both axes), with a positive correlation between dimensions. Dashed lines mark the 33rd and 67th percentile thresholds used to assign the extreme character labels (\textit{Energetic}, \textit{Calm}, \textit{Tense}). The clustering motivates percentile-based thresholding: fixed absolute cut-points would yield highly imbalanced or empty label classes in this domain. An additional inner boundary at the 40th--60th percentiles (not shown) defines the neutral \textit{Lyrical} class.}
+  \label{fig:va_scatter}
+\end{figure}
 
 \subsection{Evaluation Protocol}
 
@@ -314,6 +353,13 @@ Transformer-Large  & 330  & 1024 & 55724.24  \\
 
 Embedding extraction latency increases substantially and disproportionately with model capacity across both families. Within the CNN family, latency rises from 2{,}179\,ms (Cnn6, 4.8\,M parameters) to 4{,}218\,ms (Cnn14, 80.8\,M)---a ${\sim}2{\times}$ latency increase for a $17{\times}$ growth in parameter count. The disproportion is more extreme for Transformers: latency grows from 23{,}146\,ms (MERT-95M) to 55{,}724\,ms (MERT-330M), a $2.4{\times}$ increase for a $3.5{\times}$ parameter increase. Transformer-Large is ${\sim}13{\times}$ slower than CNN-Large with no corresponding ranking advantage on either task. These costs apply to offline catalog ingestion; online query time is determined by similarity search over precomputed embeddings and is independent of model size. However, ingestion cost is operationally relevant for archival systems that re-index on catalog updates or lack GPU infrastructure.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, keepaspectratio]{diagram/plots/cost_quality_scatter.pdf}
+  \caption{Cost--quality trade-off across all five embedding models on both proxy tasks. The $x$-axis shows CPU extraction latency (ms/track, log scale); the $y$-axis shows NDCG@5. Circle markers denote CNN-family models (PANNs); diamond markers denote Transformer-family models (MERT). The dashed line connects models in order of increasing capacity. On both tasks, NDCG@5 remains flat or declines as latency grows by up to ${\sim}25{\times}$, providing a unified visual summary of the central finding: capacity scaling does not produce consistent ranking gains relative to its extraction cost.}
+  \label{fig:cost_quality}
+\end{figure}
+
 \subsection{Summary of Empirical Findings}
 
 The results yield three implications for candidate generation in data-constrained settings. First, capacity scaling is non-monotonic within both architectural families: larger models do not consistently outperform smaller ones, and in the Transformer family, the larger model underperforms the smaller on structured retrieval. Second, the effect of capacity is task-dependent: structured composer retrieval shows measurable variation across capacity tiers, whereas abstract character retrieval is almost entirely insensitive to model size. Third, the cost--quality ratio degrades sharply at high capacity: the largest Transformer imposes a ${\sim}25{\times}$ latency penalty relative to CNN-Small while failing to improve ranking quality on either task. For content-based candidate generation under these conditions, mid-sized models achieve comparable ranking quality at substantially lower ingestion cost.
@@ -323,29 +369,19 @@ The results yield three implications for candidate generation in data-constraine
 % -----------------------------------------------
 \section{Discussion}
 
-\subsection{RQ1: Capacity Effects in Small-Scale Retrieval}
+\subsection{Capacity Scaling Does Not Justify Its Cost in This Setting}
 
 The results indicate that increasing embedding-model capacity does not produce consistent improvements in candidate ranking quality. The effect is task-dependent: on structured composer retrieval, capacity differences produce measurable but non-monotonic variation in NDCG@5 and Hit@5; on abstract character retrieval, capacity has negligible effect across all metrics. This is consistent with prior findings that strong MIR benchmark performance does not necessarily transfer to improved retrieval quality in recommendation pipelines \cite{tamm2024}. The stylistic homogeneity of a single-domain classical archive may further compress the embedding space, reducing the discriminative advantage that additional capacity can provide.
 
-Set-based metrics are further constrained by the relevance distribution. When the number of relevant items is large relative to the evaluation cutoff $K$, standard set-based metrics such as Recall@K can exhibit structural suppression, underestimating true retrieval effectiveness even when ranking quality is reasonable \cite{canamares2020}. Rank-aware metrics such as NDCG are more appropriate for retrieval-oriented settings because they directly evaluate the ordering of relevant items, unlike binary set-based measures which ignore position \cite{urbano2013}. This metric mismatch is observable in the character retrieval results: Hit@5 remains high ($\geq$0.749) across all models while Recall@5 is uniformly low ($\leq$0.039), reflecting structural suppression rather than poor retrieval.
-
-\subsection{RQ2: Conditions for Capacity Benefits}
-
 The cost side of this trade-off is empirically clear: latency increases from 2{,}179\,ms per track (CNN-Small) to 55{,}724\,ms (Transformer-Large)---a ${\sim}25{\times}$ increase---while consistent ranking gains are not observed in this setting. NDCG@5 on the structured task moves from 0.548 to 0.588 for the best CNN and peaks at 0.642 for Transformer-Medium before declining. The largest model in each family does not achieve the best ranking quality on either task. The return on investment from capacity scaling, measured as ranking gain per unit of ingestion cost, does not justify the overhead in this setting.
 
-Mid-sized models offer the most favorable cost--quality profile for catalog ingestion under these conditions. CNN-Small and CNN-Medium achieve NDCG@5 within 0.04 of Transformer-Medium on the structured task at ${\sim}10{\times}$ lower latency. For systems that must re-index periodically or operate without GPU infrastructure, this difference is operationally significant. Transformer-Large, by contrast, incurs the highest ingestion cost while delivering worse structured-task ranking than Transformer-Medium and no meaningful improvement on character retrieval.
-
-\subsection{Hypothesis Evaluation}
-
-The empirical results support the stated hypothesis. Increasing embedding-model capacity does not consistently improve candidate ranking quality: scaling is non-monotonic within both architectural families, and the largest model in each family fails to achieve the best ranking quality on either proxy task. The cost penalty for high-capacity models is substantial---a ${\sim}25{\times}$ latency increase from CNN-Small to Transformer-Large---without a corresponding improvement in NDCG@5 or Hit@5. The hypothesis holds across both structured and abstract retrieval tasks, though the mechanism differs: structured retrieval shows measurable but inconsistent capacity sensitivity, while abstract retrieval is largely insensitive to model size regardless of capacity tier.
-
-\subsection{Implications for Backend Design in Classical Music Archives}
+\subsection{System-Level Implications for Candidate Generation}
 
 Isolating the candidate generation stage makes model selection a direct system design decision. The embedding model is the only ranking mechanism; its cost is paid at catalog ingestion with no collaborative signal to compensate, and no downstream re-ranking can recover from poor candidate quality. In this regime, the choice of embedding model has concrete operational consequences.
 
-The latency results reflect offline catalog ingestion cost, not online retrieval cost. Embeddings are computed once and stored in an index during ingestion; online retrieval is performed via cosine similarity search and is independent of the embedding model. Because the ingestion cost is paid upfront, the absolute values are less critical than they would be in a streaming setting---but for archival systems that re-index on catalog updates or lack GPU infrastructure, the ${\sim}25{\times}$ overhead difference between CNN-Small and Transformer-Large is operationally significant.
+The results suggest that mid-sized models offer the most favorable cost--quality profile for catalog ingestion under these conditions. CNN-Small and CNN-Medium achieve NDCG@5 within 0.04 of Transformer-Medium on the structured task at ${\sim}10{\times}$ lower latency. For systems that must re-index periodically or operate without GPU infrastructure, this difference is operationally significant. Transformer-Large, by contrast, incurs the highest ingestion cost while delivering worse structured-task ranking than Transformer-Medium and no meaningful improvement on character retrieval.
 
-These findings also indicate that the relevance structure of the retrieval task can have a stronger effect than model size on metric behavior. When relevant items are broadly distributed---as in the character proxy---Recall@5 and F1@5 remain low regardless of model, while NDCG@5 and Hit@5 remain stable. Practitioners designing offline evaluation protocols for cold-start candidate generation may benefit from aligning metric choice with the expected relevance distribution of their catalog.
+These findings also indicate that the relevance structure of the retrieval task can have a stronger effect than model size on metric behavior in this setting. When relevant items are broadly distributed---as in the character proxy---Recall@5 and F1@5 remain low regardless of model, while NDCG@5 and Hit@5 remain stable. Practitioners designing offline evaluation protocols for cold-start candidate generation may benefit from aligning metric choice with the expected relevance distribution of their catalog.
 
 \subsection{Limitations}
 
@@ -364,7 +400,7 @@ We evaluated the effect of embedding-model capacity on candidate ranking quality
 
 The cost side of this trade-off is empirically clear. Embedding extraction latency grows from 2{,}179\,ms per track (CNN-Small) to 55{,}724\,ms (Transformer-Large)---a ${\sim}25{\times}$ increase---without a corresponding improvement in NDCG@5 or Hit@5. When relevant items are broadly distributed relative to the evaluation cutoff, set-based metrics such as Recall@5 and F1@5 can be suppressed regardless of ranking quality; ranking-based metrics appear to provide more reliable signals in this setting.
 
-For practitioners building content-based candidate generation pipelines under cold-start and resource-constrained conditions, these results indicate that mid-sized models offer the most favorable cost--quality profile. Defaulting to larger models is not justified by the evidence in this setting: the ingestion overhead is substantial, while ranking gains remain inconsistent. Code and evaluation scripts will be made publicly available upon acceptance.
+For practitioners building content-based candidate generation pipelines under cold-start and resource-constrained conditions, these results indicate that mid-sized models offer the most favorable cost--quality profile. Defaulting to larger models is not justified by the evidence in this setting: the ingestion overhead is substantial, while ranking gains remain inconsistent. Code and evaluation scripts are publicly available at: \url{https://github.com/cpp-iPalpiti-pilot/iPalpiti-recsys-pipeline}.
 
 % -----------------------------------------------
 % References
