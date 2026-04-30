@@ -9,15 +9,28 @@
 ---
 
 ## Slide 12 — Evaluation Pipeline Overview
-*(~1.5 min)*
+*(~1 min)*
 
 The pipeline is intentionally minimal. You can see the diagram here — there is no personalization layer, no collaborative filtering signal, no learned re-ranking stage. The only variable across all experiments is the embedding model.
 
-The dataset is the full iPalpiti catalog: 203 tracks, 24.9 hours of classical music. Each track is segmented into 30-second chunks, each chunk is embedded, and the chunks are mean-pooled into a single track-level vector. That vector is everything the ranker sees.
+The dataset is the full iPalpiti catalog: 203 tracks, 24.9 hours of classical music. Ranking is done by cosine similarity. Query track goes in, the system returns the top-K most similar tracks from the remaining 202.
 
-Ranking is done by cosine similarity. Query track goes in, the system returns the top-K most similar tracks from the remaining 202. That's the entire retrieval pipeline.
+The design is deliberate — we want to isolate the embedding model as the single variable. Any difference in ranking quality is attributable to the embedding, nothing else.
 
-The design is deliberate — we want to isolate the embedding model as the single variable. Any difference in ranking quality across models is attributable to the embedding, nothing else.
+---
+
+## Slide 12b — Audio Preprocessing: Track-Level Embedding
+*(~1 min)*
+
+Before we can rank anything, we need to turn each full recording into a single fixed-size vector. That requires two steps.
+
+First, segmentation. Audio models expect fixed-length input — you cannot feed a 45-minute symphony directly. We split each track into non-overlapping 30-second windows. Thirty seconds is a standard window length in Music Information Retrieval research, long enough to capture musical character, short enough to stay within every model's expected input range.
+
+Each 30-second segment is then passed through the embedding model independently, producing one vector per segment.
+
+Second, mean-pooling. We average all the segment vectors to get a single track-level embedding. This aggregation is identical for all five models — the same code path, the same formula — so the comparison stays fair.
+
+The trade-off is that temporal structure within a recording is not preserved. Whether a piece starts quietly and builds to a climax, or the reverse, looks the same after pooling. That's a known limitation, and I'll come back to it in the Limitations section.
 
 ---
 
@@ -40,6 +53,28 @@ On the CNN side: Cnn6 at 4.8 million parameters, Cnn10 at 5.2 million, and Cnn14
 The primary comparison is within-family — CNN-Small versus CNN-Medium versus CNN-Large, and Transformer-Medium versus Transformer-Large. This lets us ask directly: does more capacity within the same architecture improve ranking?
 
 Cross-family comparison is descriptive only. CNN and Transformer models differ in architecture and pretraining objective, so a fair head-to-head isn't the point.
+
+---
+
+## Slide 14a — CNN Family: PANNs Architecture
+*(~1 min)*
+
+Let me briefly walk through how each family works, because the architecture difference matters for interpreting the results.
+
+PANNs — Pretrained Audio Neural Networks — are CNN-based models trained on AudioSet, a large-scale audio classification benchmark with 527 sound categories. The pipeline is straightforward: raw audio is converted to a log-mel spectrogram, then a stack of CNN blocks extracts hierarchical local patterns across time and frequency. Global pooling collapses that into a fixed-size vector — that is the embedding we use for retrieval.
+
+Capacity scales by adding more CNN blocks and filters. Cnn6, Cnn10, and Cnn14 differ in depth and filter count, giving us that 4.8 to 80.8 million parameter range — a 17× spread within a single training regime.
+
+---
+
+## Slide 14b — Transformer Family: MERT Architecture
+*(~1 min)*
+
+MERT takes a fundamentally different approach. It is self-supervised — trained on 160 thousand hours of music with no human labels. The training objective is masked audio modeling: the model learns to predict masked segments of audio using two teacher signals, one acoustic and one based on musical structure.
+
+The encoder is a Transformer, which means it operates on the full input sequence simultaneously through self-attention, rather than scanning locally like a CNN. This gives it a much longer effective receptive field.
+
+MERT-95M and MERT-330M differ in the number of Transformer layers and attention heads. One important practical note: there is no small MERT checkpoint — the minimum entry point is already 95 million parameters. So unlike PANNs where we have three capacity tiers, MERT gives us only two, and the gap between them is 3.5×.
 
 ---
 

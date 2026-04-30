@@ -116,7 +116,7 @@ style: |
 
 **Keita Katsumi**
 **CS 6960 — Thesis Defence Presentation**
-**4/24/2026**
+**5/1/2026**
 
 ---
 
@@ -125,10 +125,11 @@ style: |
 
 1. **Introduction** — motivation, research questions, contributions
 2. **Related Work** — embeddings, architectures, evaluation pitfalls
-3. **Method** — pipeline, models, proxy tasks, label construction
+3. **Methodology** — pipeline, models, proxy tasks, label construction
 4. **Results** — ranking quality, extraction cost, ROI analysis
-5. **Discussion** — implications, limitations, future work
-6. **Conclusion**
+5. **Discussion** — implications, limitations
+6. **Conclusion** — key takeaways
+7. **Future Work**
 
 ---
 
@@ -147,9 +148,9 @@ style: |
 <!-- Slide 2: Background Story -->
 # Where This Research Comes From
 
-- Our team collaborates with **iPalpiti** — an international classical music archive
+- Our team collaborates with **iPalpiti**, an international classical music archive
 - Building a **listening platform on AWS** for users to discover and stream recordings
-- Classical music domain — minimal user interaction data
+- Classical music domain with minimal user interaction data
 
 <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 12px;">
 <div style="flex-shrink: 0;">
@@ -170,18 +171,22 @@ style: |
 
 <div style="display:flex; justify-content:center;">
 
-![w:580](../diagram/Pictures/Playback.png)
+![w:420](../diagram/Pictures/Playback.png)
 
 </div>
 
-> **Future goal:** add a recommendation panel here — *"You may also like..."*
-> But this requires a recommendation system. Where do we start?
+- Users finish a piece — what plays next?
+- A good RecSys delivers **serendipity**: songs they have never heard but will likely love
+- Neuroscience: the brain's reward response peaks at the *familiar-yet-novel* sweet spot — not random, not repetitive
+
+> **Future goal:** add a recommendation panel in the playback section
 
 ---
 
 <!-- Slide 4: Motivation / Problem -->
 # The Cold-Start Problem in Music RecSys
 
+- That sweet spot depends on **musical similarity** — which the system must compute
 - No user history → no collaborative filtering
 - Classical music archives: rich audio, minimal usage data
 - Candidate generation must rely **entirely** on content
@@ -228,13 +233,13 @@ style: |
 <!-- Slide 8: Introduction — Contributions -->
 # Four Contributions
 
-1. **Cold-start scaling study** — first systematic evaluation of audio encoder capacity for candidate generation where embedding quality alone determines ranking
+1. **Cold-start scaling study:** first systematic evaluation of audio encoder capacity for candidate generation where embedding quality alone determines ranking
 
-2. **Non-monotonic, task-dependent scaling** — structured vs. abstract retrieval respond differently; largest model never wins
+2. **Non-monotonic, task-dependent scaling:** structured vs. abstract retrieval respond differently; largest model never wins
 
-3. **Metric mismatch characterization** — Recall@K / F1@K bounded by K/|R| when |R| is large; NDCG@K recovers genuine differences
+3. **Metric mismatch characterization:** Recall@K / F1@K bounded by K/|R| when |R| is large; NDCG@K recovers genuine differences
 
-4. **Cost–quality trade-off for deployment** — latency scales near-linearly with parameters; mid-capacity encoders Pareto-dominate larger variants
+4. **Cost–quality trade-off for deployment:** latency scales near-linearly with parameters; mid-capacity encoders Pareto-dominate larger variants
 
 ---
 
@@ -266,43 +271,58 @@ style: |
 <!-- Slide 10: Related Work — Architectures -->
 # Related Work: CNN vs. Transformer
 
-- **CNN family (PANNs)** [4] — pretrained on AudioSet; Cnn6/10/14 scale via depth (6→14 layers); 4.8M–80.8M params = **17× spread** within one training regime
-- **Transformer family (MERT)** [5] — self-supervised on 160K hours of music; MERT-95M and MERT-330M = 3.5× increase; **no small checkpoint available**
-- **AST** [6] — attention directly on spectrogram patches, no CNN inductive bias; quadratic attention cost with patch count
+- **CNN family (PANNs)** [4]: pretrained on AudioSet; Cnn6/10/14 scale via depth (6→14 layers); 4.8M–80.8M params = **17× spread** within one training regime
+- **Transformer family (MERT)** [5]: self-supervised on 160K hours of music; MERT-95M and MERT-330M = 3.5× increase; **no small checkpoint available**
+- **AST** [6]: attention directly on spectrogram patches, no CNN inductive bias; quadratic attention cost with patch count
 - Hybrid models exist but are outside scope
 
 <br/>
 
-- Prior scaling studies [7]: classification accuracy on AudioSet / ESC-50 — **not retrieval in a constrained domain**
+- Prior scaling studies [7]: classification accuracy on AudioSet / ESC-50, **not retrieval in a constrained domain**
 - **Gap:** translating those conclusions to archival candidate generation is unreliable
 
 ---
 
-<!-- Section: Method -->
+<!-- Section: Methodology -->
 <!-- _backgroundColor: #1a4d2e -->
 <!-- _color: #ffffff -->
 
 <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
 <div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 3</div>
-<div style="font-size:72px; font-weight:bold; margin-top:16px;">Method</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Methodology</div>
 <div style="color:#c9a84c; margin-top:20px; font-size:28px;">Pipeline · Models · Proxy Tasks · Label Construction</div>
 </div>
 
 ---
 
-<!-- Slide 12: Method — Pipeline Overview -->
+<!-- Slide 12: Methodology — Pipeline Overview -->
 # Evaluation Pipeline Overview
 
 ![Pipeline diagram](../diagram/pipeline/Thesis-defence-pipeline.jpg)
 
 - **Dataset:** 203 tracks, 24.9 hours (iPalpiti classical music archive)
-- **Segmentation:** 30-second chunks → mean-pool → single track-level embedding
-- **Ranking:** cosine similarity — no personalization, no collaborative signal, no re-ranking
+- **Preprocessing:** 30-sec segmentation + mean-pooling (next slide)
+- **Ranking:** cosine similarity with no personalization, no collaborative signal, no re-ranking
 - Only the embedding model changes across experiments
 
 ---
 
-<!-- Slide 13: Method — Problem Formulation (3.1 in paper) -->
+<!-- Slide 12b: Methodology — Audio Preprocessing -->
+# Audio Preprocessing: Track-Level Embedding
+
+<div style="display:flex; justify-content:center;">
+
+![w:820](../diagram/pipeline/Embeddig-preprocess.jpg)
+
+</div>
+
+- 30-second window is standard in MIR; keeps input length uniform across all five models
+- Mean-pooling is model-agnostic — the same aggregation is applied to every model, keeping comparisons fair
+- Trade-off: temporal structure within a recording is not preserved (addressed in Limitations)
+
+---
+
+<!-- Slide 13: Methodology — Problem Formulation (3.1 in paper) -->
 # Formal Problem Setup
 
 - Catalog $D = \{x_1, \ldots, x_N\}$, $N = 203$ tracks
@@ -317,7 +337,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 ---
 
-<!-- Slide 15: Method — Model Setup (3.3 in paper) -->
+<!-- Slide 15: Methodology — Model Setup (3.3 in paper) -->
 # Models Evaluated
 
 <div class="center-table">
@@ -337,26 +357,78 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 ---
 
-<!-- Slide 16: Method — Proxy Tasks (3.1 in paper) -->
+<!-- Slide 15a: Methodology — PANNs Architecture -->
+# CNN Family: PANNs Architecture
+
+<div style="display:flex; align-items:center; gap:32px;">
+<div style="flex-shrink:0;">
+
+![h:550](../diagram/archtecture/PANN-diagram.jpg)
+
+</div>
+<div>
+
+- Pretrained on **AudioSet** (527-class audio classification)
+- Converts audio → **log-mel spectrogram**, then applies CNN blocks
+- Capacity scales via **depth**: Cnn6 → Cnn10 → Cnn14 (4.8M to 80.8M params)
+- Global pooling collapses time-frequency map → fixed-size embedding
+- Strong local pattern detector; inductive bias toward spectral features
+
+</div>
+</div>
+
+---
+
+<!-- Slide 15b: Methodology — MERT Architecture -->
+# Transformer Family: MERT Architecture
+
+<div style="display:flex; justify-content:center;">
+
+![w:650](../diagram/archtecture/MERT-diagram.png)
+
+</div>
+
+- Self-supervised pretraining on **160K hours of music** (no labels)
+- Uses **masked audio modeling**: predicts masked tokens via acoustic + musical teachers
+- 1D convolution feature extractor feeds a **Transformer encoder** (attention over full sequence)
+
+---
+
+<!-- Slide 16: Methodology — Proxy Tasks (3.1 in paper) -->
 # Two Proxy Retrieval Tasks
 
 - No ground-truth human judgments → use metadata as relevance signal
 
-**Task 1 — Sanity Proxy (Structured)**
+**Task 1: Sanity Proxy (Structured)**
 - Relevant = same composer
 - Clean categorical labels from editorial metadata
 
 <br>
 
-**Task 2 — Musical Character Proxy (Abstract)**
+**Task 2: Musical Character Proxy (Abstract)**
 - Relevant = share ≥1 affective label (Energetic, Calm, Tense, Lyrical)
 - Labels generated via Music2Emo [11]
-- Broader relevance distribution — many items share at least one label
+- Broader relevance distribution; many items share at least one label
 - → Requires pseudo-label construction
 
 ---
 
-<!-- Slide 17: Method — Label Construction (3.4 in paper) -->
+<!-- Slide 16b: Methodology — Pseudo-Label Pipeline -->
+# How Pseudo-Labels Are Generated
+
+<div style="display:flex; justify-content:center;">
+
+![w:820](../diagram/pipeline/Pseudo-tag-preprocess.jpg)
+
+</div>
+
+- **Music2Emo** is treated as a blackbox — internals not evaluated, outputs taken as given
+- VA scores normalized to [0, 1]; tags assigned by **dataset-relative percentile thresholds**
+- **Labels fixed before any embedding model runs** → no model-dependent bias
+
+---
+
+<!-- Slide 17: Methodology — Label Construction (3.4 in paper) -->
 # How Character Labels Were Built
 
 <div style="font-size:22px;">
@@ -393,7 +465,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 ---
 
-<!-- Slide 18: Method — Evaluation Protocol (3.5 in paper) -->
+<!-- Slide 18: Methodology — Evaluation Protocol (3.5 in paper) -->
 # Evaluation Protocol
 
 - **Leave-one-out:** each of the 203 tracks serves as a query; excluded from candidate pool
@@ -443,8 +515,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 </div>
 
 - CNN: NDCG@5 dips Small → Medium, recovers at Large (**non-monotonic**)
-- Transformer-Large **underperforms** Medium — more parameters → worse structured ranking
-- CNN-Small (4.8M) is only 0.04 NDCG behind Transformer-Large (330M) — at **~70× fewer parameters**
+- Transformer-Large **underperforms** Medium: more parameters → worse structured ranking
+- CNN-Small (4.8M) is only 0.04 NDCG behind Transformer-Large (330M) at **~70× fewer parameters**
 
 ---
 
@@ -463,7 +535,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 </div>
 
-- NDCG@5 spread across all models: **< 0.025** — negligible
+- NDCG@5 spread across all models: **< 0.025** (negligible)
 - Hit@5 is high (≥ 0.749), yet Recall@5 is uniformly low (≤ 0.039)
 
 ---
@@ -472,8 +544,8 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 # Why Is Recall@5 So Low? (Metric Mismatch)
 
 - Character proxy: many items share ≥1 label → **large relevant set per query**
-- At K=5, Recall@5 can only capture a tiny fraction of relevant items — structurally suppressed
-- Hit@5 ≥ 0.749 — models **are** ranking relevant items near the top
+- At K=5, Recall@5 can only capture a tiny fraction of relevant items; it is structurally suppressed
+- Hit@5 ≥ 0.749: models **are** ranking relevant items near the top
 
 <br/>
 
@@ -516,26 +588,26 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
 <div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 5</div>
 <div style="font-size:72px; font-weight:bold; margin-top:16px;">Discussion</div>
-<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Implications · Limitations · Future Work</div>
+<div style="color:#c9a84c; margin-top:20px; font-size:28px;">Implications · Limitations</div>
 </div>
 
 ---
 
-<!-- Slide 25: Discussion — Main Finding -->
-# Discussion: RQ1 & Hypothesis
+<!-- Slide 25: Discussion — RQ Answers & Hypothesis -->
+# Research Questions: Answered
 
-**RQ1 — Capacity effects are non-monotonic and task-dependent**
-- Structured task (composer): measurable but inconsistent variation across tiers
-- Abstract task (character): negligible effect — all models within 0.025 NDCG
+**RQ1: Does capacity consistently improve ranking?**
+→ No. Non-monotonic and task-dependent: composer task varies across tiers; character task flat (Δ < 0.025 NDCG)
+
+**RQ2: Does metric choice affect capacity-scaling conclusions?**
+→ Yes. Recall@5 / F1@5 bounded by $K/|R|$ when the relevant set is dense, structurally suppressed regardless of ranking quality; NDCG@5 is the reliable signal
+
+**RQ3: At what capacity does marginal quality fall below marginal cost?**
+→ At or before Transformer-Medium: largest model in each family fails to achieve best ranking yet pays full latency cost (up to 25×)
 
 <br/>
 
-**Hypothesis supported:** largest model in each family fails to achieve the best ranking on either task; 25× latency penalty is not offset by ranking gain
-
-<br/>
-
-- Consistent with [3]: MIR benchmark accuracy ≠ retrieval quality in RecSys
-- Stylistic homogeneity compresses embedding space → less room for capacity to help
+> **Hypothesis supported:** capacity scaling is non-monotonic; the extraction overhead is not justified by ranking gains, consistent with [3]
 
 ---
 
@@ -557,20 +629,10 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 27: Limitations -->
 # Limitations
 
-1. **Small dataset (N=203):** intentional — a controlled stress test; if scaling fails here, it likely fails in larger archives too
+1. **Small dataset (N=203):** intentional controlled stress test; if scaling fails here, it likely fails in larger archives too
 2. **No user modeling:** candidate generation stage isolated; downstream re-ranking not evaluated
-3. **Pseudo-labels for character task:** generated by pretrained model (Music2Emo); may carry systemic bias — but fixed across all embeddings, so relative comparisons hold
+3. **Pseudo-labels for character task:** generated by pretrained model (Music2Emo); may carry systemic bias, but fixed across all embeddings so relative comparisons hold
 4. **Mean-pooling:** may dilute fine-grained temporal information in long-form recordings
-
----
-
-<!-- Slide 28: Future Work -->
-# Future Work
-
-- **Scale up:** test in larger, heterogeneous catalogs — does the non-monotonic pattern persist?
-- **Richer labels:** expert annotations or listener-derived similarity to improve abstract task sensitivity
-- **Sequence-aware aggregation:** beyond mean-pooling for long-form classical audio
-- **End-to-end evaluation:** connect candidate generation to downstream re-ranking — do these NDCG differences matter at the system level?
 
 ---
 
@@ -601,7 +663,28 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 ---
 
-<!-- Slide 30: References -->
+<!-- Section: Future Work -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
+
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="color:#c9a84c; font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">Section 7</div>
+<div style="font-size:72px; font-weight:bold; margin-top:16px;">Future Work</div>
+</div>
+
+---
+
+<!-- Slide 30: Future Work -->
+# Future Work
+
+- **Scale up:** test in larger, heterogeneous catalogs to see if the non-monotonic pattern persists
+- **Richer labels:** expert annotations or listener-derived similarity to improve abstract task sensitivity
+- **Sequence-aware aggregation:** beyond mean-pooling for long-form classical audio
+- **End-to-end evaluation:** connect candidate generation to downstream re-ranking to assess whether these NDCG differences matter at the system level
+
+---
+
+<!-- Slide 31: References -->
 # References
 
 <div style="font-size: 20px;">
@@ -622,10 +705,12 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 ---
 
-<!-- Slide 31: Q&A / Thank You -->
-# Thank You
+<!-- Slide 33: Q&A -->
+<!-- _backgroundColor: #1a4d2e -->
+<!-- _color: #ffffff -->
 
-**Keita Katsumi**
-**CS 6960 — Thesis Defence**
-**4/24/2026**
+<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height:80%;">
+<div style="font-size:120px; font-weight:bold;">Q&A</div>
+<div style="color:#c9a84c; margin-top:24px; font-size:26px;">Keita Katsumi · CS 6960 Thesis Defence · 5/1/2026</div>
+</div>
 

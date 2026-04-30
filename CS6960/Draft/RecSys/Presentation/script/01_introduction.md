@@ -1,19 +1,30 @@
 # Section 1 — Introduction Script
 **Target time: ~6 minutes**
-*Slides 1–3 are improvised (narrative bridge from real-world project to research). Script begins at Slide 4.*
+*Slides 1–2 are improvised (narrative bridge from real-world project to research). Script begins at Slide 3.*
+
+---
+
+## Slide 3 — The Real-World Constraint
+*(~1 min)*
+
+So imagine a user finishes listening to a Beethoven piano sonata on iPalpiti. What should play next?
+
+This is actually the core value a recommendation system delivers — what Spotify calls serendipity. Not just playing something the user already knows, but surfacing a piece they have never heard before yet will almost certainly love. That moment of discovery is why recommendation systems matter.
+
+And there's neuroscience behind this. Research on music and the brain shows that dopamine release — the reward response — peaks not at the familiar and not at the random, but at the sweet spot in between: something that feels connected to what you just heard, but still surprises you. That's the target. That's what we're trying to engineer.
+
+To hit that sweet spot, the system needs to know what is musically similar to what the user just heard. And that is exactly where our problem starts.
 
 ---
 
 ## Slide 4 — The Cold-Start Problem in Music RecSys
 *(~1.5 min)*
 
-So, when we talk about building a recommendation system for iPalpiti, the very first obstacle we run into is what's called the cold-start problem.
-
-There is no user history. No listening logs, no ratings, no "people who liked this also liked that." Collaborative filtering, which powers most modern recommendation systems, simply has nothing to work with.
+Computing musical similarity requires user data in most systems. Collaborative filtering says: people who listened to this also listened to that. But for iPalpiti, there is no user history. No listening logs, no ratings, no behavioral signal of any kind.
 
 What we do have is the audio itself — over 200 tracks, each one a rich, full recording. And that means candidate generation has to rely entirely on content. We extract an embedding from each track, and the system ranks everything by similarity to that embedding.
 
-The implication is stark: embedding quality equals ranking quality. There is no fallback. If the embedding doesn't capture musical similarity well, the whole recommendation pipeline fails.
+The implication is stark: embedding quality equals ranking quality. There is no fallback. If the embedding doesn't capture musical similarity well, the whole recommendation pipeline fails — and that serendipitous discovery moment never happens.
 
 ---
 
