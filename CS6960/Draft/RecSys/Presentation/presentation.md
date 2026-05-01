@@ -27,11 +27,12 @@ style: |
     background: linear-gradient(to right, #1a4d2e 70%, #c9a84c 100%);
   }
 
-  /* Page number */
+  /* Page number as "X / 39" */
   section::after {
     color: #1a4d2e;
     font-size: 15px;
     font-weight: bold;
+    content: attr(data-marpit-pagination) " / " attr(data-marpit-pagination-total);
   }
 
   h1 {
@@ -255,6 +256,46 @@ style: |
 
 ---
 
+<!-- Slide 8b: Related Work — RecSys Approaches -->
+# Three Approaches to Music Recommendation
+
+<div style="display:flex; gap:20px; margin-top:8px; font-size:21px;">
+
+<div style="flex:1; border:2px solid #aaaaaa; border-radius:10px; padding:16px; background:#f5f5f5;">
+<div style="font-weight:bold; font-size:20px; color:#555555; margin-bottom:8px;">Collaborative Filtering</div>
+
+- Uses **user–item interaction** history (plays, likes, skips)
+- "Users like you also liked…"
+- Fails with **no interaction data** (cold-start)
+
+</div>
+
+<div style="flex:1; border:2px solid #1a4d2e; border-radius:10px; padding:16px; background:#f0f7f3;">
+<div style="font-weight:bold; font-size:20px; color:#1a4d2e; margin-bottom:8px;">Content-Based — Our Approach</div>
+
+- Uses **audio signal itself** — no user history needed
+- Embed audio → retrieve similar tracks by embedding distance
+- Works under **strict cold-start** (new catalogue, no listeners)
+
+</div>
+
+<div style="flex:1; border:2px solid #aaaaaa; border-radius:10px; padding:16px; background:#f5f5f5;">
+<div style="font-weight:bold; font-size:20px; color:#555555; margin-bottom:8px;">Context-Based</div>
+
+- Uses **situational signals** (time, location, mood input)
+- "Music for studying at night…"
+- Requires external context — unavailable in cold-start
+
+</div>
+
+</div>
+
+<div style="margin-top:18px; font-size:20px; color:#1a4d2e; font-weight:bold;">
+→ Cold-start constraint forces content-based: the audio embedding is the only available signal.
+</div>
+
+---
+
 <!-- Slide 9: Related Work — Content-Based RecSys -->
 # Related Work: Why Embeddings Matter Here
 
@@ -360,18 +401,25 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <!-- Slide 15a: Methodology — PANNs Architecture -->
 # CNN Family: PANNs Architecture
 
-<div style="display:flex; align-items:center; gap:32px;">
-<div style="flex-shrink:0;">
+<div style="display:flex; align-items:center; gap:24px;">
+<div style="flex-shrink:0; text-align:center;">
 
-![h:550](../diagram/archtecture/PANN-diagram.jpg)
+**Full PANNs (paper)**
+![h:460](../diagram/archtecture/PANN-diagram-paper.png)
+
+</div>
+<div style="flex-shrink:0; text-align:center;">
+
+**What we use**
+![h:460](../diagram/archtecture/PANN-diagram.jpg)
 
 </div>
 <div>
 
 - Pretrained on **AudioSet** (527-class audio classification)
-- Converts audio → **log-mel spectrogram**, then applies CNN blocks
+- Paper uses **dual inputs**: raw waveform + log-mel spectrogram (concatenated)
+- We use the **log-mel only** path → CNN blocks → global pooling → embedding
 - Capacity scales via **depth**: Cnn6 → Cnn10 → Cnn14 (4.8M to 80.8M params)
-- Global pooling collapses time-frequency map → fixed-size embedding
 - Strong local pattern detector; inductive bias toward spectral features
 
 </div>
@@ -422,7 +470,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 
 </div>
 
-- **Music2Emo** is treated as a blackbox — internals not evaluated, outputs taken as given
+- **Music2Emo** computes **valence + arousal scores** per track → mapped to emotion tags via percentile thresholds; emotion and musicality overlap, so these tags serve as proxies for musical character
 - VA scores normalized to [0, 1]; tags assigned by **dataset-relative percentile thresholds**
 - **Labels fixed before any embedding model runs** → no model-dependent bias
 
@@ -496,6 +544,20 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 <div style="font-size:72px; font-weight:bold; margin-top:16px;">Results</div>
 <div style="color:#c9a84c; margin-top:20px; font-size:28px;">Ranking Quality · Extraction Cost · ROI Analysis</div>
 </div>
+
+---
+
+<!-- Slide 18b: Results — Baseline Definition -->
+# Reading the Results: Baseline
+
+- **CNN-Small (Cnn6, 4.8M params)** is our baseline
+- Smallest model, lowest extraction cost → the floor every other model must beat to justify its added cost
+- All comparisons ask: **does more capacity or a different architecture earn its keep?**
+
+| | CNN-Small | CNN-Medium | CNN-Large | Transformer-Med | Transformer-Large |
+|---|---|---|---|---|---|
+| Params | 4.8M | 5.2M | 80.8M | 86M | 330M |
+| Role | **Baseline** | +capacity | +capacity | cross-family | cross-family |
 
 ---
 
@@ -597,17 +659,17 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 # Research Questions: Answered
 
 **RQ1: Does capacity consistently improve ranking?**
-→ No. Non-monotonic and task-dependent: composer task varies across tiers; character task flat (Δ < 0.025 NDCG)
+→ No. Scaling is non-monotonic and depends on the task.
 
-**RQ2: Does metric choice affect capacity-scaling conclusions?**
-→ Yes. Recall@5 / F1@5 bounded by $K/|R|$ when the relevant set is dense, structurally suppressed regardless of ranking quality; NDCG@5 is the reliable signal
+**RQ2: Does metric choice change the conclusion?**
+→ Yes. NDCG avoids this by rewarding rank position, not just count.
 
-**RQ3: At what capacity does marginal quality fall below marginal cost?**
-→ At or before Transformer-Medium: largest model in each family fails to achieve best ranking yet pays full latency cost (up to 25×)
+**RQ3: When does added cost stop being worth it?**
+→ In proxy task 1 at Transformer-Medium. Beyond that, cost jumps up to 25× with no ranking gain, while proxy task 2 is about the same metrics result.
 
 <br/>
 
-> **Hypothesis supported:** capacity scaling is non-monotonic; the extraction overhead is not justified by ranking gains, consistent with [3]
+> **Hypothesis supported:** bigger is not better — and the overhead is not justified.
 
 ---
 
@@ -655,6 +717,7 @@ $$s(z_q, z_i) = \frac{z_q \cdot z_i}{\|z_q\|\|z_i\|}$$
 - **Capacity scaling is non-monotonic and task-dependent**
 - No model achieves consistently best ranking across both tasks
 - Transformer-Large: **25× extraction overhead, no ranking gain**
+- This work has been submitted to **ACM RecSys 2026**
 
 <br/>
 
