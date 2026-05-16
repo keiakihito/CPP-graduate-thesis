@@ -244,6 +244,26 @@ For Transformer-based models, capacity is defined by pretrained parameter scale:
 
 Parameter counts are not aligned across families; cross-family comparisons are therefore descriptive. Within each family, parameter count provides the capacity dimension under study.
 
+\subsubsection{Model Architectures}
+
+Figure~\ref{fig:pann_arch} illustrates the PANNs CNN architecture. Raw audio waveforms are converted to log-mel spectrograms, which are then passed through a stack of convolutional blocks (Conv + BN + ReLU), each followed by pooling and downsampling. Capacity scaling across Cnn6, Cnn10, and Cnn14 is achieved by increasing the number of these convolutional blocks ($N$), producing hierarchical feature representations at progressively greater depth. A global pooling layer aggregates the spatial feature map into a fixed-size vector, which a fully connected layer projects into the final audio embedding used for retrieval.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.55\textwidth, keepaspectratio]{diagram/archtecture/PANN-diagram.jpg}
+  \caption{Simplified PANNs (CNN) architecture. Capacity scaling across Cnn6, Cnn10, and Cnn14 is achieved by increasing the number of convolutional blocks $N$, while the input preprocessing and output embedding stages remain structurally identical across tiers.}
+  \label{fig:pann_arch}
+\end{figure}
+
+Figure~\ref{fig:mert_arch} illustrates the MERT pre-training framework. Raw audio is first processed by a 1D convolutional feature extractor, producing a sequence of frame-level representations. These are fed into a Transformer encoder under a masked prediction objective: a subset of frames is masked, and the model learns to predict their representations as produced by two teacher networks---an acoustic teacher (based on EnCodec VQ codes) and a musical teacher (based on CQT features). This self-supervised pre-training regime on 160,000 hours of music data is what gives MERT its music-specific representations. Capacity scaling from MERT-95M to MERT-330M increases the depth and width of the Transformer encoder.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth, keepaspectratio]{diagram/archtecture/MERT-diagram.png}
+  \caption{MERT pre-training framework \cite{li2023mert}. The Transformer encoder is trained via masked audio modeling supervised by acoustic (EnCodec VQ) and musical (CQT) teacher networks. Capacity scaling from MERT-95M to MERT-330M increases the depth and width of the encoder.}
+  \label{fig:mert_arch}
+\end{figure}
+
 \subsection{Label Construction}
 
 \textbf{Composer labels.} Composer names are normalized to a canonical form using Unicode decomposition and a hand-curated alias table, ensuring consistent matching across variant spellings and abbreviations. The normalized field is stored as a stable evaluation key, separate from the raw metadata string.
